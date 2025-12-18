@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Act II Review - Accounting Origins</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // ============================================
+    // ICON COMPONENTS (replacing lucide-react)
+    // ============================================
+    const ChevronRight = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    );
+
+    const BookOpen = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    );
+
+    const RefreshCw = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+    );
+
+    const X = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    );
+
+    const Lightbulb = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+    );
+
+    const CheckCircle = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+
+    const AlertCircle = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+
+    const AlertTriangle = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    );
+
+    const Trophy = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+      </svg>
+    );
+
+    const HelpCircle = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+
+    const Scroll = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    );
+
+    const MapPin = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    );
+
+    // ============================================
+    // SOUND FEEDBACK UTILITIES
+    // ============================================
+    const createAudioContext = () => {
+      return new (window.AudioContext || window.webkitAudioContext)();
+    };
+
+    const playSuccessTone = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [523.25, 659.25, 783.99];
+        const startTime = ctx.currentTime;
+
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+
+          const noteStart = startTime + (i * 0.1);
+          const noteEnd = noteStart + 0.15;
+
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.3, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.1);
+        });
+
+        setTimeout(() => ctx.close(), 600);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playSoftNope = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [400, 300];
+        const startTime = ctx.currentTime;
+
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+
+          const noteStart = startTime + (i * 0.12);
+          const noteEnd = noteStart + 0.12;
+
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.2, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.05);
+        });
+
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playBuzzer = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.value = 150;
+        oscillator.type = 'sawtooth';
+
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0.25, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.35);
+
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playContinueClick = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.value = 600;
+        oscillator.type = 'sine';
+
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.1);
+
+        setTimeout(() => ctx.close(), 150);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    // ============================================
+    // COLOR PALETTE
+    // ============================================
+    const colors = {
+      primary: '#00356b',
+      sand: '#f5f1e8',
+      earth: '#8b7355',
+      earthLight: '#d4c4a8',
+      earthDark: '#5c4d3d',
+      accent: '#c9a227',
+      clay: '#c4a574',
+      clayLight: '#e8dcc8',
+      clayDark: '#a08050',
+      success: '#22c55e',
+      successBg: '#f0fdf4',
+      warning: '#f59e0b',
+      warningBg: '#fffbeb',
+      error: '#dc2626',
+      errorBg: '#fef2f2'
+    };
+
+    // ============================================
+    // GLOSSARY DATA
+    // ============================================
+    const glossaryTerms = [
+      { term: 'Record', definition: 'Marks on clay (or other medium) that represent what happened — information about reality that can be right or wrong' },
+      { term: 'Verification', definition: 'Comparing a record to physical reality (or to other records) to check for accuracy' },
+      { term: 'Internal Consistency', definition: 'When a record\'s own entries add up correctly' },
+      { term: 'External Consistency', definition: 'When separate records agree with each other' },
+      { term: 'Double-Entry', definition: 'A system where every transaction is recorded in two places that must agree. The coordinated record-keeping developed in Babylon contains the essential insight; the formal method called "double-entry bookkeeping" will evolve from these origins centuries later.' },
+      { term: 'Central Record Hall', definition: 'A location where all departments\' records are housed together, enabling reconciliation' },
+      { term: 'Discipline of Balance', definition: 'The choice to refuse unexplained adjustments — demanding that every change be recorded as a named transaction' },
+      { term: 'Losses Account', definition: 'A record that captures resources that disappeared through unobserved flows' },
+      { term: 'Worth in Consumption', definition: 'The direct usefulness of a good — what it does for you (bread from barley, warmth from wool). This worth is in the thing itself.' },
+      { term: 'Worth in Command', definition: 'What a good can obtain in exchange — its purchasing power in trade. This worth lives between the thing and everything else, and it shifts.' },
+      { term: 'Common Measure', definition: 'A good used to express all values in the same terms, allowing comparison across different goods (also called a numeraire)' }
+    ];
+
+    // ============================================
+    // QUESTION DATA
+    // ============================================
+    const questions = [
+      // Section 1: The Record-Keeping Problem
+      {
+        id: 'q1_records',
+        section: 'The Record-Keeping Problem',
+        sectionNum: 1,
+        narrative: 'Throughout Act II, you worked with tablets — marks on clay that captured what happened in the world. These records could be consulted days, months, or years later by people who were never present.',
+        question: 'What problem do records solve that memory alone cannot?',
+        hints: [
+          'Think about what happens to information over time without records.',
+          'Consider who might need to know what happened — were they all present?',
+          'Records allow information to travel — through time and across people.'
+        ],
+        passKeywords: ['persist', 'time', 'later', 'absent', 'weren\'t there', 'not present', 'travel', 'share', 'verify', 'check', 'compare', 'permanent', 'last', 'future', 'remember'],
+        flagPhrases: ['more accurate', 'better memory', 'don\'t forget'],
+        passExplanation: 'Records persist beyond the moment. They can be verified, compared, and consulted by people who weren\'t present. Information travels through time and across organizational boundaries.',
+        flagExplanation: 'Records aren\'t necessarily more accurate than memory — they can contain errors too. The key insight is that records persist and can be shared with people who weren\'t there.',
+        concept: 'Why records exist',
+        tutorial: '2.1'
+      },
+      {
+        id: 'q2_consistency',
+        section: 'The Record-Keeping Problem',
+        sectionNum: 1,
+        narrative: 'You\'ve seen records that balance perfectly — every column sums correctly, every entry accounted for. Yet when compared to records kept elsewhere, they disagree.',
+        question: 'How is it possible for a record to be internally consistent yet still contain an error?',
+        hints: [
+          'A tablet can add up correctly and still be wrong about what happened.',
+          'Think about what happens when two organizations each keep their own records of the same transaction.',
+          'The key distinction is between agreeing with yourself versus agreeing with others.'
+        ],
+        passKeywords: ['internal', 'external', 'other', 'disagree', 'separate', 'different', 'elsewhere', 'boundary', 'organization', 'department', 'compare', 'match', 'agree'],
+        flagPhrases: ['made a mistake', 'wrong calculation', 'bad at math'],
+        passExplanation: 'Internal consistency means your own numbers add up. External consistency means your records agree with related records kept elsewhere. A tablet can be perfectly balanced internally yet disagree with what others recorded about the same events.',
+        flagExplanation: 'This isn\'t about calculation mistakes — the math can be perfect. The issue is that separate records, each internally correct, can disagree about what actually happened.',
+        concept: 'Internal vs external consistency',
+        tutorial: '2.2'
+      },
+      {
+        id: 'q3_hiding',
+        section: 'The Record-Keeping Problem',
+        sectionNum: 1,
+        narrative: 'When records are kept in separate locations by different people, discrepancies can persist for a long time before anyone notices.',
+        question: 'Why do errors hide when records are kept in isolation?',
+        hints: [
+          'Consider when isolated records are finally compared to each other.',
+          'If two scribes work in different buildings, when would their records ever meet?',
+          'Without systematic comparison, what happens to disagreements?'
+        ],
+        passKeywords: ['separate', 'isolat', 'never compare', 'no check', 'don\'t meet', 'different', 'apart', 'not compared', 'late', 'morning', 'report', 'too late', 'boundary'],
+        flagPhrases: [],
+        passExplanation: 'When records are kept separately, there\'s no automatic check. Discrepancies only surface when someone deliberately compares them — often too late to determine what actually happened.',
+        flagExplanation: 'The isolation itself is the problem. Without bringing records together for comparison, errors at the boundaries between organizations remain invisible.',
+        concept: 'Why errors hide in isolation',
+        tutorial: '2.3'
+      },
+      // Section 2: The Coordinated Solution
+      {
+        id: 'q4_coordinated',
+        section: 'The Coordinated Solution',
+        sectionNum: 2,
+        narrative: 'You proposed a system where records from different departments are housed together and compared before reports are finalized. Every outflow recorded by one department must appear as an inflow on another\'s records.',
+        question: 'What does this coordinated system catch that separate record-keeping cannot?',
+        hints: [
+          'Think about what happens when outflows and inflows are compared side by side.',
+          'If what leaves one tablet doesn\'t match what arrives on another, what does that reveal?',
+          'The key is detecting problems at the boundaries between organizations.'
+        ],
+        passKeywords: ['boundary', 'between', 'disagree', 'mismatch', 'catch', 'detect', 'find', 'visible', 'discrepancy', 'error', 'inflow', 'outflow', 'match', 'agree', 'reconcil'],
+        flagPhrases: ['prevent', 'stop mistakes', 'no errors'],
+        passExplanation: 'The coordinated system catches errors at the boundaries between organizations. When one department\'s outflow must match another\'s inflow, discrepancies become visible immediately rather than hiding until later.',
+        flagExplanation: 'The system doesn\'t prevent errors from happening — scribes still make mistakes. What it does is make errors visible, because discrepancies between related records now become apparent.',
+        concept: 'What coordinated records catch',
+        tutorial: '2.4'
+      },
+      {
+        id: 'q5_discipline',
+        section: 'The Coordinated Solution',
+        sectionNum: 2,
+        narrative: 'Sometimes physical counts don\'t match the records. Grain disappears — to rats, to spillage, to causes unknown. One approach is to simply adjust the record to match reality.',
+        question: 'Why might you refuse to make such adjustments? What is lost when you simply change the numbers?',
+        hints: [
+          'Think about what an unexplained adjustment erases.',
+          'If grain keeps disappearing and you just adjust the count each time, what pattern might you miss?',
+          'Consider the difference between "making the numbers match" and "explaining what happened."'
+        ],
+        passKeywords: ['information', 'pattern', 'explain', 'mystery', 'track', 'data', 'record', 'name', 'transaction', 'understand', 'know', 'learn', 'discover', 'reveal', 'cause', 'reason', 'hide', 'erase', 'lost'],
+        flagPhrases: ['dishonest', 'lying', 'cheating', 'wrong to change'],
+        passExplanation: 'Adjusting erases information. The discipline of balance — refusing unexplained adjustments and recording every change as a named transaction — transforms mysteries into trackable data. Patterns that would otherwise remain hidden become visible.',
+        flagExplanation: 'This isn\'t primarily about honesty — it\'s about information. When you simply adjust numbers, you lose the data that could reveal patterns: where losses occur, when, how often. That information has value.',
+        concept: 'The discipline of balance',
+        tutorial: '2.5'
+      },
+      // Section 3: The Deeper Pattern
+      {
+        id: 'q6_worth',
+        section: 'The Deeper Pattern',
+        sectionNum: 3,
+        narrative: 'A worker receives the same quantity of grain each month. The records are perfect — every delivery documented, every balance verified. Yet the worker complains of being poorer than before.',
+        question: 'What could explain this? What does a perfect record of quantity fail to capture?',
+        hints: [
+          'The amount of grain is the same. What else might have changed?',
+          'Think about what that grain can obtain when traded for other goods.',
+          'There are two ways something can be "worth" something to you.'
+        ],
+        passKeywords: ['price', 'exchange', 'trade', 'buy', 'purchase', 'command', 'worth', 'value', 'afford', 'power', 'relation', 'market', 'cost', 'expensive', 'cheap'],
+        flagPhrases: ['ungrateful', 'complaining', 'lying'],
+        passExplanation: 'The records track quantity perfectly, but quantity isn\'t the whole story. The worker receives the same grain, but what that grain can command in exchange — its purchasing power — may have changed. Worth in consumption (what grain does for you) differs from worth in command (what grain can fetch in trade).',
+        flagExplanation: 'The worker isn\'t being unreasonable. The same quantity of grain can represent different amounts of actual purchasing power depending on what it can be exchanged for.',
+        concept: 'Two kinds of worth',
+        tutorial: '2.6'
+      },
+      {
+        id: 'q7_unsolved',
+        section: 'The Deeper Pattern',
+        sectionNum: 3,
+        narrative: 'The record-keeping system you helped build tracks physical quantities flawlessly. Yet there remains a kind of worth it cannot capture — worth that exists not in things themselves, but in their relations to other things.',
+        question: 'What question does this leave unanswered? What would we need to track worth that shifts with exchange?',
+        hints: [
+          'Worth in command is relational — it depends on what others will give you.',
+          'To record shifting worth, you would need something stable to measure it against.',
+          'Recall from Act I: comparing different goods requires a common...'
+        ],
+        passKeywords: ['measure', 'common', 'stable', 'standard', 'unit', 'numeraire', 'compare', 'relation', 'exchange', 'shift', 'change', 'constant', 'reference', 'record worth', 'track value'],
+        flagPhrases: [],
+        passExplanation: 'To track worth that shifts, you would need a stable common measure — something whose own worth doesn\'t fluctuate with every harvest or season. The discipline of balance could apply to worth, not just quantity, but only if there were something constant to put in the tablets.',
+        flagExplanation: 'The challenge is that worth in command is relational and shifting. Without a stable reference point, there\'s nothing constant to record.',
+        concept: 'The unanswered question',
+        tutorial: '2.6'
+      },
+      {
+        id: 'q8_synthesis',
+        section: 'The Deeper Pattern',
+        sectionNum: 3,
+        narrative: 'You\'ve built a remarkable system: records that persist through time, coordinated across organizations, disciplined to capture every flow and explain every change.',
+        question: 'What does a well-designed record-keeping system give us? In your own words, what is the purpose of everything we built in Babylon?',
+        hints: [
+          'Think about what was possible with these records that wasn\'t possible before.',
+          'Consider: verification, coordination, explanation, patterns...',
+          'Information that would otherwise be lost or hidden becomes...'
+        ],
+        passKeywords: ['information', 'verify', 'check', 'catch', 'error', 'pattern', 'persist', 'time', 'coordinate', 'agree', 'explain', 'track', 'visible', 'trust', 'accountab'],
+        flagPhrases: [],
+        passExplanation: 'A well-designed system transforms scattered, perishable knowledge into information that persists through time, can be verified against reality, catches errors at organizational boundaries, and transforms mysteries into trackable data. It creates accountability where none existed.',
+        flagExplanation: 'The system serves many purposes: persistence, verification, coordination, explanation. Together, they create a foundation for trust and accountability across time and organizations.',
+        concept: 'Synthesis',
+        tutorial: 'Act II overall'
+      }
+    ];
+
+    // ============================================
+    // HELPER COMPONENTS
+    // ============================================
+
+    const NarrativeBlock = ({ children }) => (
+      <div
+        className="p-4 rounded-lg mb-4 border-l-4"
+        style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+      >
+        <p className="italic" style={{ color: colors.earthDark }}>{children}</p>
+      </div>
+    );
+
+    const InsightPanel = ({ title, children }) => (
+      <div
+        className="p-4 rounded-lg border-2 mb-4"
+        style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+      >
+        <div className="flex items-start gap-2">
+          <Lightbulb className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+          <div>
+            {title && <p className="font-bold mb-2" style={{ color: colors.success }}>{title}</p>}
+            <div style={{ color: '#166534' }}>{children}</div>
+          </div>
+        </div>
+      </div>
+    );
+
+    const WarningPanel = ({ title, children }) => (
+      <div
+        className="p-4 rounded-lg border-2 mb-4"
+        style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}
+      >
+        <div className="flex items-start gap-2">
+          <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.warning }} />
+          <div>
+            {title && <p className="font-bold mb-2" style={{ color: '#92400e' }}>{title}</p>}
+            <div style={{ color: '#92400e' }}>{children}</div>
+          </div>
+        </div>
+      </div>
+    );
+
+    const FlagPanel = ({ title, children }) => (
+      <div
+        className="p-4 rounded-lg border-2 mb-4"
+        style={{ backgroundColor: colors.errorBg, borderColor: colors.error }}
+      >
+        <div className="flex items-start gap-2">
+          <AlertTriangle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.error }} />
+          <div>
+            {title && <p className="font-bold mb-2" style={{ color: colors.error }}>{title}</p>}
+            <div style={{ color: '#991b1b' }}>{children}</div>
+          </div>
+        </div>
+      </div>
+    );
+
+    // ============================================
+    // MAIN COMPONENT
+    // ============================================
+    const ActIIReview = () => {
+      // Phase control
+      const [phase, setPhase] = useState('intro');
+
+      // Question state
+      const [currentQuestion, setCurrentQuestion] = useState(0);
+      const [answer, setAnswer] = useState('');
+      const [showFeedback, setShowFeedback] = useState(false);
+      const [attempts, setAttempts] = useState(0);
+      const [showHint, setShowHint] = useState(0);
+
+      // Results tracking
+      const [answers, setAnswers] = useState({});
+      const [flags, setFlags] = useState({});
+
+      // UI state
+      const [showGlossary, setShowGlossary] = useState(false);
+      const [devMode, setDevMode] = useState(false);
+      const [headerClickCount, setHeaderClickCount] = useState(0);
+
+      // Dev mode activation
+      const handleHeaderClick = () => {
+        const newCount = headerClickCount + 1;
+        setHeaderClickCount(newCount);
+        if (newCount >= 5) {
+          setDevMode(!devMode);
+          setHeaderClickCount(0);
+        }
+      };
+
+      // Restart handler
+      const handleRestart = () => {
+        setPhase('intro');
+        setCurrentQuestion(0);
+        setAnswer('');
+        setShowFeedback(false);
+        setAttempts(0);
+        setShowHint(0);
+        setAnswers({});
+        setFlags({});
+        playContinueClick();
+      };
+
+      // Answer evaluation
+      const evaluateAnswer = (questionData, userAnswer) => {
+        const lower = userAnswer.toLowerCase();
+
+        // Check for flag phrases first
+        for (const phrase of questionData.flagPhrases) {
+          if (lower.includes(phrase.toLowerCase())) {
+            return 'flag';
+          }
+        }
+
+        // Check length
+        if (userAnswer.length < 20) {
+          return 'flag';
+        }
+
+        // Check for pass keywords
+        let keywordMatches = 0;
+        for (const keyword of questionData.passKeywords) {
+          if (lower.includes(keyword.toLowerCase())) {
+            keywordMatches++;
+          }
+        }
+
+        if (keywordMatches >= 2) {
+          return 'pass';
+        } else if (keywordMatches >= 1) {
+          return 'partial';
+        }
+
+        return 'partial'; // Default to partial if engaged but unclear
+      };
+
+      // Submit answer handler
+      const handleSubmit = () => {
+        const questionData = questions[currentQuestion];
+        const newAttempts = attempts + 1;
+        setAttempts(newAttempts);
+
+        const result = evaluateAnswer(questionData, answer);
+
+        // After 3 attempts, force reveal
+        if (newAttempts >= 3 && result !== 'pass') {
+          playBuzzer();
+          setFlags(prev => ({ ...prev, [questionData.id]: 'flag' }));
+          setAnswers(prev => ({ ...prev, [questionData.id]: answer }));
+          setShowFeedback(true);
+        } else if (result === 'pass') {
+          playSuccessTone();
+          setFlags(prev => ({ ...prev, [questionData.id]: 'pass' }));
+          setAnswers(prev => ({ ...prev, [questionData.id]: answer }));
+          setShowFeedback(true);
+        } else if (result === 'partial') {
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setFlags(prev => ({ ...prev, [questionData.id]: 'partial' }));
+            setAnswers(prev => ({ ...prev, [questionData.id]: answer }));
+            setShowFeedback(true);
+          } else {
+            playSoftNope();
+            setShowHint(Math.min(showHint + 1, questionData.hints.length));
+          }
+        } else {
+          // flag result
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setFlags(prev => ({ ...prev, [questionData.id]: 'flag' }));
+            setAnswers(prev => ({ ...prev, [questionData.id]: answer }));
+            setShowFeedback(true);
+          } else {
+            playSoftNope();
+            setShowHint(Math.min(showHint + 1, questionData.hints.length));
+          }
+        }
+      };
+
+      // Next question handler
+      const handleNext = () => {
+        playContinueClick();
+        if (currentQuestion < questions.length - 1) {
+          setCurrentQuestion(currentQuestion + 1);
+          setAnswer('');
+          setShowFeedback(false);
+          setAttempts(0);
+          setShowHint(0);
+        } else {
+          setPhase('bridge');
+        }
+      };
+
+      // Dev skip handler
+      const handleDevSkip = () => {
+        const questionData = questions[currentQuestion];
+        setFlags(prev => ({ ...prev, [questionData.id]: 'pass' }));
+        setAnswers(prev => ({ ...prev, [questionData.id]: '[DEV SKIP]' }));
+        setShowFeedback(true);
+        playSuccessTone();
+      };
+
+      // Progress calculation
+      const progress = phase === 'intro' ? 0
+        : phase === 'questions' ? Math.round(((currentQuestion + (showFeedback ? 1 : 0)) / questions.length) * 80)
+        : phase === 'bridge' ? 90
+        : 100;
+
+      // Get current section info
+      const getCurrentSection = () => {
+        if (phase !== 'questions') return null;
+        return questions[currentQuestion]?.section || '';
+      };
+
+      // Count results
+      const getResultCounts = () => {
+        let pass = 0, partial = 0, flag = 0;
+        Object.values(flags).forEach(f => {
+          if (f === 'pass') pass++;
+          else if (f === 'partial') partial++;
+          else if (f === 'flag') flag++;
+        });
+        return { pass, partial, flag };
+      };
+
+      // Get flagged concepts for review
+      const getFlaggedConcepts = () => {
+        return questions.filter(q => flags[q.id] === 'flag' || flags[q.id] === 'partial')
+          .map(q => ({ concept: q.concept, tutorial: q.tutorial, result: flags[q.id] }));
+      };
+
+      // Save to localStorage on complete
+      const saveResults = () => {
+        const flaggedConcepts = getFlaggedConcepts();
+        localStorage.setItem('actIIReviewComplete', JSON.stringify({
+          completedAt: Date.now(),
+          questionsAnswered: questions.length,
+          conceptFlags: flags,
+          flaggedConcepts: flaggedConcepts.map(f => f.concept),
+          needsReview: flaggedConcepts.length > 0
+        }));
+      };
+
+      // ============================================
+      // RENDER INTRO
+      // ============================================
+      const renderIntro = () => (
+        <div>
+          <div className="text-center mb-6">
+            <Scroll className="w-12 h-12 mx-auto mb-3" style={{ color: colors.primary }} />
+            <h2 className="text-2xl font-bold" style={{ color: colors.primary }}>Act II Review</h2>
+            <p className="text-sm mt-1" style={{ color: colors.earth }}>Synthesis and Reflection</p>
+          </div>
+
+          <NarrativeBlock>
+            In Babylon, you learned to capture the world in marks on clay. You built records that persist
+            through time, coordinated systems that catch errors at organizational boundaries, and a discipline
+            that transforms mysteries into trackable data.
+          </NarrativeBlock>
+
+          <NarrativeBlock>
+            Yet something remains beyond your reach. The tablets track physical quantities flawlessly — but
+            there is a kind of worth they cannot capture.
+          </NarrativeBlock>
+
+          <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: colors.clayLight }}>
+            <p className="font-bold mb-3" style={{ color: colors.primary }}>This Review Covers:</p>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colors.accent }} />
+                <span style={{ color: colors.earthDark }}>Section 1: The Record-Keeping Problem (3 questions)</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colors.accent }} />
+                <span style={{ color: colors.earthDark }}>Section 2: The Coordinated Solution (2 questions)</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colors.accent }} />
+                <span style={{ color: colors.earthDark }}>Section 3: The Deeper Pattern (3 questions)</span>
+              </li>
+            </ul>
+            <p className="mt-3 text-sm" style={{ color: colors.earth }}>
+              Estimated time: 10-12 minutes
+            </p>
+          </div>
+
+          <button
+            className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-white"
+            style={{ backgroundColor: colors.primary }}
+            onClick={() => { playContinueClick(); setPhase('questions'); }}
+          >
+            Begin Review <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      );
+
+      // ============================================
+      // RENDER QUESTIONS
+      // ============================================
+      const renderQuestions = () => {
+        const q = questions[currentQuestion];
+        const result = flags[q.id];
+
+        return (
+          <div>
+            {/* Section indicator */}
+            <div className="flex items-center gap-2 mb-4">
+              <div
+                className="px-3 py-1 rounded-full text-sm font-medium"
+                style={{ backgroundColor: colors.clayLight, color: colors.earthDark }}
+              >
+                Section {q.sectionNum}: {q.section}
+              </div>
+            </div>
+
+            {/* Progress dots */}
+            <div className="flex justify-center gap-2 mb-6">
+              {questions.map((_, i) => (
+                <div
+                  key={i}
+                  className="w-3 h-3 rounded-full transition-all"
+                  style={{
+                    backgroundColor: i < currentQuestion ? colors.success
+                      : i === currentQuestion ? colors.primary
+                      : colors.earthLight
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Question number */}
+            <p className="text-sm text-center mb-4" style={{ color: colors.earth }}>
+              Question {currentQuestion + 1} of {questions.length}
+            </p>
+
+            {/* Narrative */}
+            <NarrativeBlock>{q.narrative}</NarrativeBlock>
+
+            {/* Question */}
+            <div
+              className="p-4 rounded-lg border-2 mb-4"
+              style={{ borderColor: colors.earthLight }}
+            >
+              <p className="font-medium" style={{ color: colors.earthDark }}>{q.question}</p>
+            </div>
+
+            {/* Hints */}
+            {showHint > 0 && !showFeedback && (
+              <div className="mb-4 space-y-2">
+                {q.hints.slice(0, showHint).map((hint, i) => (
+                  <div
+                    key={i}
+                    className="p-3 rounded-lg text-sm"
+                    style={{ backgroundColor: colors.warningBg, color: '#92400e' }}
+                  >
+                    <span className="font-bold">Hint {i + 1}:</span> {hint}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Answer input */}
+            {!showFeedback && (
+              <>
+                <textarea
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="Type your answer here..."
+                  className="w-full p-3 rounded-lg border-2 mb-4 min-h-[100px] resize-none"
+                  style={{ borderColor: colors.earthLight }}
+                />
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSubmit}
+                    disabled={answer.length < 10}
+                    className="flex-1 py-3 rounded-lg font-bold text-white disabled:opacity-50"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Submit Answer
+                  </button>
+
+                  {showHint < q.hints.length && (
+                    <button
+                      onClick={() => setShowHint(showHint + 1)}
+                      className="px-4 py-3 rounded-lg border-2 flex items-center gap-2"
+                      style={{ borderColor: colors.earthLight, color: colors.earth }}
+                    >
+                      <HelpCircle className="w-5 h-5" />
+                      Hint
+                    </button>
+                  )}
+                </div>
+
+                {attempts > 0 && !showFeedback && (
+                  <p className="text-sm text-center mt-2" style={{ color: colors.earth }}>
+                    {3 - attempts} attempt{3 - attempts !== 1 ? 's' : ''} remaining
+                  </p>
+                )}
+
+                {devMode && (
+                  <button
+                    onClick={handleDevSkip}
+                    className="w-full mt-3 py-2 rounded-lg text-sm"
+                    style={{ backgroundColor: colors.warningBg, color: '#92400e' }}
+                  >
+                    [DEV] Skip to feedback
+                  </button>
+                )}
+              </>
+            )}
+
+            {/* Feedback */}
+            {showFeedback && (
+              <>
+                {result === 'pass' && (
+                  <InsightPanel title="Well understood">
+                    <p>{q.passExplanation}</p>
+                  </InsightPanel>
+                )}
+
+                {result === 'partial' && (
+                  <WarningPanel title="Partial understanding">
+                    <p className="mb-2">You're circling the insight. Here's what we were looking for:</p>
+                    <p>{q.passExplanation}</p>
+                  </WarningPanel>
+                )}
+
+                {result === 'flag' && (
+                  <FlagPanel title="Let's clarify">
+                    <p className="mb-2">{q.flagExplanation || 'Here\'s what we were looking for:'}</p>
+                    <p>{q.passExplanation}</p>
+                  </FlagPanel>
+                )}
+
+                <button
+                  onClick={handleNext}
+                  className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-white"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  {currentQuestion < questions.length - 1 ? 'Next Question' : 'Continue'}
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+          </div>
+        );
+      };
+
+      // ============================================
+      // RENDER BRIDGE
+      // ============================================
+      const renderBridge = () => (
+        <div>
+          <div className="text-center mb-6">
+            <MapPin className="w-12 h-12 mx-auto mb-3" style={{ color: colors.accent }} />
+            <h2 className="text-2xl font-bold" style={{ color: colors.primary }}>From Babylon to Sardis</h2>
+          </div>
+
+          <NarrativeBlock>
+            The system you helped build in Babylon was remarkable. Records that persist through time.
+            Coordinated tablets that catch errors at organizational boundaries. A discipline that transforms
+            every unexplained change into trackable data.
+          </NarrativeBlock>
+
+          <NarrativeBlock>
+            But worth in command — the shifting, relational worth that exists between things rather than
+            within them — remained beyond your reach. Without a stable common measure, there was nothing
+            constant to put in the tablets.
+          </NarrativeBlock>
+
+          <div
+            className="p-4 rounded-lg border-2 mb-4"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.accent }}
+          >
+            <p className="font-bold mb-2" style={{ color: colors.primary }}>The Centuries Between</p>
+            <p style={{ color: colors.earthDark }}>
+              For generations, scribes refined these methods. Empires rose and fell — Assyria conquered Babylon,
+              then Babylon rose again, then Persia swept across the ancient world. Through all of it, the
+              tablets tracked grain and oil and wool with ever-greater precision.
+            </p>
+            <p className="mt-2" style={{ color: colors.earthDark }}>
+              But the problem of shifting worth remained unsolved.
+            </p>
+          </div>
+
+          <div
+            className="p-4 rounded-lg border-2 mb-4"
+            style={{ backgroundColor: colors.sand, borderColor: colors.earthLight }}
+          >
+            <p className="font-bold mb-2" style={{ color: colors.primary }}>Sardis, Kingdom of Lydia — Around 600 BCE</p>
+            <p style={{ color: colors.earthDark }}>
+              Over a thousand years after the events in Babylon, in the kingdom of Lydia in western Anatolia,
+              metalworkers began stamping small lumps of electrum — a natural gold-silver alloy — with the king's seal.
+            </p>
+            <p className="mt-2 italic" style={{ color: colors.earth }}>
+              This invention will give us a tool for the problem we could not yet solve.
+            </p>
+          </div>
+
+          <button
+            onClick={() => { playContinueClick(); saveResults(); setPhase('complete'); }}
+            className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-white"
+            style={{ backgroundColor: colors.primary }}
+          >
+            Complete Act II <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      );
+
+      // ============================================
+      // RENDER COMPLETE
+      // ============================================
+      const renderComplete = () => {
+        const counts = getResultCounts();
+        const flaggedConcepts = getFlaggedConcepts();
+
+        return (
+          <div>
+            <div className="text-center mb-6">
+              <div
+                className="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4"
+                style={{ background: `linear-gradient(135deg, ${colors.success}, #16a34a)` }}
+              >
+                <Trophy className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold" style={{ color: colors.primary }}>Act II Complete!</h2>
+              <p style={{ color: colors.earth }}>You've completed the Babylon chapter.</p>
+            </div>
+
+            {/* Key Concepts */}
+            <div
+              className="p-4 rounded-lg mb-4"
+              style={{ backgroundColor: '#eff6ff', border: `2px solid ${colors.primary}` }}
+            >
+              <p className="font-bold mb-3" style={{ color: colors.primary }}>Key Concepts from Act II:</p>
+              <ul className="space-y-2 text-sm" style={{ color: colors.earthDark }}>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Writing enables information to persist beyond the moment</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Records represent reality — they can be right or wrong</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Internal consistency ≠ external consistency</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Coordinated records catch errors at organizational boundaries</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>The discipline of balance transforms mysteries into trackable data</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Physical quantity tracking ≠ value tracking</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Understanding Summary */}
+            <div
+              className="p-4 rounded-lg mb-4"
+              style={{ backgroundColor: colors.clayLight }}
+            >
+              <p className="font-bold mb-3" style={{ color: colors.primary }}>Your Understanding:</p>
+              <div className="space-y-2 text-sm">
+                {counts.pass > 0 && (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" style={{ color: colors.success }} />
+                    <span style={{ color: colors.earthDark }}>{counts.pass} concept{counts.pass !== 1 ? 's' : ''} well understood</span>
+                  </div>
+                )}
+                {counts.partial > 0 && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded-full border-2" style={{ borderColor: colors.warning }} />
+                    <span style={{ color: colors.earthDark }}>{counts.partial} concept{counts.partial !== 1 ? 's' : ''} with partial understanding</span>
+                  </div>
+                )}
+                {counts.flag > 0 && (
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" style={{ color: colors.warning }} />
+                    <span style={{ color: colors.earthDark }}>{counts.flag} concept{counts.flag !== 1 ? 's' : ''} to revisit</span>
+                  </div>
+                )}
+              </div>
+
+              {flaggedConcepts.length > 0 && (
+                <div className="mt-4 pt-3 border-t" style={{ borderColor: colors.earthLight }}>
+                  <p className="text-sm font-medium mb-2" style={{ color: colors.earth }}>
+                    You might want to revisit:
+                  </p>
+                  <ul className="space-y-1 text-sm">
+                    {flaggedConcepts.map((item, i) => (
+                      <li key={i} style={{ color: colors.earthDark }}>
+                        • {item.concept} (Tutorial {item.tutorial})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* The Question That Remains */}
+            <WarningPanel title="The Question That Remains">
+              <p className="italic">
+                "How do you record a worth that lives not in the thing itself, but in its relation to all other things?"
+              </p>
+              <p className="mt-2">
+                The discipline of balance could apply to worth — but only if there were something stable to measure it against.
+              </p>
+            </WarningPanel>
+
+            {/* What's Next */}
+            <div
+              className="p-4 rounded-lg border-2 mb-6"
+              style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+            >
+              <p className="font-bold mb-2" style={{ color: colors.primary }}>What's Next: Act III</p>
+              <p style={{ color: colors.earthDark }}>
+                In Act III, you'll travel to Sardis — the kingdom of Lydia, around 600 BCE. Over a thousand years
+                will have passed since Babylon. There, you'll encounter an invention that provides something the
+                Babylonian scribes lacked: a more stable measure of worth.
+              </p>
+              <p className="mt-2 italic" style={{ color: colors.earth }}>
+                And you'll learn how the machinery of record-keeping adapts to track not just physical flows, but value itself.
+              </p>
+            </div>
+
+            <button
+              className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+              style={{ backgroundColor: colors.earth, color: 'white' }}
+              onClick={handleRestart}
+            >
+              <RefreshCw className="w-5 h-5" /> Restart Review
+            </button>
+          </div>
+        );
+      };
+
+      // ============================================
+      // MAIN RENDER
+      // ============================================
+
+      return (
+        <div className="min-h-screen p-4 pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="max-w-2xl mx-auto">
+            {/* Header */}
+            <div
+              className="rounded-lg p-4 mb-6"
+              style={{ backgroundColor: colors.primary }}
+            >
+              <div
+                className="flex justify-between items-start cursor-pointer"
+                onClick={handleHeaderClick}
+              >
+                <div>
+                  <h1 className="text-xl font-bold text-white">
+                    Act II Review
+                  </h1>
+                  <p className="text-sm" style={{ color: colors.earthLight }}>
+                    Babylon, ~1794 BCE • ~10-12 min
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowGlossary(true); }}
+                  className="p-2 rounded-lg hover:bg-white/10"
+                >
+                  <BookOpen className="w-5 h-5 text-white" />
+                </button>
+              </div>
+
+              {/* Progress bar */}
+              <div className="mt-4">
+                <div className="flex justify-between text-xs text-white/70 mb-1">
+                  <span>Progress</span>
+                  <span>{progress}%</span>
+                </div>
+                <div className="h-2 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ width: `${progress}%`, backgroundColor: colors.accent }}
+                  />
+                </div>
+              </div>
+
+              {/* Section indicator */}
+              {phase === 'questions' && (
+                <div className="mt-3 pt-3 border-t border-white/20">
+                  <p className="text-xs text-white/70">
+                    Current Section: {getCurrentSection()}
+                  </p>
+                </div>
+              )}
+
+              {/* Dev mode controls */}
+              {devMode && (
+                <div className="mt-3 pt-3 border-t border-white/20">
+                  <p className="text-xs text-white/70 mb-2">Dev Mode Active</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setPhase('intro')}
+                      className={`px-2 py-1 rounded text-xs ${phase === 'intro' ? 'bg-white text-blue-900' : 'bg-white/20 text-white'}`}
+                    >
+                      intro
+                    </button>
+                    <button
+                      onClick={() => setPhase('questions')}
+                      className={`px-2 py-1 rounded text-xs ${phase === 'questions' ? 'bg-white text-blue-900' : 'bg-white/20 text-white'}`}
+                    >
+                      questions
+                    </button>
+                    <button
+                      onClick={() => setPhase('bridge')}
+                      className={`px-2 py-1 rounded text-xs ${phase === 'bridge' ? 'bg-white text-blue-900' : 'bg-white/20 text-white'}`}
+                    >
+                      bridge
+                    </button>
+                    <button
+                      onClick={() => { saveResults(); setPhase('complete'); }}
+                      className={`px-2 py-1 rounded text-xs ${phase === 'complete' ? 'bg-white text-blue-900' : 'bg-white/20 text-white'}`}
+                    >
+                      complete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Restart button */}
+            {phase !== 'intro' && phase !== 'complete' && (
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={handleRestart}
+                  className="flex items-center gap-1 text-sm px-3 py-1 rounded"
+                  style={{ color: colors.earth }}
+                >
+                  <RefreshCw className="w-4 h-4" /> Restart
+                </button>
+              </div>
+            )}
+
+            {/* Phase content */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              {phase === 'intro' && renderIntro()}
+              {phase === 'questions' && renderQuestions()}
+              {phase === 'bridge' && renderBridge()}
+              {phase === 'complete' && renderComplete()}
+            </div>
+
+            {/* Glossary Modal */}
+            {showGlossary && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden">
+                  <div
+                    className="p-4 flex justify-between items-center"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    <h2 className="text-lg font-bold text-white">Glossary — Act II Terms</h2>
+                    <button onClick={() => setShowGlossary(false)}>
+                      <X className="w-6 h-6 text-white" />
+                    </button>
+                  </div>
+                  <div className="p-4 overflow-y-auto max-h-[60vh]">
+                    <div className="space-y-4">
+                      {glossaryTerms.map((item, i) => (
+                        <div key={i} className="border-b pb-3" style={{ borderColor: colors.earthLight }}>
+                          <p className="font-bold" style={{ color: colors.primary }}>{item.term}</p>
+                          <p className="text-sm mt-1" style={{ color: colors.earthDark }}>{item.definition}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // ============================================
+    // NAVIGATION FOOTER
+    // ============================================
+    const NavigationFooter = () => (
+      <div
+        className="fixed bottom-0 left-0 right-0 border-t bg-white shadow-lg"
+        style={{ borderColor: colors.earthLight }}
+      >
+        <div className="max-w-2xl mx-auto px-4 py-3 flex justify-between items-center">
+          <a
+            href="tutorial-2-6.html"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors hover:bg-gray-100"
+            style={{ color: colors.primary }}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="font-medium">Previous</span>
+          </a>
+
+          <a
+            href="../index.html"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors hover:bg-gray-100"
+            style={{ color: colors.earth }}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span className="font-medium">Hub</span>
+          </a>
+
+          <a
+            href="../act-3/act-3-welcome.html"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-colors"
+            style={{ backgroundColor: colors.primary }}
+          >
+            <span className="font-medium">Next</span>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    );
+
+    // ============================================
+    // RENDER APP
+    // ============================================
+    const App = () => (
+      <>
+        <ActIIReview />
+        <NavigationFooter />
+      </>
+    );
+
+    // Render to DOM
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

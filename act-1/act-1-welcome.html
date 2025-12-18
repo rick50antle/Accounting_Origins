@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Act I Welcome - Accounting Origins</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Inline SVG Icon Components
+        const ChevronRight = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+        );
+
+        const Clock = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+            </svg>
+        );
+
+        const Wheat = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M2 22L16 8" />
+                <path d="M3.47 12.53L5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" />
+                <path d="M7.47 8.53L9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" />
+                <path d="M11.47 4.53L13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" />
+                <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z" />
+                <path d="M11.47 17.47L13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z" />
+                <path d="M15.47 13.47L17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z" />
+                <path d="M19.47 9.47L21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z" />
+            </svg>
+        );
+
+        const Search = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+            </svg>
+        );
+
+        const Scale = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                <path d="M7 21h10" />
+                <path d="M12 3v18" />
+                <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+            </svg>
+        );
+
+        const Book = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+        );
+
+        const Footprints = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" />
+                <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" />
+                <path d="M16 17h4" />
+                <path d="M4 13h4" />
+            </svg>
+        );
+
+        const ActIWelcome = () => {
+          const [section, setSection] = useState(0);
+          const [showGlossary, setShowGlossary] = useState(false);
+          const [devMode, setDevMode] = useState(false);
+
+          const colors = {
+            primary: '#00356b',
+            sand: '#f5f1e8',
+            earth: '#8b7355',
+            earthLight: '#d4c4a8',
+            earthDark: '#5c4d3d',
+            accent: '#c9a227'
+          };
+
+          const totalSections = 5;
+
+          const glossaryTerms = [
+            { term: 'Uruk', definition: 'The site where the world\'s first known city will eventually rise, around 3100 BCE. In our story, it is still just a river valley with scattered settlements.' },
+            { term: 'Barter', definition: 'Direct exchange of goods without using money. You trade what you have for what you need.' },
+            { term: 'Trading Partner', definition: 'Someone who has what you want AND wants what you have. Finding one is the first challenge of trade.' },
+            { term: 'Search Costs', definition: 'The time, effort, and travel required to find potential trading partners.' },
+            { term: 'Double Coincidence of Wants', definition: 'The rare situation where you find someone who has exactly what you need AND needs exactly what you have.' },
+            { term: 'Trading Chain', definition: 'A sequence of trades needed when no direct match exists—trading your barley for pottery so you can trade pottery for wool.' },
+            { term: 'Transaction Costs', definition: 'Everything that makes exchange difficult: finding partners, negotiating terms, verifying quality, moving goods.' },
+          ];
+
+          const Header = () => (
+            <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+              <div className="flex items-center gap-2">
+                <Wheat className="w-5 h-5" />
+                <div>
+                  <span className="font-bold">Act I: Before the Markets</span>
+                  <span className="text-blue-200 text-xs ml-2">The Uruk Valley, ~3500 BCE</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowGlossary(true)}
+                  className="flex items-center gap-1 text-xs hover:text-blue-200"
+                >
+                  <Book className="w-4 h-4" />
+                  <span>Glossary</span>
+                </button>
+                <div className="flex items-center gap-1 text-xs">
+                  <Clock className="w-4 h-4" />
+                  <span>~5 min</span>
+                </div>
+              </div>
+            </div>
+          );
+
+          const GlossaryModal = () => (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[80vh] overflow-hidden">
+                <div className="p-4 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+                  <div className="flex items-center gap-2">
+                    <Book className="w-5 h-5" />
+                    <span className="font-bold">Glossary: Trading Terms</span>
+                  </div>
+                  <button onClick={() => setShowGlossary(false)} className="text-white hover:text-blue-200">✕</button>
+                </div>
+                <div className="p-4 overflow-y-auto max-h-[60vh]">
+                  {glossaryTerms.map((item, i) => (
+                    <div key={i} className="mb-4 last:mb-0">
+                      <p className="font-bold text-sm" style={{ color: colors.primary }}>{item.term}</p>
+                      <p className="text-sm text-gray-700">{item.definition}</p>
+                    </div>
+                  ))}
+                  <div className="mt-4 p-3 rounded-lg text-xs" style={{ backgroundColor: colors.sand }}>
+                    <p className="text-gray-600 italic">
+                      More terms will be introduced in the tutorials as you encounter them.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+
+          const ProgressDots = () => (
+            <div className="flex justify-center gap-2 my-4">
+              {[...Array(totalSections)].map((_, i) => (
+                <div
+                  key={i}
+                  className="w-2 h-2 rounded-full transition-all"
+                  style={{
+                    backgroundColor: i === section ? colors.primary : colors.earthLight,
+                    transform: i === section ? 'scale(1.3)' : 'scale(1)'
+                  }}
+                />
+              ))}
+            </div>
+          );
+
+          const BeginningSection = () => (
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+                <p className="text-gray-700 mb-3">
+                  Long before markets. Before money. Before anyone thought to write things down.
+                </p>
+                <p className="text-gray-700 mb-3">
+                  There was a valley along a river, where families lived in scattered homesteads. Fishers by the water. Farmers in the fertile lowlands. Herders in the hills. Potters near the clay beds.
+                </p>
+                <p className="text-gray-700 mb-3">
+                  Each family was skilled at something. Each family needed things they couldn't make themselves.
+                </p>
+                <p className="text-gray-700 font-medium">
+                  Trade was possible. Trade was necessary. But trade was hard.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.sand }}>
+                <p className="text-gray-600">
+                  Many years from now, on this very ground, the city of <strong>Uruk</strong> will rise—the first true city the world has ever known. But that is centuries away. For now, there are only scattered families, dusty paths, and the endless work of finding someone to trade with.
+                </p>
+              </div>
+            </div>
+          );
+
+          const ValleySection = () => (
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold" style={{ color: colors.primary }}>A World Without Gathering Places</h2>
+
+              <p className="text-sm text-gray-700">
+                In this valley, there is no town square. No marketplace. No place where traders meet. Each family works their own land and rarely ventures far.
+              </p>
+
+              <div className="space-y-3">
+                {[
+                  { name: 'The River Camps', desc: 'Where fishers mend nets and smoke their catch' },
+                  { name: 'The Fields', desc: 'Where families grow barley, beans, and flax' },
+                  { name: 'The Hills', desc: 'Where herders graze sheep and goats' },
+                  { name: 'The Clay Beds', desc: 'Where potters dig earth and fire their wares' },
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-3 items-start">
+                    <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: colors.accent }} />
+                    <div>
+                      <span className="font-medium text-sm" style={{ color: colors.earthDark }}>{item.name}</span>
+                      <span className="text-sm text-gray-600"> — {item.desc}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.sand }}>
+                <p className="text-gray-700 italic">
+                  To find a trading partner, you must travel. To travel takes time. And you never know what you'll find when you arrive.
+                </p>
+              </div>
+            </div>
+          );
+
+          const ProblemSection = () => (
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold" style={{ color: colors.primary }}>Why Trading Is Hard</h2>
+
+              <p className="text-sm text-gray-700">
+                You have barley. You need wool. Somewhere in this valley, someone has wool and needs barley. A perfect match—if only you could find each other.
+              </p>
+
+              <div className="p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+                <h3 className="font-bold text-sm mb-3" style={{ color: colors.primary }}>The First Problem: Search</h3>
+                <p className="text-sm text-gray-700">
+                  Who has what you need? Who wants what you have? You don't know until you walk to their homestead, ask what they have, and ask what they want. Every visit takes half a day. Most lead nowhere.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+                <h3 className="font-bold text-sm mb-3" style={{ color: colors.primary }}>The Second Problem: Coincidence</h3>
+                <p className="text-sm text-gray-700">
+                  Even when you find someone with wool, they might not want barley. They might want pottery, or fish, or tools. Now you need to find a chain: someone who wants barley and has what the wool-owner wants.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+                <h3 className="font-bold text-sm mb-3" style={{ color: colors.primary }}>The Third Problem: Value</h3>
+                <p className="text-sm text-gray-700">
+                  If you do find a match—how much barley for how much wool? You've never seen this trade happen. Neither have they. You're both guessing.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg text-center" style={{ backgroundColor: colors.primary }}>
+                <p className="text-white text-sm italic mb-1">These aren't minor inconveniences. They're barriers that prevent beneficial trades from ever happening.</p>
+                <p className="text-white font-bold">People who could help each other never connect. Value that could be created is lost.</p>
+              </div>
+            </div>
+          );
+
+          const RoleSection = () => (
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold" style={{ color: colors.primary }}>Your Family. Your Problem.</h2>
+
+              <div className="p-4 rounded-lg border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+                <p className="text-gray-700 mb-3">
+                  You live in the lowlands, where your family has grown barley for generations. The harvest was good this year—you have more grain than you need.
+                </p>
+                <p className="text-gray-700 mb-3">
+                  But winter is coming. Your wool stores are thin. Without warm cloth, the cold months will be miserable.
+                </p>
+                <p className="text-gray-700">
+                  Somewhere in this valley, a herder has wool and needs grain. You need to find them. You need to make a deal. You need to do it before the weather turns.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+                <Footprints className="w-8 h-8 flex-shrink-0" style={{ color: colors.primary }} />
+                <div>
+                  <p className="font-medium text-sm" style={{ color: colors.earthDark }}>Your Challenge</p>
+                  <p className="text-xs text-gray-600">Find a trading partner. Navigate the costs of search. Make a deal in the dark. This isn't someone else's problem—it's yours.</p>
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-700 italic">
+                The tutorials ahead will put you in the middle of these challenges. You won't just learn about transaction costs—you'll live them.
+              </p>
+            </div>
+          );
+
+          const AwaitsSection = () => (
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold" style={{ color: colors.primary }}>In the Tutorials Ahead</h2>
+
+              <div className="space-y-3 text-sm text-gray-700">
+                <p>
+                  You will walk the valley, visiting homesteads, searching for trading partners. You will experience firsthand why finding a match is so hard.
+                </p>
+                <p>
+                  You will negotiate in the dark—making offers without knowing what's fair, wondering if you're being taken advantage of.
+                </p>
+                <p>
+                  You will witness the birth of a marketplace—and discover what changes when traders can see each other trade.
+                </p>
+                <p>
+                  And you will begin to understand where value comes from.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg border" style={{ borderColor: colors.accent, backgroundColor: '#fffbeb' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Scale className="w-5 h-5" style={{ color: colors.accent }} />
+                  <h3 className="font-bold text-sm" style={{ color: colors.earthDark }}>What You'll Discover</h3>
+                </div>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex gap-2 items-start">
+                    <span style={{ color: colors.accent }}>•</span>
+                    <span>Why finding trading partners is costly—and why many beneficial trades never happen</span>
+                  </li>
+                  <li className="flex gap-2 items-start">
+                    <span style={{ color: colors.accent }}>•</span>
+                    <span>Why negotiation is hard when you can't see what others trade</span>
+                  </li>
+                  <li className="flex gap-2 items-start">
+                    <span style={{ color: colors.accent }}>•</span>
+                    <span>How markets solve two problems at once: reducing search costs AND revealing value</span>
+                  </li>
+                  <li className="flex gap-2 items-start">
+                    <span style={{ color: colors.accent }}>•</span>
+                    <span>Why value isn't something goods <em>have</em>—it's something that <em>emerges</em> from exchange</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="p-4 rounded-lg text-center" style={{ backgroundColor: colors.sand }}>
+                <p className="text-sm" style={{ color: colors.earthDark }}>
+                  These are the foundations of economic life. Not rules to memorize, but problems you'll experience firsthand.
+                </p>
+              </div>
+            </div>
+          );
+
+          const NavigationButtons = () => (
+            <div className="flex gap-3 mt-6">
+              {section > 0 && (
+                <button
+                  onClick={() => setSection(section - 1)}
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                >
+                  ← Back
+                </button>
+              )}
+              {section < totalSections - 1 ? (
+                <button
+                  onClick={() => setSection(section + 1)}
+                  className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Continue <ChevronRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <a
+                  href="tutorial-1-1.html"
+                  className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 no-underline"
+                  style={{ backgroundColor: '#2d6a4f' }}
+                >
+                  Begin Act I <ChevronRight className="w-4 h-4" />
+                </a>
+              )}
+            </div>
+          );
+
+          const DevModeControls = () => devMode && (
+            <div className="mb-3 p-2 bg-purple-100 rounded-lg flex gap-2 flex-wrap">
+              <span className="text-xs text-purple-700 font-medium">DEV:</span>
+              {[...Array(totalSections)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSection(i)}
+                  className={`text-xs px-2 py-1 rounded ${i === section ? 'bg-purple-600 text-white' : 'bg-purple-200 text-purple-700'}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          );
+
+          const renderSection = () => {
+            switch (section) {
+              case 0: return <BeginningSection />;
+              case 1: return <ValleySection />;
+              case 2: return <ProblemSection />;
+              case 3: return <RoleSection />;
+              case 4: return <AwaitsSection />;
+              default: return <BeginningSection />;
+            }
+          };
+
+          const sectionTitles = [
+            'The Beginning',
+            'The Valley',
+            'The Problem',
+            'Your Role',
+            'What Awaits'
+          ];
+
+          return (
+            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+              <div
+                className="fixed top-0 left-0 w-4 h-4 z-50"
+                onDoubleClick={() => setDevMode(!devMode)}
+              />
+
+              <Header />
+
+              <div className="p-4 max-w-2xl mx-auto">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                  <div className="p-4 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                    <h1 className="text-xl font-bold mb-1">Welcome to the Valley</h1>
+                    <p className="text-blue-200 text-sm">Before markets. Before money. Before cities.</p>
+                  </div>
+
+                  <div className="px-5 py-2 text-xs font-medium flex items-center justify-between" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                    <span>{sectionTitles[section]}</span>
+                    <span>{section + 1} of {totalSections}</span>
+                  </div>
+
+                  <div className="p-5">
+                    <DevModeControls />
+
+                    {renderSection()}
+
+                    <ProgressDots />
+                    <NavigationButtons />
+                  </div>
+                </div>
+
+                {section === totalSections - 1 && (
+                  <p className="text-center text-xs text-gray-500 mt-3">
+                    Next: Tutorial 1.1 — The Search
+                  </p>
+                )}
+              </div>
+
+              {showGlossary && <GlossaryModal />}
+
+              {/* Navigation Footer */}
+              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
+                <div style={{ width: '80px' }}></div>
+                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
+                <a href="tutorial-1-1.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  Next <ChevronRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ActIWelcome />);
+    </script>
+</body>
+</html>

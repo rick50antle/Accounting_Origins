@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Act I Review - The Foundations of Exchange</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // SVG Icon Components
+    const ChevronRight = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    );
+
+    const Clock = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+    );
+
+    const CheckCircle = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    );
+
+    const AlertCircle = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    );
+
+    const Book = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+    );
+
+    const Trophy = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+        <path d="M4 22h16"></path>
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+      </svg>
+    );
+
+    const RefreshCw = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+    );
+
+    const ArrowRight = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    );
+
+    const ActIReview = () => {
+      const [phase, setPhase] = useState('intro');
+      const [currentQuestion, setCurrentQuestion] = useState(0);
+      const [answer, setAnswer] = useState('');
+      const [showFeedback, setShowFeedback] = useState(false);
+      const [showGlossary, setShowGlossary] = useState(false);
+      const [devMode, setDevMode] = useState(false);
+
+      const [answers, setAnswers] = useState({});
+      const [flags, setFlags] = useState({
+        q1_throughline: null,
+        q2_negotiation: null,
+        q3_markets: null,
+        q4_arbitrage: null,
+        q5_complementary: null,
+        q6_moneyInfo: null,
+        q7_foundation: null,
+      });
+
+      const colors = {
+        primary: '#00356b',
+        sand: '#f5f1e8',
+        earth: '#8b7355',
+        earthLight: '#d4c4a8',
+        earthDark: '#5c4d3d',
+        accent: '#c9a227',
+        success: '#16a34a',
+        warning: '#d97706',
+      };
+
+      const sections = [
+        { name: 'The Information Thread', questions: [0, 1, 2] },
+        { name: 'Applying Concepts', questions: [3] },
+        { name: 'The Deeper Pattern', questions: [4, 5, 6] },
+      ];
+
+      const getCurrentSection = () => {
+        for (const section of sections) {
+          if (section.questions.includes(currentQuestion)) {
+            return section.name;
+          }
+        }
+        return '';
+      };
+
+      const evaluateQ1 = (text) => {
+        const lower = text.toLowerCase();
+        const passKeywords = ['information', 'knowledge', 'knowing', 'finding out', 'learning', 'seeing', 'discover', 'understand', 'figure out', 'data'];
+        const hasPass = passKeywords.some(k => lower.includes(k));
+
+        const flagPhrases = ['about markets', 'about trading', 'about exchange', 'all about trade'];
+        const hasFlag = flagPhrases.some(p => lower.includes(p)) && !hasPass;
+
+        if (hasFlag) return 'flag';
+        if (hasPass) return 'pass';
+        if (text.length < 30) return 'flag';
+        return 'partial';
+      };
+
+      const evaluateQ2 = (text) => {
+        const lower = text.toLowerCase();
+        const passKeywords = ['strateg', 'advantage', 'position', 'leverage', 'bargain', 'weaken', 'power', 'upper hand', 'negotiat', 'conceal', 'hide', 'secret', 'reveal'];
+        const hasPass = passKeywords.some(k => lower.includes(k));
+
+        const flagPhrases = ["didn't know", "didn't understand", "would be rude", "not polite", "impolite", "social"];
+        const hasFlag = flagPhrases.some(p => lower.includes(p)) && !hasPass;
+
+        if (hasFlag) return 'flag';
+        if (hasPass) return 'pass';
+        if (text.length < 30) return 'flag';
+        return 'partial';
+      };
+
+      const evaluateQ3 = (text) => {
+        const lower = text.toLowerCase();
+        const concentrationWords = ['concentrat', 'gather', 'together', 'one place', 'same place', 'central', 'meet', 'assemble'];
+        const visibilityWords = ['see', 'watch', 'observ', 'visible', 'compare', 'learn', 'hear', 'public', 'open'];
+
+        const hasConcentration = concentrationWords.some(k => lower.includes(k));
+        const hasVisibility = visibilityWords.some(k => lower.includes(k));
+
+        const flagPhrases = ['prices were set', 'fixed price', 'set the price', 'determine price'];
+        const hasFlag = flagPhrases.some(p => lower.includes(p));
+
+        if (hasFlag && !hasConcentration && !hasVisibility) return 'flag';
+        if (hasConcentration && hasVisibility) return 'pass';
+        if (hasConcentration || hasVisibility) return 'partial';
+        if (text.length < 30) return 'flag';
+        return 'partial';
+      };
+
+      const evaluateQ4 = (text) => {
+        const lower = text.toLowerCase();
+        const passKeywords = ['compet', 'other trader', 'others exploit', 'others spot', 'everyone', 'people', 'adjust', 'correct', 'pressure', 'bid', 'best deal', 'best term', 'best offer'];
+        const hasPass = passKeywords.some(k => lower.includes(k));
+
+        const flagPhrases = ['get smarter', 'learn', 'market closes', 'go away', 'disappear on their own'];
+        const hasFlag = flagPhrases.some(p => lower.includes(p)) && !hasPass;
+
+        if (hasFlag) return 'flag';
+        if (hasPass) return 'pass';
+        if (text.length < 30) return 'flag';
+        return 'partial';
+      };
+
+      const evaluateQ5 = (text) => {
+        const lower = text.toLowerCase();
+        const marketWords = ['market', 'gather', 'concentrat', 'search', 'find', 'cheaper', 'produce', 'generat'];
+        const measureWords = ['common', 'measure', 'unit', 'numeraire', 'compare', 'process', 'see', 'commensurab', 'barley'];
+        const complementWords = ['together', 'complement', 'both', 'combine', 'work with', 'add', 'plus'];
+
+        const hasMarket = marketWords.some(k => lower.includes(k));
+        const hasMeasure = measureWords.some(k => lower.includes(k));
+        const hasComplement = complementWords.some(k => lower.includes(k));
+
+        const flagPhrases = ['same thing', 'replace', 'instead of', 'one or the other'];
+        const hasFlag = flagPhrases.some(p => lower.includes(p));
+
+        if (hasFlag && !hasComplement) return 'flag';
+        if (hasMarket && hasMeasure && hasComplement) return 'pass';
+        if ((hasMarket && hasMeasure) || hasComplement) return 'partial';
+        if (text.length < 40) return 'flag';
+        return 'partial';
+      };
+
+      const evaluateQ6 = (text) => {
+        const lower = text.toLowerCase();
+        const passKeywords = ['information', 'communicat', 'meaning', 'signal', 'represent', 'tells you', 'shows', 'convey', 'express', 'share', 'coordinate', 'agree'];
+        const hasPass = passKeywords.some(k => lower.includes(k));
+
+        const partialKeywords = ['accept', 'trust', 'believe', 'faith', 'expect'];
+        const hasPartial = partialKeywords.some(k => lower.includes(k));
+
+        const flagPhrases = ['government', 'law', 'forced', 'legal', 'convenient', 'easier', 'simple'];
+        const hasFlag = flagPhrases.some(p => lower.includes(p)) && !hasPass;
+
+        if (hasFlag) return 'flag';
+        if (hasPass) return 'pass';
+        if (hasPartial) return 'partial';
+        if (text.length < 30) return 'flag';
+        return 'partial';
+      };
+
+      const evaluateQ7 = (text) => {
+        const lower = text.toLowerCase();
+        const passKeywords = ['information', 'knowledge', 'knowing', 'data', 'see', 'understand', 'learn'];
+        const hasPass = passKeywords.some(k => lower.includes(k));
+
+        const flagPhrases = ['about trading', 'about markets', 'about exchange', 'about money', 'about barter'];
+        const hasFlag = flagPhrases.some(p => lower.includes(p)) && !hasPass;
+
+        if (hasFlag) return 'flag';
+        if (hasPass) return 'pass';
+        if (text.length < 20) return 'flag';
+        return 'partial';
+      };
+
+      const questions = [
+        {
+          id: 0,
+          key: 'q1_throughline',
+          section: 'The Information Thread',
+          narrative: `You walked the valley. You negotiated in the hills. You watched a market form at the river crossing. You learned to see what others couldn't.
+
+Looking back at all four tutorials—search, negotiation, markets, the common measure—what did they have in common?`,
+          question: "What's the thread that connects everything you experienced?",
+          evaluate: evaluateQ1,
+          feedback: {
+            pass: `Exactly. Every problem you faced was, at its core, an information problem.
+
+In Tutorial 1.1, you spent hours walking the valley. What were you doing? Producing information—learning who had what, who wanted what, where they were.
+
+In Tutorial 1.2, you made offers and watched Asha's reactions. Each round was costly because it was producing information about her limits.
+
+In Tutorial 1.3, the market didn't create value out of nothing—it made information cheaper to produce. Concentration reduced search costs. Observable trades revealed what things were "worth."
+
+In Tutorial 1.4, the common measure didn't change what trades were possible—it changed what you could see. Hidden mispricings became visible.
+
+The through-line: information is costly, and every institution we've explored exists to make it cheaper or clearer.`,
+            partial: `You're circling the insight. Let me sharpen it.
+
+Every problem you faced was fundamentally an information problem:
+• Search costs = the cost of learning who has what
+• Negotiation costs = the cost of learning what terms they'll accept
+• Markets = institutions that make information cheaper to produce
+• Common measures = tools that make information easier to process
+
+The thread isn't "trading" or "exchange"—those are the activities. The thread is that all of them require information, and all of our solutions make information cheaper or clearer.`,
+            flag: `Let me redirect you to the deeper pattern.
+
+Yes, all four tutorials involved trading and exchange. But that's the surface. Underneath, every problem was an information problem:
+• Why is search costly? Because you don't know who has what.
+• Why is negotiation costly? Because you don't know what they'll accept.
+• Why do markets help? Because they make information cheaper to produce.
+• Why does a common measure help? Because it makes information easier to see.
+
+The foundation isn't "trade"—it's that trade requires information, and information is costly. Every solution we've seen exists to reduce those costs.`
+          }
+        },
+        {
+          id: 1,
+          key: 'q2_negotiation',
+          section: 'The Information Thread',
+          narrative: `In Tutorial 1.2, you made offers and watched Asha's responses. Each round revealed something—but never enough.
+
+You could see she was thinking. You could tell when you were getting close. But you never knew her actual limit.`,
+          question: "Why couldn't you just ask Asha what her maximum price was?",
+          evaluate: evaluateQ2,
+          feedback: {
+            pass: `Exactly. Strategic concealment.
+
+If Asha told you her maximum—say, "I'd accept as little as 2 barley per wool"—you'd simply offer 2 barley. She'd get the worst deal she was willing to accept.
+
+By hiding her true limit, she preserved the possibility of getting better terms. Information has value, and sharing it would cost her.
+
+This is why negotiation is costly information production. Each offer and counter-offer reveals a little—enough to move toward agreement—but never so much that one party loses their advantage. The cost isn't time or effort alone; it's the strategic dance required when both parties have something to hide.
+
+This is also why markets transform the game. When Asha has competitors, she can't hold out for perfect terms—someone else might take the deal first.`,
+            partial: `You're on the right track. Let me sharpen it.
+
+The reason isn't that Asha didn't know her own limits, or that asking would be rude. The reason is strategic.
+
+If Asha told you her absolute minimum, you'd simply offer that—and she'd get the worst possible deal she was willing to accept. By keeping her limit hidden, she preserved bargaining power.
+
+Information sharing has costs when your interests conflict. That's why negotiation is fundamentally about strategic information revelation—each party reveals just enough to keep the deal moving, but never so much that they lose their advantage.`,
+            flag: `Let me offer a different perspective.
+
+Asha almost certainly knew her own limits. And in many contexts, sharing information is perfectly natural. So why not here?
+
+The answer is strategic. You and Asha had conflicting interests—every basket of barley she gave up was one less for her. If she told you her minimum, you'd simply offer that minimum, and she'd get the worst deal she was willing to accept.
+
+By concealing her true limit, she maintained leverage. She could hold out for better terms because you didn't know how far you could push.
+
+This is the core of negotiation costs: not rudeness, not ignorance, but the strategic logic of conflicting interests. Information becomes a weapon when what's good for you isn't good for them.`
+          }
+        },
+        {
+          id: 2,
+          key: 'q3_markets',
+          section: 'The Information Thread',
+          narrative: `Before the market, you walked for hours searching for trading partners. After the market emerged at the river crossing, information was suddenly easier to get.
+
+The same people, the same goods—but everything felt different.`,
+          question: "What changed? Why did the market make information cheaper?",
+          evaluate: evaluateQ3,
+          feedback: {
+            pass: `You've got both pieces.
+
+First: concentration. When traders gather in one place, you don't have to walk the valley anymore. The people you need to find are already there. Search costs drop dramatically—not because information is free, but because it's no longer scattered across the landscape.
+
+Second: visibility. When trades happen in public, you can watch. You can hear called offers. You can see what things actually trade for. This generates information about value that you'd otherwise have to produce through costly negotiation.
+
+These two effects are distinct but complementary. Concentration makes information cheaper to produce. Visibility makes information flow without you having to extract it personally.
+
+This is why markets are so powerful—they attack the information problem from two directions at once.`,
+            partial: `You've identified part of it. Let me complete the picture.
+
+Markets do two distinct things:
+
+1. **Concentration** — Traders gather in one place. You don't have to walk the valley searching. The people you need are already there. This reduces search costs.
+
+2. **Visibility** — Trades happen in public. You can watch deals being made. You can hear called offers. You learn what things are "worth" without having to negotiate for that information yourself. This reveals value.
+
+Both effects make information cheaper, but in different ways. Concentration makes it cheaper to find trading partners. Visibility makes it cheaper to learn what things are worth. A market does both—that's why it's such a powerful institution.`,
+            flag: `Let me clarify something important.
+
+Markets don't "set" prices or "determine" what things are worth. Value isn't decided by the market and then announced. Rather, markets make information visible that would otherwise be hidden.
+
+The market helps in two ways:
+
+1. **Concentration** — Instead of walking the valley for hours, you find potential partners gathered in one place. Search becomes trivially easy.
+
+2. **Visibility** — Instead of negotiating in isolation, you can watch other trades. You can hear offers. You learn what terms others are getting—information that would otherwise cost you time and effort to produce.
+
+Markets don't create value. They make information about value cheaper to produce and easier to see.`
+          }
+        },
+        {
+          id: 3,
+          key: 'q4_arbitrage',
+          section: 'Applying Concepts',
+          narrative: `In Tutorial 1.4, Kira exploited a mispricing—trading in a cycle that turned 12 barley into 16.
+
+But she mentioned that such opportunities don't last forever.`,
+          question: "Why would arbitrage opportunities disappear over time?",
+          evaluate: evaluateQ4,
+          feedback: {
+            pass: `Exactly.
+
+When Kira finds a mispricing, she's not the only one who can see it. Other traders—maybe slower, maybe less experienced—will eventually spot the same opportunity.
+
+As more traders try to exploit the gap, something happens: they compete with each other. If Kira is buying wool to profit from the mispricing, and so are five other traders, they'll bid against each other. The price of wool rises. The gap shrinks.
+
+Competition drives prices toward the terms offered by traders willing to give the best deals. If one trader offers 2.1 barley per wool while another holds at 2.0, the better offer wins the trade. Over time, this pressure eliminates the inconsistencies that made arbitrage possible.
+
+The market is self-correcting—not because anyone plans it, but because profit opportunities attract competition, and competition erodes the gaps.`,
+            partial: `You're on the right track. Let me make the mechanism more concrete.
+
+When one trader spots a mispricing, they can profit. But they're not alone in the market. Other traders will eventually see the same opportunity.
+
+As multiple traders try to exploit the gap, they compete. If Kira is buying wool cheap and selling high, she'll face other buyers bidding up the wool price, and other sellers undercutting her sale price.
+
+This competition drives prices toward the best available terms. The traders willing to offer the most favorable deals win the trades—and in doing so, they eliminate the very gaps that made arbitrage profitable.
+
+Arbitrage disappears because success breeds competition, and competition erodes the inconsistencies.`,
+            flag: `Let me explain the mechanism.
+
+It's not that people "get smarter" or that the market simply closes. The key is competition.
+
+When Kira profits from a mispricing, she's not the only one who can see it. Other traders will spot the same opportunity. And when multiple traders try to exploit the same gap, they compete with each other.
+
+If traders are buying wool to profit from the cycle, they bid against each other—driving the price up. If they're selling pottery, they undercut each other—driving the price down. These pressures push prices toward consistency.
+
+Over time, competition drives prices toward the terms offered by traders willing to give the best deals. The result: the mispricings that enabled arbitrage get squeezed out, not by design, but by the collective pressure of traders seeking profit.`
+          }
+        },
+        {
+          id: 4,
+          key: 'q5_complementary',
+          section: 'The Deeper Pattern',
+          narrative: `Markets and common measures both help with information problems—and they work together.
+
+Think about what each one does, and how they combine.`,
+          question: "What does a market do for you? What does a common measure add? How do they complement each other?",
+          evaluate: evaluateQ5,
+          feedback: {
+            pass: `You've got it.
+
+Markets make information **cheaper to produce**:
+• Concentration eliminates search costs—partners are already there
+• Observable trades reveal terms without you having to negotiate for them
+
+Common measures make information **easier to process**:
+• Commensurability lets you compare across different goods
+• Mispricings that were hidden in ratios become visible in a single unit
+
+Together, they're more powerful than either alone:
+• The market generates raw information—trades happening, offers called
+• The common measure lets you make sense of it—is 3 wool for 2 pots good or bad?
+
+One reduces production costs. The other reduces processing costs. They don't compete; they complete each other. A market without a common measure produces information that's hard to compare. A common measure without a market has nothing to measure.`,
+            partial: `You're seeing part of the picture. Let me draw out the full relationship.
+
+**Markets** help by making information cheaper to produce:
+• Traders in one place = no search costs
+• Observable trades = you learn prices without negotiating yourself
+
+**Common measures** help by making information easier to process:
+• Everything expressed in one unit = direct comparison possible
+• Hidden gaps become visible = you can spot good and bad deals
+
+The key is that these are complementary, not competing:
+• The market generates information (who's offering what, what things trade for)
+• The common measure helps you interpret it (is 5 wool for 3 pots a good deal?)
+
+One produces the raw data. The other helps you make sense of it. You need both to see value clearly.`,
+            flag: `Let me clarify the relationship.
+
+Markets and common measures don't do the same thing, and one doesn't replace the other. They solve different parts of the information problem:
+
+**Markets** make information cheaper to **produce**:
+• By concentrating traders, they eliminate search costs
+• By making trades observable, they reveal prices you'd otherwise have to discover through negotiation
+
+**Common measures** make information easier to **process**:
+• By expressing all values in one unit, they let you compare things that would otherwise be incomparable
+• They make hidden mispricings visible
+
+Together: the market gives you raw information (these trades happened, these offers were called). The common measure helps you interpret it (this deal is good, that cycle profits).
+
+They're complementary tools—each addressing a different cost in the information problem.`
+          }
+        },
+        {
+          id: 5,
+          key: 'q6_moneyInfo',
+          section: 'The Deeper Pattern',
+          narrative: `At the end of Tutorial 1.4, Kira mentioned tokens—things with no practical use except as a medium of exchange. Shells, beads, bits of metal. Things you can't eat, can't wear, can't build with.
+
+These tokens do facilitate the physical exchange of goods and services.`,
+          question: "But why do they work? What makes a worthless token useful?",
+          evaluate: evaluateQ6,
+          feedback: {
+            pass: `Exactly. The token works because of the information it carries.
+
+A shell or a coin or a digital ledger entry has no use in itself. You can't eat it, wear it, build with it. What it does is communicate—it tells everyone what you can get in exchange for it.
+
+Money is an information technology. When you hold a token, what you really hold is a claim that others will recognize—a shared understanding of what it's worth. The physical exchange happens because the token carries information that everyone can read.
+
+This is why cryptocurrency can work without government backing. The shell has no physical value. The Bitcoin has no physical value. What matters is the coordinated understanding of what they represent. Money works when everyone agrees on what the token means—and that agreement is pure information.
+
+The mystery isn't why worthless things can have value. The mystery is how millions of strangers come to share the same belief about what a token represents. That coordination is what makes money possible.`,
+            partial: `You're close—but let me push deeper.
+
+Yes, tokens work because people accept them. But why do people accept them? What does "acceptance" actually mean?
+
+It means everyone agrees on what the token represents—what you can exchange it for. The token carries information: "This is worth X." When you hand someone a token, you're transmitting that information.
+
+Money is fundamentally an information technology. The physical object (shell, coin, paper, digital entry) is just a carrier. What matters is the shared understanding of what it means.
+
+This is why cryptocurrency can exist without government backing. There's no law forcing anyone to accept Bitcoin. What makes it work is that millions of people coordinate on the same understanding of what it represents. The token is worthless; the information it carries is everything.`,
+            flag: `Let me reframe this.
+
+It's not government force that makes money work—cryptocurrency proves that. It's not convenience—that's a benefit, not an explanation. The answer is deeper.
+
+Tokens work because of the information they carry.
+
+When you hand someone a token, you're not giving them something useful. You're transmitting information: "This represents X value. Others will recognize it too." The physical exchange happens because the token communicates a shared understanding.
+
+Money is an information technology. The shell, the coin, the paper bill, the Bitcoin—these are all just carriers. What matters is the coordinated understanding of what they represent.
+
+Barley worked as a common measure because everyone knew what barley was worth to them. Tokens work the same way—except they've abstracted away from any physical usefulness. They're pure information about value, nothing more. And that turns out to be enough.`
+          }
+        },
+        {
+          id: 6,
+          key: 'q7_foundation',
+          section: 'The Deeper Pattern',
+          narrative: `We've covered a lot of ground. Search costs. Negotiation costs. Markets. Common measures. Tokens.
+
+You've experienced what traders in a pre-urban valley faced—and the solutions that emerged.`,
+          question: "If you had to explain Act I to someone in one sentence, what's the foundation everything else builds on?",
+          evaluate: evaluateQ7,
+          feedback: {
+            pass: `That's it.
+
+Everything you experienced in Act I comes down to this: economic problems are information problems, and economic institutions exist to make information cheaper or clearer.
+
+Search costs? The cost of learning who has what.
+Negotiation costs? The cost of learning what terms they'll accept.
+Markets? Institutions that make information cheaper to produce.
+Common measures? Tools that make information easier to process.
+Money? An information technology for communicating value.
+
+This is the foundation. Everything that follows—contracts, credit, ledgers, double-entry bookkeeping—builds on this insight.
+
+Information is costly to produce. Exchange creates information about value. And the entire history of economic institutions is the story of making that information cheaper, more reliable, and more widely available.`,
+            partial: `You're touching the core. Let me crystallize it.
+
+The foundation is: **information is costly, and institutions exist to make it cheaper**.
+
+Every problem you faced was ultimately about information:
+• Search = learning who has what
+• Negotiation = learning what terms they'll accept
+• Comparison = understanding relative value
+
+Every solution made information cheaper or clearer:
+• Markets concentrate information and make it observable
+• Common measures make information commensurable
+• Money communicates value in a form everyone can read
+
+This is the foundation of accounting, of finance, of economic institutions generally. They all exist to produce, process, preserve, or transmit information about value.`,
+            flag: `Let me offer the framing that ties everything together.
+
+The foundation isn't "trading" or "markets" or "exchange"—those are the activities. The foundation is underneath them:
+
+**All economic problems are information problems. All economic institutions exist to make information cheaper or clearer.**
+
+Search costs are the cost of learning who has what.
+Negotiation costs are the cost of learning terms.
+Markets make information cheaper to produce.
+Common measures make information easier to see.
+Money carries information about value.
+
+This is why Act I matters for accounting. Accounting is an information system—it produces, organizes, and communicates information about value. Everything that follows builds on this foundation: that information is costly, and reducing those costs is what institutions are for.`
+          }
+        },
+      ];
+
+      const handleSubmit = () => {
+        const q = questions[currentQuestion];
+        const evaluation = q.evaluate(answer);
+
+        setAnswers({ ...answers, [q.key]: answer });
+        setFlags({ ...flags, [q.key]: evaluation });
+        setShowFeedback(true);
+      };
+
+      const nextQuestion = () => {
+        setAnswer('');
+        setShowFeedback(false);
+
+        if (currentQuestion < questions.length - 1) {
+          setCurrentQuestion(currentQuestion + 1);
+        } else {
+          setPhase('bridge');
+        }
+      };
+
+      const saveResults = () => {
+        try {
+          const flaggedConcepts = Object.entries(flags)
+            .filter(([_, v]) => v === 'flag')
+            .map(([k, _]) => k);
+
+          localStorage.setItem('actIReviewComplete', JSON.stringify({
+            completedAt: Date.now(),
+            questionsAnswered: 7,
+            conceptFlags: flags,
+            flaggedConcepts,
+            needsReview: flaggedConcepts.length > 0
+          }));
+        } catch (e) {
+          console.log('Could not save results');
+        }
+      };
+
+      const conceptMapping = {
+        q1_throughline: { name: 'Information as the throughline', tutorial: '1.1' },
+        q2_negotiation: { name: 'Strategic concealment in negotiation', tutorial: '1.2' },
+        q3_markets: { name: 'How markets reduce information costs', tutorial: '1.3' },
+        q4_arbitrage: { name: 'Competition and price adjustment', tutorial: '1.4' },
+        q5_complementary: { name: 'Markets and measures working together', tutorial: '1.3 & 1.4' },
+        q6_moneyInfo: { name: 'Money as information technology', tutorial: '1.4' },
+        q7_foundation: { name: 'The information foundation', tutorial: 'Act I' },
+      };
+
+      const Header = () => (
+        <div className="text-white p-4" style={{ backgroundColor: colors.primary }}>
+          <div className="max-w-2xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Book className="w-5 h-5" />
+              <span className="font-bold">Act I Review</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {phase === 'questions' && (
+                <div className="flex items-center gap-1">
+                  {questions.map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-2 h-2 rounded-full transition-all"
+                      style={{
+                        backgroundColor: i < currentQuestion ? colors.accent :
+                                        i === currentQuestion ? '#fff' : 'rgba(255,255,255,0.3)'
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+              <button
+                onClick={() => setShowGlossary(true)}
+                className="text-xs px-2 py-1 rounded bg-white/20 hover:bg-white/30"
+              >
+                Glossary
+              </button>
+              <button
+                onClick={() => setDevMode(!devMode)}
+                className="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20"
+              >
+                {devMode ? 'DEV' : ''}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+
+      const GlossaryModal = () => (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-4 border-b sticky top-0 bg-white flex justify-between items-center">
+              <h3 className="font-bold" style={{ color: colors.primary }}>Glossary</h3>
+              <button onClick={() => setShowGlossary(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div className="p-4 space-y-3 text-sm">
+              {[
+                { term: 'Transaction Costs', definition: 'Everything that makes exchange difficult: finding partners, negotiating terms, verifying quality, enforcing agreements.' },
+                { term: 'Search Costs', definition: 'The time, effort, and travel required to find potential trading partners.' },
+                { term: 'Strategic Concealment', definition: 'Hiding information (like your true limits) because revealing it would weaken your bargaining position.' },
+                { term: 'Price Discovery', definition: 'The process by which markets reveal what goods are worth through observable trades.' },
+                { term: 'Numeraire', definition: 'A good used as a common unit to express all values, making different goods comparable.' },
+                { term: 'Arbitrage', definition: 'Profiting from inconsistent prices by trading in a cycle that returns to your starting good.' },
+                { term: 'Commensurable', definition: 'Able to be compared because measured in the same unit. "6 barley" and "8 barley" are commensurable; "3 wool" and "2 pots" are not.' },
+              ].map((item, i) => (
+                <div key={i}>
+                  <p className="font-medium" style={{ color: colors.primary }}>{item.term}</p>
+                  <p className="text-gray-600 text-xs">{item.definition}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+
+      if (phase === 'intro') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-5 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                  <h1 className="text-xl font-bold mb-1">Act I Review</h1>
+                  <p className="text-blue-200 text-sm">The Foundations of Exchange</p>
+                </div>
+                <div className="p-5 text-sm">
+                  <div className="p-4 rounded-lg mb-4 border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+                    <p className="text-gray-700 mb-3">
+                      A few weeks ago, you set out with a basket of barley, looking for wool. You walked the valley. You negotiated in the hills. You watched a market emerge at the river crossing. You learned to see what others couldn't.
+                    </p>
+                    <p className="text-gray-700">
+                      Before you leave this valley—before the story moves on—let's make sure the lessons stay with you.
+                    </p>
+                  </div>
+
+                  <div className="mb-4 p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+                    <h3 className="font-bold text-sm mb-2" style={{ color: colors.primary }}>What This Review Covers</h3>
+                    <div className="space-y-2 text-xs text-gray-700">
+                      <div className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full mt-1.5" style={{ backgroundColor: colors.primary }}></div>
+                        <span><strong>The Information Thread</strong> — What connected all four tutorials?</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full mt-1.5" style={{ backgroundColor: colors.primary }}></div>
+                        <span><strong>Applying Concepts</strong> — Can you use what you learned?</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full mt-1.5" style={{ backgroundColor: colors.primary }}></div>
+                        <span><strong>The Deeper Pattern</strong> — What's the foundation everything builds on?</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mb-4">
+                    <Clock className="w-4 h-4" />
+                    <span>About 10 minutes</span>
+                  </div>
+
+                  <button
+                    onClick={() => setPhase('questions')}
+                    className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Begin Review <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      if (phase === 'bridge') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-5 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                  <h1 className="text-xl font-bold mb-1">The Valley to the City</h1>
+                  <p className="text-blue-200 text-sm">What comes next</p>
+                </div>
+                <div className="p-5 text-sm">
+                  <div className="p-4 rounded-lg mb-4 border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+                    <p className="text-gray-700 mb-3">
+                      The world you've explored is small—a river valley, a few dozen families, a market that meets each full moon.
+                    </p>
+                    <p className="text-gray-700">
+                      But human societies didn't stay small.
+                    </p>
+                  </div>
+
+                  <div className="mb-4 p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+                    <p className="text-gray-700 text-sm mb-3">
+                      Imagine a city of tens of thousands. Massive construction projects—temples, walls, canals—requiring coordination across hundreds of workers. Armies to supply and pay. Trade routes stretching hundreds of miles to places you'll never see.
+                    </p>
+                    <p className="text-gray-700 text-sm mb-3">
+                      In this world, information demands explode.
+                    </p>
+                    <p className="text-gray-700 text-sm mb-3">
+                      You can't remember every transaction. You can't be everywhere at once. You need to report to people who weren't there—and they need to trust what you tell them. But it goes both ways: others will report to you, and you'll need to verify what <em>they</em> tell you.
+                    </p>
+                    <p className="text-gray-700 text-sm font-medium" style={{ color: colors.earthDark }}>
+                      The valley taught you why information matters. The city will teach you how to capture it, preserve it, verify it, and share it.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-lg mb-4" style={{ backgroundColor: '#f0f7ff', borderLeft: `4px solid ${colors.primary}` }}>
+                    <p className="text-gray-700 text-sm italic">
+                      That's where we're going next.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      saveResults();
+                      setPhase('complete');
+                    }}
+                    className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Complete Act I <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      if (phase === 'complete') {
+        const flaggedKeys = Object.entries(flags).filter(([_, v]) => v === 'flag').map(([k, _]) => k);
+        const partialKeys = Object.entries(flags).filter(([_, v]) => v === 'partial').map(([k, _]) => k);
+        const passedKeys = Object.entries(flags).filter(([_, v]) => v === 'pass').map(([k, _]) => k);
+
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-5 text-white text-center" style={{ background: 'linear-gradient(to right, #2d6a4f, #40916c)' }}>
+                  <Trophy className="w-12 h-12 mx-auto mb-2 text-yellow-300" />
+                  <h1 className="text-xl font-bold">Act I Complete!</h1>
+                  <p className="text-green-100 text-sm">You've built the foundation</p>
+                </div>
+                <div className="p-5 text-sm">
+
+                  <div className="mb-4 p-4 rounded-lg border-l-4" style={{ backgroundColor: '#f0f7ff', borderColor: colors.primary }}>
+                    <h3 className="font-bold mb-2" style={{ color: colors.primary }}>The Foundation</h3>
+                    <div className="space-y-2 text-xs text-gray-700">
+                      <p>• Transaction costs are information costs</p>
+                      <p>• Search and negotiation both produce information, but at a cost</p>
+                      <p>• Markets reduce these costs through concentration and visibility</p>
+                      <p>• A common measure makes comparison possible</p>
+                      <p>• Money works because of the information it carries</p>
+                      <p>• Value emerges from exchange—it's not intrinsic</p>
+                    </div>
+                  </div>
+
+                  <div className="mb-4 p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+                    <h3 className="font-bold mb-3" style={{ color: colors.earthDark }}>Your Understanding</h3>
+
+                    {passedKeys.length > 0 && (
+                      <div className="mb-3">
+                        <p className="text-xs font-medium text-green-700 mb-1">Strong grasp:</p>
+                        {passedKeys.map(key => (
+                          <div key={key} className="flex items-center gap-2 text-xs text-gray-700 ml-2">
+                            <CheckCircle className="w-3 h-3 text-green-600" />
+                            <span>{conceptMapping[key].name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {partialKeys.length > 0 && (
+                      <div className="mb-3">
+                        <p className="text-xs font-medium text-amber-700 mb-1">Getting there:</p>
+                        {partialKeys.map(key => (
+                          <div key={key} className="flex items-center gap-2 text-xs text-gray-700 ml-2">
+                            <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                            <span>{conceptMapping[key].name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {flaggedKeys.length > 0 && (
+                      <div className="p-3 rounded-lg" style={{ backgroundColor: '#fef3c7' }}>
+                        <p className="text-xs font-medium mb-2" style={{ color: '#92400e' }}>
+                          You might want to revisit:
+                        </p>
+                        {flaggedKeys.map(key => (
+                          <div key={key} className="flex items-center gap-2 text-xs text-gray-700 mb-1">
+                            <AlertCircle className="w-3 h-3 text-amber-600" />
+                            <span>{conceptMapping[key].name} (Tutorial {conceptMapping[key].tutorial})</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {flaggedKeys.length === 0 && partialKeys.length === 0 && (
+                      <p className="text-xs text-green-700">Excellent work across all concepts!</p>
+                    )}
+                  </div>
+
+                  <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: colors.sand }}>
+                    <h3 className="font-bold text-xs mb-2" style={{ color: colors.earthDark }}>What's Next</h3>
+                    <p className="text-xs text-gray-700 mb-2">
+                      In Act II, you'll travel to Babylon—a city of merchants, scribes, and kings. You'll face information problems that no market can solve alone.
+                    </p>
+                    <p className="text-xs text-gray-700">
+                      And you'll discover the tools that made accounting possible.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setPhase('intro');
+                      setCurrentQuestion(0);
+                      setAnswers({});
+                      setFlags({
+                        q1_throughline: null,
+                        q2_negotiation: null,
+                        q3_markets: null,
+                        q4_arbitrage: null,
+                        q5_complementary: null,
+                        q6_moneyInfo: null,
+                        q7_foundation: null,
+                      });
+                      setAnswer('');
+                      setShowFeedback(false);
+                    }}
+                    className="w-full py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    <RefreshCw className="w-4 h-4" /> Restart Review
+                  </button>
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      const q = questions[currentQuestion];
+      const currentFlag = flags[q.key];
+
+      return (
+        <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+          <Header />
+          <div className="p-4 max-w-2xl mx-auto">
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+              <div className="px-5 py-2 text-xs font-medium" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                {getCurrentSection()} — Question {currentQuestion + 1} of {questions.length}
+              </div>
+
+              <div className="p-5">
+                {devMode && !showFeedback && (
+                  <button
+                    onClick={() => {
+                      setFlags({ ...flags, [q.key]: 'pass' });
+                      setShowFeedback(true);
+                    }}
+                    className="mb-3 text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded"
+                  >
+                    [DEV] Skip to feedback
+                  </button>
+                )}
+
+                <div className="mb-4 p-4 rounded-lg border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+                  <p className="text-gray-700 text-sm whitespace-pre-line">{q.narrative}</p>
+                </div>
+
+                <div className="mb-4 p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+                  <p className="font-medium text-sm" style={{ color: colors.primary }}>{q.question}</p>
+                </div>
+
+                {!showFeedback && (
+                  <div className="space-y-3">
+                    <textarea
+                      value={answer}
+                      onChange={(e) => setAnswer(e.target.value)}
+                      className="w-full p-3 border rounded-lg text-sm focus:outline-none focus:ring-2"
+                      style={{ borderColor: colors.earthLight }}
+                      rows={4}
+                      placeholder="Your answer..."
+                    />
+                    <button
+                      onClick={handleSubmit}
+                      disabled={answer.trim().length < 10}
+                      className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Submit <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                {showFeedback && (
+                  <div className="space-y-4">
+                    <div
+                      className="p-4 rounded-lg border-l-4"
+                      style={{
+                        backgroundColor: currentFlag === 'pass' ? '#f0fff4' :
+                                        currentFlag === 'partial' ? '#fffbeb' : '#fef2f2',
+                        borderColor: currentFlag === 'pass' ? '#22c55e' :
+                                    currentFlag === 'partial' ? '#f59e0b' : '#ef4444'
+                      }}
+                    >
+                      <p className="font-bold text-sm mb-2" style={{
+                        color: currentFlag === 'pass' ? '#166534' :
+                              currentFlag === 'partial' ? '#92400e' : '#991b1b'
+                      }}>
+                        {currentFlag === 'pass' ? '✓ Well understood' :
+                         currentFlag === 'partial' ? '○ Partial understanding' : '△ Let\'s clarify'}
+                      </p>
+                      <p className="text-gray-700 text-sm whitespace-pre-line">
+                        {q.feedback[currentFlag]}
+                      </p>
+                    </div>
+                    <button
+                      onClick={nextQuestion}
+                      className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      {currentQuestion < questions.length - 1 ? 'Next Question' : 'Continue'} <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          {showGlossary && <GlossaryModal />}
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ActIReview />);
+  </script>
+
+  <!-- Navigation Footer -->
+  <nav style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to right, #00356b, #004080); padding: 1rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);">
+    <div style="max-width: 48rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+      <a href="tutorial-1-5.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem; transition: background 0.2s;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span style="font-size: 0.875rem;">Previous</span>
+      </a>
+
+      <a href="../index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.15); border-radius: 0.5rem; transition: background 0.2s; font-weight: 600;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span style="font-size: 0.875rem;">Tutorial Hub</span>
+      </a>
+
+      <a href="../act-2/act-2-welcome.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem; transition: background 0.2s;">
+        <span style="font-size: 0.875rem;">Next</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </a>
+    </div>
+  </nav>
+</body>
+</html>

@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 2.4: Tablets That Speak with One Voice</title>
+
+  <!-- React 18 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // ============================================
+    // INLINE SVG ICON COMPONENTS
+    // ============================================
+
+    const ChevronRight = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    );
+
+    const Clock = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+    );
+
+    const Book = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+    );
+
+    const CheckCircle = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    );
+
+    const HelpCircle = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    );
+
+    const Trophy = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+        <path d="M4 22h16"></path>
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+      </svg>
+    );
+
+    const RefreshCw = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+    );
+
+    const Building2 = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
+        <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
+        <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+        <path d="M10 6h4"></path>
+        <path d="M10 10h4"></path>
+        <path d="M10 14h4"></path>
+        <path d="M10 18h4"></path>
+      </svg>
+    );
+
+    const FileText = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+    );
+
+    const ArrowRight = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    );
+
+    const ArrowDown = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <polyline points="19 12 12 19 5 12"></polyline>
+      </svg>
+    );
+
+    const Sun = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+    );
+
+    const Moon = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    );
+
+    const Users = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+    );
+
+    const AlertTriangle = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    );
+
+    const Check = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    );
+
+    const X = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    );
+
+    // ============================================
+    // SOUND FEEDBACK UTILITIES
+    // ============================================
+
+    const createAudioContext = () => {
+      return new (window.AudioContext || window.webkitAudioContext)();
+    };
+
+    // SUCCESS: C-E-G ascending arpeggio (correct answer)
+    const playSuccessTone = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        const startTime = ctx.currentTime;
+
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+
+          const noteStart = startTime + (i * 0.1);
+          const noteEnd = noteStart + 0.15;
+
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.3, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.1);
+        });
+
+        setTimeout(() => ctx.close(), 600);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    // SOFT NOPE: Gentle descending two-tone (1st/2nd incorrect)
+    const playSoftNope = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [400, 300];
+        const startTime = ctx.currentTime;
+
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+
+          const noteStart = startTime + (i * 0.12);
+          const noteEnd = noteStart + 0.12;
+
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.2, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.05);
+        });
+
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    // BUZZER: Harsh buzz (3rd strike)
+    const playBuzzer = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.value = 150;
+        oscillator.type = 'sawtooth';
+
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0.25, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.35);
+
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    // CONTINUE CLICK: Subtle pop for navigation
+    const playContinueClick = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.value = 600;
+        oscillator.type = 'sine';
+
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.1);
+
+        setTimeout(() => ctx.close(), 150);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    // ============================================
+    // COLOR PALETTE
+    // ============================================
+
+    const colors = {
+      primary: '#00356b',
+      sand: '#f5f1e8',
+      earth: '#8b7355',
+      earthLight: '#d4c4a8',
+      earthDark: '#5c4d3d',
+      accent: '#c9a227',
+      clay: '#c4a574',
+      clayLight: '#e8dcc8',
+      clayDark: '#a08050',
+      success: '#22c55e',
+      successBg: '#f0fdf4',
+      warning: '#f59e0b',
+      warningBg: '#fffbeb',
+      error: '#dc2626',
+      errorBg: '#fef2f2'
+    };
+
+    // ============================================
+    // GLOSSARY DATA
+    // ============================================
+
+    const glossaryTerms = [
+      { term: 'Conservation principle', definition: 'The idea that resources don\'t appear from nothing or vanish into nothing — every outflow is someone\'s inflow' },
+      { term: 'Central Record Hall', definition: 'A proposed location where all departments\' records are housed together, enabling reconciliation' },
+      { term: 'End-of-day reconciliation', definition: 'The practice of comparing all departments\' records each evening before the next day\'s reports' },
+      { term: 'Coordinated records', definition: 'Records from different departments that are systematically checked against each other' },
+      { term: 'Tablets That Speak with One Voice', definition: 'A system where every transaction is recorded by both parties, and the two records must agree — the Babylonian precursor to what would later be called double-entry accounting' },
+      { term: 'Verification', definition: 'Comparing records to each other to check for accuracy' },
+      { term: 'Garu', definition: 'A Babylonian measure of volume equal to 10 sila, approximately 15 liters' },
+      { term: 'Discrepancy', definition: 'A difference between counts that should agree but don\'t' }
+    ];
+
+    // ============================================
+    // MAIN COMPONENT
+    // ============================================
+
+    const Tutorial24TabletsThatSpeak = () => {
+      // Phase control
+      const [phase, setPhase] = useState('welcome');
+      // Phases: welcome → conservation → problem-restated → student-proposal → demonstration → full-proposal → naming → reflection → complete
+
+      // Dev mode
+      const [devMode, setDevMode] = useState(false);
+      const [headerClickCount, setHeaderClickCount] = useState(0);
+
+      // Glossary
+      const [showGlossary, setShowGlossary] = useState(false);
+
+      // Phase 2: Conservation
+      const [conservationAnswer, setConservationAnswer] = useState('');
+      const [conservationSubmitted, setConservationSubmitted] = useState(false);
+      const [conservationAttempts, setConservationAttempts] = useState(0);
+      const [showConservationHint, setShowConservationHint] = useState(false);
+
+      // Phase 3: Problem Restated
+      const [timingAnswer, setTimingAnswer] = useState('');
+      const [timingSubmitted, setTimingSubmitted] = useState(false);
+      const [timingAttempts, setTimingAttempts] = useState(0);
+      const [showTimingHint, setShowTimingHint] = useState(false);
+
+      // Phase 4: Student Proposal
+      const [proposalAnswer, setProposalAnswer] = useState('');
+      const [proposalSubmitted, setProposalSubmitted] = useState(false);
+      const [proposalAttempts, setProposalAttempts] = useState(0);
+      const [proposalStep, setProposalStep] = useState(0); // 0 = question, 1 = elaboration
+
+      // Phase 5: Demonstration
+      const [demoStep, setDemoStep] = useState(0); // 0-5 for six steps
+
+      // Phase 6: Full Proposal
+      const [fullProposalStep, setFullProposalStep] = useState(0);
+
+      // Phase 8: Reflection
+      const [reflectionStep, setReflectionStep] = useState(0);
+      const [reflectionAnswers, setReflectionAnswers] = useState(['', '']);
+      const [reflectionSubmitted, setReflectionSubmitted] = useState([false, false]);
+
+      // ============================================
+      // HANDLERS
+      // ============================================
+
+      const handleHeaderClick = () => {
+        const newCount = headerClickCount + 1;
+        setHeaderClickCount(newCount);
+        if (newCount >= 2) {
+          setDevMode(!devMode);
+          setHeaderClickCount(0);
+        }
+        setTimeout(() => setHeaderClickCount(0), 500);
+      };
+
+      const handleRestart = () => {
+        setPhase('welcome');
+        setConservationAnswer('');
+        setConservationSubmitted(false);
+        setConservationAttempts(0);
+        setShowConservationHint(false);
+        setTimingAnswer('');
+        setTimingSubmitted(false);
+        setTimingAttempts(0);
+        setShowTimingHint(false);
+        setProposalAnswer('');
+        setProposalSubmitted(false);
+        setProposalAttempts(0);
+        setProposalStep(0);
+        setDemoStep(0);
+        setFullProposalStep(0);
+        setReflectionStep(0);
+        setReflectionAnswers(['', '']);
+        setReflectionSubmitted([false, false]);
+      };
+
+      // Conservation question evaluation
+      const evaluateConservation = (answer) => {
+        const lower = answer.toLowerCase();
+        const keywords = ['match', 'agree', 'same', 'equal', 'identical', 'consistent'];
+        return keywords.some(k => lower.includes(k)) && answer.length >= 15;
+      };
+
+      const handleConservationSubmit = () => {
+        if (evaluateConservation(conservationAnswer)) {
+          playSuccessTone();
+          setConservationSubmitted(true);
+        } else {
+          const newAttempts = conservationAttempts + 1;
+          setConservationAttempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setConservationSubmitted(true);
+          } else {
+            playSoftNope();
+            setShowConservationHint(true);
+          }
+        }
+      };
+
+      // Timing question evaluation
+      const evaluateTiming = (answer) => {
+        const lower = answer.toLowerCase();
+        const keywords = ['before report', 'before morning', 'same day', 'evening', 'end of day', 'that day', 'earlier', 'sooner', 'immediately'];
+        return keywords.some(k => lower.includes(k)) && answer.length >= 10;
+      };
+
+      const handleTimingSubmit = () => {
+        if (evaluateTiming(timingAnswer)) {
+          playSuccessTone();
+          setTimingSubmitted(true);
+        } else {
+          const newAttempts = timingAttempts + 1;
+          setTimingAttempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setTimingSubmitted(true);
+          } else {
+            playSoftNope();
+            setShowTimingHint(true);
+          }
+        }
+      };
+
+      // Proposal question evaluation
+      const evaluateProposal = (answer) => {
+        const lower = answer.toLowerCase();
+        // Location keywords
+        const locationKeywords = ['together', 'same place', 'one place', 'one hall', 'central', 'bring together', 'same building', 'combine', 'single'];
+        // Timing keywords
+        const timingKeywords = ['earlier', 'same day', 'evening', 'end of day', 'before report', 'before morning', 'immediately', 'sooner'];
+        // Action keywords
+        const actionKeywords = ['compare', 'check', 'verify', 'reconcile', 'match', 'agree', 'coordinate'];
+
+        const hasLocation = locationKeywords.some(k => lower.includes(k));
+        const hasTiming = timingKeywords.some(k => lower.includes(k));
+        const hasAction = actionKeywords.some(k => lower.includes(k));
+
+        return (hasLocation || hasTiming || hasAction) && answer.length >= 15;
+      };
+
+      const getProposalHint = (attempts) => {
+        if (attempts === 1) {
+          return "You're thinking about this... but consider: what is it about separate halls that allows errors to hide?";
+        } else if (attempts === 2) {
+          return "The Tax Assessor's hall is there. The Granary's hall is across the city. When the Tax Assessor makes an error, who would know? Think about what would have to change for someone to notice immediately.";
+        } else {
+          return "If the records were kept in the same place... or compared at the same time... what becomes possible?";
+        }
+      };
+
+      const handleProposalSubmit = () => {
+        if (evaluateProposal(proposalAnswer)) {
+          playSuccessTone();
+          setProposalSubmitted(true);
+        } else {
+          const newAttempts = proposalAttempts + 1;
+          setProposalAttempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setProposalSubmitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Reflection evaluation (generous - accepts substantive responses)
+      const handleReflectionSubmit = (index) => {
+        const answer = reflectionAnswers[index];
+        if (answer.length >= 20) {
+          playSuccessTone();
+          const newSubmitted = [...reflectionSubmitted];
+          newSubmitted[index] = true;
+          setReflectionSubmitted(newSubmitted);
+        }
+      };
+
+      // ============================================
+      // RENDER HELPERS
+      // ============================================
+
+      const renderMarkdown = (text) => {
+        // Handle bold
+        let processed = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        // Handle italic
+        processed = processed.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        return <span dangerouslySetInnerHTML={{ __html: processed }} />;
+      };
+
+      // ============================================
+      // COMPONENT: Glossary Modal
+      // ============================================
+
+      const GlossaryModal = () => (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden shadow-xl">
+            <div className="p-4 border-b flex justify-between items-center" style={{ backgroundColor: colors.primary }}>
+              <h3 className="font-bold text-white flex items-center gap-2">
+                <Book className="w-5 h-5" />
+                Glossary
+              </h3>
+              <button
+                onClick={() => setShowGlossary(false)}
+                className="text-white hover:text-blue-200"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              {glossaryTerms.map((item, idx) => (
+                <div key={idx} className="mb-4 last:mb-0">
+                  <div className="font-bold" style={{ color: colors.primary }}>{item.term}</div>
+                  <div className="text-gray-700 text-sm">{item.definition}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // COMPONENT: Header
+      // ============================================
+
+      const Header = () => (
+        <div
+          className="p-3 text-white flex items-center justify-between cursor-pointer"
+          style={{ backgroundColor: colors.primary }}
+          onClick={handleHeaderClick}
+        >
+          <div className="flex items-center gap-2">
+            <Building2 className="w-5 h-5" />
+            <div>
+              <span className="font-bold">Tutorial 2.4: Tablets That Speak with One Voice</span>
+              <span className="text-blue-200 text-xs ml-2">Babylon ~1800 BCE</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowGlossary(true); }}
+              className="flex items-center gap-1 text-sm hover:text-blue-200"
+            >
+              <Book className="w-4 h-4" />
+              <span className="hidden sm:inline">Glossary</span>
+            </button>
+            <div className="flex items-center gap-1 text-sm text-blue-200">
+              <Clock className="w-4 h-4" />
+              <span>~12 min</span>
+            </div>
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // COMPONENT: Progress Bar
+      // ============================================
+
+      const ProgressBar = () => {
+        const phases = ['welcome', 'conservation', 'problem-restated', 'student-proposal', 'demonstration', 'full-proposal', 'naming', 'reflection', 'complete'];
+        const currentIndex = phases.indexOf(phase);
+        const progress = ((currentIndex) / (phases.length - 1)) * 100;
+
+        return (
+          <div className="px-4 py-2 bg-gray-100 border-b flex items-center gap-3">
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div
+                className="h-2 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%`, backgroundColor: colors.primary }}
+              />
+            </div>
+            <button
+              onClick={handleRestart}
+              className="text-sm flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-200"
+              style={{ color: colors.earth }}
+            >
+              <RefreshCw className="w-3 h-3" />
+              Restart
+            </button>
+            {devMode && (
+              <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded">DEV</span>
+            )}
+          </div>
+        );
+      };
+
+      // ============================================
+      // COMPONENT: Narrative Block
+      // ============================================
+
+      const NarrativeBlock = ({ children }) => (
+        <div
+          className="p-4 rounded-lg italic mb-4"
+          style={{
+            backgroundColor: colors.sand,
+            borderLeft: `4px solid ${colors.accent}`
+          }}
+        >
+          {children}
+        </div>
+      );
+
+      // ============================================
+      // COMPONENT: Dialogue Block
+      // ============================================
+
+      const DialogueBlock = ({ speaker, children }) => (
+        <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: colors.clayLight }}>
+          <p className="font-bold mb-2" style={{ color: colors.primary }}>{speaker}:</p>
+          <p className="italic" style={{ color: colors.earthDark }}>"{children}"</p>
+        </div>
+      );
+
+      // ============================================
+      // COMPONENT: Insight Panel
+      // ============================================
+
+      const InsightPanel = ({ title, children }) => (
+        <div
+          className="p-4 rounded-lg mb-4 border-2"
+          style={{
+            backgroundColor: colors.successBg,
+            borderColor: colors.success
+          }}
+        >
+          <div className="font-bold mb-2 flex items-center gap-2" style={{ color: colors.success }}>
+            <CheckCircle className="w-5 h-5" />
+            {title}
+          </div>
+          <div className="text-gray-700">{children}</div>
+        </div>
+      );
+
+      // ============================================
+      // COMPONENT: Central Record Hall Diagram
+      // ============================================
+
+      const CentralRecordHallDiagram = () => (
+        <div className="my-6 p-4 rounded-lg border-2" style={{ borderColor: colors.earthLight, backgroundColor: '#fafaf8' }}>
+          <div className="text-center font-bold mb-4 text-lg" style={{ color: colors.primary }}>
+            CENTRAL RECORD HALL
+          </div>
+
+          {/* Department sections */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            {[
+              { name: 'GRANARY', icon: '🌾' },
+              { name: 'TAX', icon: '📜' },
+              { name: 'FIELDS', icon: '🌱' },
+              { name: 'CONSTRUCTION', icon: '🏗️' }
+            ].map((dept, idx) => (
+              <div
+                key={idx}
+                className="p-3 rounded text-center border"
+                style={{ backgroundColor: colors.clayLight, borderColor: colors.clay }}
+              >
+                <div className="text-2xl mb-1">{dept.icon}</div>
+                <div className="text-xs font-bold" style={{ color: colors.earthDark }}>{dept.name}</div>
+                <div className="text-xs" style={{ color: colors.earth }}>Section</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Arrow down */}
+          <div className="flex justify-center my-2">
+            <ArrowDown className="w-6 h-6" style={{ color: colors.primary }} />
+          </div>
+
+          {/* Reconciliation area */}
+          <div
+            className="p-4 rounded-lg text-center border-2"
+            style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+          >
+            <div className="font-bold mb-1" style={{ color: colors.primary }}>
+              RECONCILIATION AREA
+            </div>
+            <div className="text-sm" style={{ color: colors.earthDark }}>
+              Both tablets present — counts must agree
+            </div>
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // COMPONENT: Isolated Halls Diagram (Problem)
+      // ============================================
+
+      const IsolatedHallsDiagram = () => (
+        <div className="my-6 p-4 rounded-lg border-2" style={{ borderColor: colors.earthLight, backgroundColor: '#fafaf8' }}>
+          <div className="text-center font-bold mb-4" style={{ color: colors.error }}>
+            THE CURRENT PROBLEM: Isolated Record Halls
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
+            {/* Tax Assessor Hall */}
+            <div
+              className="p-4 rounded-lg text-center border-2 w-40"
+              style={{ backgroundColor: colors.clayLight, borderColor: colors.clay }}
+            >
+              <div className="text-2xl mb-2">📜</div>
+              <div className="font-bold text-sm" style={{ color: colors.earthDark }}>Tax Assessor's Hall</div>
+              <div className="mt-2 p-2 rounded text-sm" style={{ backgroundColor: colors.errorBg, color: colors.error }}>
+                "Sent: 40 garu"
+              </div>
+            </div>
+
+            {/* No connection */}
+            <div className="text-center">
+              <div className="text-3xl text-gray-300">✗</div>
+              <div className="text-xs text-gray-500 mt-1">No comparison<br/>until morning</div>
+            </div>
+
+            {/* Granary Hall */}
+            <div
+              className="p-4 rounded-lg text-center border-2 w-40"
+              style={{ backgroundColor: colors.clayLight, borderColor: colors.clay }}
+            >
+              <div className="text-2xl mb-2">🌾</div>
+              <div className="font-bold text-sm" style={{ color: colors.earthDark }}>Granary's Hall</div>
+              <div className="mt-2 p-2 rounded text-sm" style={{ backgroundColor: colors.successBg, color: colors.success }}>
+                "Received: 50 garu"
+              </div>
+            </div>
+          </div>
+
+          {/* Arrow to reports */}
+          <div className="flex justify-center mt-4">
+            <ArrowDown className="w-5 h-5 text-gray-400" />
+          </div>
+
+          <div className="text-center mt-2 p-2 rounded" style={{ backgroundColor: colors.warningBg }}>
+            <AlertTriangle className="w-4 h-4 inline mr-1" style={{ color: colors.warning }} />
+            <span className="text-sm" style={{ color: colors.warning }}>
+              Discrepancy discovered only at morning reports — too late!
+            </span>
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // COMPONENT: Demo Animation Step
+      // ============================================
+
+      const DemoStep = ({ step }) => {
+        const steps = [
+          {
+            title: "End of Day",
+            description: "The sun sets over Babylon. Scribes gather their day's tablets.",
+            icon: <Moon className="w-12 h-12" />,
+            visual: (
+              <div className="flex justify-center gap-8 mt-4">
+                <div className="text-center animate-pulse">
+                  <FileText className="w-8 h-8 mx-auto" style={{ color: colors.clay }} />
+                  <div className="text-xs mt-1">Tax tablets</div>
+                </div>
+                <ArrowRight className="w-6 h-6 self-center" style={{ color: colors.primary }} />
+                <div className="p-3 rounded" style={{ backgroundColor: colors.sand }}>
+                  <Building2 className="w-10 h-10" style={{ color: colors.primary }} />
+                  <div className="text-xs mt-1 font-bold">Central Hall</div>
+                </div>
+                <ArrowRight className="w-6 h-6 self-center transform rotate-180" style={{ color: colors.primary }} />
+                <div className="text-center animate-pulse">
+                  <FileText className="w-8 h-8 mx-auto" style={{ color: colors.clay }} />
+                  <div className="text-xs mt-1">Granary tablets</div>
+                </div>
+              </div>
+            )
+          },
+          {
+            title: "Tablets Brought Together",
+            description: "In the reconciliation area, both tablets are present.",
+            icon: <Users className="w-12 h-12" />,
+            visual: (
+              <div className="flex justify-center gap-4 mt-4">
+                <div
+                  className="p-4 rounded-lg border-2 text-center"
+                  style={{ backgroundColor: colors.clayLight, borderColor: colors.clay }}
+                >
+                  <div className="text-xs font-bold mb-2">TAX ASSESSOR'S TABLET</div>
+                  <div className="p-2 rounded" style={{ backgroundColor: 'white' }}>
+                    Sent to Granary: <strong>40 garu</strong>
+                  </div>
+                </div>
+                <div
+                  className="p-4 rounded-lg border-2 text-center"
+                  style={{ backgroundColor: colors.clayLight, borderColor: colors.clay }}
+                >
+                  <div className="text-xs font-bold mb-2">GRANARY'S TABLET</div>
+                  <div className="p-2 rounded" style={{ backgroundColor: 'white' }}>
+                    Received from Tax: <strong>50 garu</strong>
+                  </div>
+                </div>
+              </div>
+            )
+          },
+          {
+            title: "Counts Are Compared",
+            description: "The Tax Assessor's scribe reads: 'Forty garu sent.' The Granary's scribe reads: 'Fifty garu received.'",
+            icon: <AlertTriangle className="w-12 h-12" style={{ color: colors.error }} />,
+            visual: (
+              <div className="mt-4">
+                <div className="flex justify-center items-center gap-6">
+                  <div
+                    className="p-4 rounded-lg border-2 text-center"
+                    style={{ backgroundColor: colors.errorBg, borderColor: colors.error }}
+                  >
+                    <div className="text-3xl font-bold" style={{ color: colors.error }}>40</div>
+                    <div className="text-sm">garu sent</div>
+                  </div>
+                  <div className="text-3xl font-bold" style={{ color: colors.error }}>≠</div>
+                  <div
+                    className="p-4 rounded-lg border-2 text-center"
+                    style={{ backgroundColor: colors.errorBg, borderColor: colors.error }}
+                  >
+                    <div className="text-3xl font-bold" style={{ color: colors.error }}>50</div>
+                    <div className="text-sm">garu received</div>
+                  </div>
+                </div>
+                <div className="text-center mt-4 font-bold" style={{ color: colors.error }}>
+                  Disagreement found immediately!
+                </div>
+              </div>
+            )
+          },
+          {
+            title: "Error Investigated",
+            description: "That same evening, both scribes recount. The error is found within the hour.",
+            icon: <FileText className="w-12 h-12" style={{ color: colors.warning }} />,
+            visual: (
+              <div className="mt-4 text-center">
+                <div
+                  className="inline-block p-4 rounded-lg border-2"
+                  style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}
+                >
+                  <div className="font-bold mb-2" style={{ color: colors.warning }}>Investigation in Progress</div>
+                  <div className="text-sm">
+                    Tax Assessor's individual tablets: 8 + 12 + 6 + 9 + 15 = <strong>50 garu</strong>
+                  </div>
+                  <div className="mt-2 text-sm" style={{ color: colors.error }}>
+                    Calculation error found! He summed to 40 instead of 50.
+                  </div>
+                </div>
+              </div>
+            )
+          },
+          {
+            title: "Error Corrected",
+            description: "The error is corrected. Both tablets now show fifty garu.",
+            icon: <Check className="w-12 h-12" style={{ color: colors.success }} />,
+            visual: (
+              <div className="flex justify-center gap-4 mt-4">
+                <div
+                  className="p-4 rounded-lg border-2 text-center"
+                  style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+                >
+                  <div className="text-xs font-bold mb-2">TAX ASSESSOR'S TABLET</div>
+                  <div className="p-2 rounded" style={{ backgroundColor: 'white' }}>
+                    Sent to Granary: <strong>50 garu</strong> ✓
+                  </div>
+                </div>
+                <div
+                  className="p-4 rounded-lg border-2 text-center"
+                  style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+                >
+                  <div className="text-xs font-bold mb-2">GRANARY'S TABLET</div>
+                  <div className="p-2 rounded" style={{ backgroundColor: 'white' }}>
+                    Received from Tax: <strong>50 garu</strong> ✓
+                  </div>
+                </div>
+              </div>
+            )
+          },
+          {
+            title: "Morning Reports Agree",
+            description: "When the King receives his morning reports, all counts agree. No crisis. No disgrace.",
+            icon: <Sun className="w-12 h-12" style={{ color: colors.accent }} />,
+            visual: (
+              <div className="mt-4 text-center">
+                <div
+                  className="inline-block p-6 rounded-lg border-2"
+                  style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+                >
+                  <Trophy className="w-12 h-12 mx-auto mb-2" style={{ color: colors.accent }} />
+                  <div className="font-bold text-lg" style={{ color: colors.success }}>Harmony in the Records</div>
+                  <div className="text-sm mt-2 text-gray-600">
+                    Tax Assessor: 50 garu sent ✓<br/>
+                    Granary: 50 garu received ✓<br/>
+                    <strong>Perfect agreement</strong>
+                  </div>
+                </div>
+              </div>
+            )
+          }
+        ];
+
+        const currentStep = steps[step];
+
+        return (
+          <div
+            className="p-6 rounded-lg border-2 mb-4"
+            style={{ borderColor: colors.earthLight, backgroundColor: '#fafaf8' }}
+          >
+            {/* Step indicator */}
+            <div className="flex justify-center gap-2 mb-4">
+              {steps.map((_, idx) => (
+                <div
+                  key={idx}
+                  className="w-3 h-3 rounded-full transition-all"
+                  style={{
+                    backgroundColor: idx === step ? colors.primary : colors.earthLight,
+                    transform: idx === step ? 'scale(1.2)' : 'scale(1)'
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Content */}
+            <div className="text-center">
+              <div className="flex justify-center mb-3" style={{ color: colors.primary }}>
+                {currentStep.icon}
+              </div>
+              <div className="font-bold text-lg mb-2" style={{ color: colors.primary }}>
+                Step {step + 1}: {currentStep.title}
+              </div>
+              <div className="text-gray-700 mb-4">
+                {currentStep.description}
+              </div>
+              {currentStep.visual}
+            </div>
+          </div>
+        );
+      };
+
+      // ============================================
+      // PHASE: Welcome
+      // ============================================
+
+      const renderWelcome = () => (
+        <div className="p-6 pb-16">
+          <NarrativeBlock>
+            <p className="mb-3">
+              Dawn breaks over the ziggurats of Babylon. The city stirs to life — merchants opening
+              their stalls, servants carrying water from the canals, the distant chant of priests
+              greeting the sun god Shamash.
+            </p>
+            <p>
+              But your mind is elsewhere. Yesterday's crisis weighs on you still.
+            </p>
+          </NarrativeBlock>
+
+          <NarrativeBlock>
+            <p className="mb-3">
+              You found the error — the Tax Assessor's assistant had summed fifty garu as forty.
+              A simple arithmetic mistake. But in the King's morning reports, it became a crisis.
+              Officials lost their seals. Careers were ruined.
+            </p>
+            <p>
+              And you understand <em>why</em> it happened. The records were kept in separate halls,
+              across the city from each other. No one compared them until the morning reports.
+              The error hid at the boundary between organizations — invisible until it was too late.
+            </p>
+          </NarrativeBlock>
+
+          <DialogueBlock speaker="A messenger arrives">
+            Master Nabu-rimanni requests your presence in the Hall of the Royal Head Scribe.
+            He says... he has a question for you.
+          </DialogueBlock>
+
+          <NarrativeBlock>
+            <p>
+              A question. Not a lecture. Not instructions. Master Nabu-rimanni wants to hear
+              what <em>you</em> think.
+            </p>
+          </NarrativeBlock>
+
+          <div
+            className="p-4 rounded-lg border-2 mb-6"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.accent }}
+          >
+            <p className="font-bold mb-2" style={{ color: colors.primary }}>In This Tutorial</p>
+            <ul className="space-y-1 text-sm" style={{ color: colors.earthDark }}>
+              <li>• You'll explore a principle that governs flows of all physical resources</li>
+              <li>• You'll propose a structural solution to the problem of hidden errors</li>
+              <li>• You'll see how your solution would have prevented yesterday's crisis</li>
+            </ul>
+            <p className="text-sm mt-3 italic" style={{ color: colors.earth }}>~12 minutes</p>
+          </div>
+
+          <button
+            onClick={() => { playContinueClick(); setPhase('conservation'); }}
+            className="w-full py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: colors.primary }}
+          >
+            Go to the Master
+            <ChevronRight className="w-5 h-5" />
+          </button>
+
+          {devMode && (
+            <button
+              onClick={() => setPhase('complete')}
+              className="w-full mt-2 py-2 rounded border text-sm"
+              style={{ borderColor: colors.warning, color: colors.warning }}
+            >
+              [DEV] Skip to Complete
+            </button>
+          )}
+        </div>
+      );
+
+      // ============================================
+      // PHASE: Conservation Principle
+      // ============================================
+
+      const renderConservation = () => (
+        <div className="p-6 pb-16">
+          <NarrativeBlock>
+            <p className="mb-3">
+              Master Nabu-rimanni meets you in the Hall of the Royal Head Scribe. He gestures for you
+              to sit on the reed mat beside his counting board.
+            </p>
+            <p>
+              "Consider what happens when the Tax Assessor sends grain to the Granary," he begins.
+              "The Tax Assessor records: 'Fifty garu sent.' The Granary records: 'Fifty garu received.'
+              These are two records of the <em>same transaction</em>."
+            </p>
+          </NarrativeBlock>
+
+          <div className="mb-4">
+            <div className="font-bold mb-2" style={{ color: colors.earthDark }}>
+              If both records are correct, what must be true about them?
+            </div>
+
+            <textarea
+              value={conservationAnswer}
+              onChange={(e) => setConservationAnswer(e.target.value)}
+              disabled={conservationSubmitted}
+              placeholder="What relationship must exist between the two records?"
+              className="w-full p-3 border-2 rounded-lg resize-none"
+              style={{ borderColor: colors.earthLight }}
+              rows={3}
+            />
+
+            {showConservationHint && !conservationSubmitted && (
+              <div className="mt-2 p-3 rounded text-sm" style={{ backgroundColor: colors.warningBg }}>
+                <HelpCircle className="w-4 h-4 inline mr-1" style={{ color: colors.warning }} />
+                <span style={{ color: colors.warning }}>
+                  Hint: If both the Tax Assessor and the Granary recorded the transaction correctly,
+                  how would their numbers relate to each other?
+                </span>
+                {conservationAttempts >= 2 && (
+                  <div className="mt-2" style={{ color: colors.warning }}>
+                    Think about the word "agree" or "match"...
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!conservationSubmitted && (
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-sm text-gray-500">
+                  {conservationAttempts > 0 && `Attempt ${conservationAttempts}/3`}
+                </span>
+                <button
+                  onClick={handleConservationSubmit}
+                  disabled={conservationAnswer.length < 15}
+                  className="px-4 py-2 rounded text-white font-bold disabled:opacity-50"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Submit
+                </button>
+              </div>
+            )}
+
+            {conservationSubmitted && (
+              <div
+                className="mt-3 p-4 rounded-lg border-2"
+                style={{
+                  backgroundColor: evaluateConservation(conservationAnswer) ? colors.successBg : colors.warningBg,
+                  borderColor: evaluateConservation(conservationAnswer) ? colors.success : colors.warning
+                }}
+              >
+                {evaluateConservation(conservationAnswer) ? (
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                    <div>
+                      <strong>Exactly right!</strong> If both records are correct, they must agree —
+                      they must show the same amount.
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <strong>Here's the key insight:</strong> If both records are correct, they must
+                    <em> agree</em> — they must show the same amount. What the Tax Assessor sends,
+                    the Granary receives.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {conservationSubmitted && (
+            <>
+              <InsightPanel title="The Conservation Principle">
+                <p>
+                  <strong>Every outflow somewhere is an inflow somewhere else.</strong> Grain doesn't
+                  appear from nothing or vanish into nothing. What leaves one place must arrive at another.
+                </p>
+                <p className="mt-2">
+                  If both parties record the same transaction correctly, their records <em>must agree</em>.
+                </p>
+              </InsightPanel>
+
+              <button
+                onClick={() => { playContinueClick(); setPhase('problem-restated'); }}
+                className="w-full py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Continue
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {devMode && !conservationSubmitted && (
+            <button
+              onClick={() => setConservationSubmitted(true)}
+              className="w-full mt-2 py-2 rounded border text-sm"
+              style={{ borderColor: colors.warning, color: colors.warning }}
+            >
+              [DEV] Skip Question
+            </button>
+          )}
+        </div>
+      );
+
+      // ============================================
+      // PHASE: Problem Restated
+      // ============================================
+
+      const renderProblemRestated = () => (
+        <div className="p-6 pb-16">
+          <NarrativeBlock>
+            <p>
+              Master Nabu-rimanni nods slowly. "And yet yesterday, the Tax Assessor's record said forty garu,
+              while the Granary's said fifty. The records <em>should</em> have agreed — but they didn't.
+              And no one knew until the morning reports."
+            </p>
+          </NarrativeBlock>
+
+          <IsolatedHallsDiagram />
+
+          <NarrativeBlock>
+            <p>
+              "Records in separate halls are coordinated only when reports are made to the King.
+              What if they were coordinated <em>earlier</em>?"
+            </p>
+          </NarrativeBlock>
+
+          <div className="mb-4">
+            <div className="font-bold mb-2" style={{ color: colors.earthDark }}>
+              When would errors need to be caught to prevent crises like yesterday's?
+            </div>
+
+            <textarea
+              value={timingAnswer}
+              onChange={(e) => setTimingAnswer(e.target.value)}
+              disabled={timingSubmitted}
+              placeholder="When should the records be compared?"
+              className="w-full p-3 border-2 rounded-lg resize-none"
+              style={{ borderColor: colors.earthLight }}
+              rows={2}
+            />
+
+            {showTimingHint && !timingSubmitted && (
+              <div className="mt-2 p-3 rounded text-sm" style={{ backgroundColor: colors.warningBg }}>
+                <HelpCircle className="w-4 h-4 inline mr-1" style={{ color: colors.warning }} />
+                <span style={{ color: colors.warning }}>
+                  Hint: The crisis happened at the morning reports. When would errors need to be
+                  caught to prevent that?
+                </span>
+              </div>
+            )}
+
+            {!timingSubmitted && (
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-sm text-gray-500">
+                  {timingAttempts > 0 && `Attempt ${timingAttempts}/3`}
+                </span>
+                <button
+                  onClick={handleTimingSubmit}
+                  disabled={timingAnswer.length < 10}
+                  className="px-4 py-2 rounded text-white font-bold disabled:opacity-50"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Submit
+                </button>
+              </div>
+            )}
+
+            {timingSubmitted && (
+              <div
+                className="mt-3 p-4 rounded-lg border-2"
+                style={{
+                  backgroundColor: evaluateTiming(timingAnswer) ? colors.successBg : colors.warningBg,
+                  borderColor: evaluateTiming(timingAnswer) ? colors.success : colors.warning
+                }}
+              >
+                {evaluateTiming(timingAnswer) ? (
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                    <div>
+                      <strong>Yes!</strong> Errors must be caught <em>before</em> the morning reports —
+                      the same day, ideally that evening.
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <strong>The key timing:</strong> Errors must be caught <em>before</em> the morning
+                    reports — the same day the transaction occurs, ideally by evening.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {timingSubmitted && (
+            <button
+              onClick={() => { playContinueClick(); setPhase('student-proposal'); }}
+              className="w-full py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90"
+              style={{ backgroundColor: colors.primary }}
+            >
+              Continue
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+
+          {devMode && !timingSubmitted && (
+            <button
+              onClick={() => setTimingSubmitted(true)}
+              className="w-full mt-2 py-2 rounded border text-sm"
+              style={{ borderColor: colors.warning, color: colors.warning }}
+            >
+              [DEV] Skip Question
+            </button>
+          )}
+        </div>
+      );
+
+      // ============================================
+      // PHASE: Student Proposal
+      // ============================================
+
+      const renderStudentProposal = () => (
+        <div className="p-6 pb-16">
+          {proposalStep === 0 && (
+            <>
+              <NarrativeBlock>
+                <p>
+                  Master Nabu-rimanni strokes his beard thoughtfully. "You understand the problem.
+                  Records kept apart are compared too late."
+                </p>
+                <p className="mt-3">
+                  He looks at you with expectation. "What might we change about <em>where</em> or
+                  <em> when</em> records are kept?"
+                </p>
+              </NarrativeBlock>
+
+              <div className="mb-4">
+                <div className="font-bold mb-2" style={{ color: colors.earthDark }}>
+                  What change to the system would allow errors to be caught earlier?
+                </div>
+
+                <textarea
+                  value={proposalAnswer}
+                  onChange={(e) => setProposalAnswer(e.target.value)}
+                  disabled={proposalSubmitted}
+                  placeholder="Describe your idea..."
+                  className="w-full p-3 border-2 rounded-lg resize-none"
+                  style={{ borderColor: colors.earthLight }}
+                  rows={3}
+                />
+
+                {proposalAttempts > 0 && !proposalSubmitted && (
+                  <div className="mt-2 p-3 rounded text-sm italic" style={{ backgroundColor: colors.sand }}>
+                    <em>Master Nabu-rimanni considers your words.</em> "{getProposalHint(proposalAttempts)}"
+                  </div>
+                )}
+
+                {!proposalSubmitted && (
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-sm text-gray-500">
+                      {proposalAttempts > 0 && `Attempt ${proposalAttempts}/3`}
+                    </span>
+                    <button
+                      onClick={handleProposalSubmit}
+                      disabled={proposalAnswer.length < 15}
+                      className="px-4 py-2 rounded text-white font-bold disabled:opacity-50"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                )}
+
+                {proposalSubmitted && (
+                  <div
+                    className="mt-3 p-4 rounded-lg border-2"
+                    style={{
+                      backgroundColor: evaluateProposal(proposalAnswer) ? colors.successBg : colors.warningBg,
+                      borderColor: evaluateProposal(proposalAnswer) ? colors.success : colors.warning
+                    }}
+                  >
+                    {evaluateProposal(proposalAnswer) ? (
+                      <div className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                        <div>
+                          <strong>Excellent!</strong> You're thinking in the right direction.
+                          Let's develop this idea further...
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <strong>Let's think about this together:</strong> What if all the records
+                        were brought to one place, at the same time, so they could be compared
+                        before the next day's reports?
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {proposalSubmitted && (
+                <button
+                  onClick={() => { playContinueClick(); setProposalStep(1); }}
+                  className="w-full py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Elaborate Your Proposal
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              )}
+
+              {devMode && !proposalSubmitted && (
+                <button
+                  onClick={() => setProposalSubmitted(true)}
+                  className="w-full mt-2 py-2 rounded border text-sm"
+                  style={{ borderColor: colors.warning, color: colors.warning }}
+                >
+                  [DEV] Skip Question
+                </button>
+              )}
+            </>
+          )}
+
+          {proposalStep === 1 && (
+            <>
+              <NarrativeBlock>
+                <p className="mb-3">
+                  An idea crystallizes in your mind. You speak carefully, building the concept as you go.
+                </p>
+                <p className="mb-3">
+                  "Master, what if there were <strong>one central Record Hall</strong> for all the King's accounts?"
+                </p>
+                <p className="mb-3">
+                  Master Nabu-rimanni leans forward. "Continue."
+                </p>
+                <p>
+                  "Each department — the Granary, the Tax Assessor, the Royal Fields, the Construction Projects —
+                  would have a section in this central hall. During the day, they keep their records as they do now.
+                  But at the <strong>end of each day</strong>, they bring their tablets to the central hall for
+                  <strong> reconciliation</strong>."
+                </p>
+              </NarrativeBlock>
+
+              <CentralRecordHallDiagram />
+
+              <NarrativeBlock>
+                <p>
+                  Master Nabu-rimanni's eyes gleam with understanding. "You propose to coordinate all
+                  the royal records..."
+                </p>
+              </NarrativeBlock>
+
+              <button
+                onClick={() => { playContinueClick(); setPhase('demonstration'); }}
+                className="w-full py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Show How It Would Work
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </div>
+      );
+
+      // ============================================
+      // PHASE: Demonstration
+      // ============================================
+
+      const renderDemonstration = () => (
+        <div className="p-6 pb-16">
+          <div className="text-center mb-4">
+            <div className="font-bold text-lg" style={{ color: colors.primary }}>
+              How the New System Would Work
+            </div>
+            <div className="text-sm text-gray-600">
+              See how yesterday's error would have been caught immediately
+            </div>
+          </div>
+
+          <DemoStep step={demoStep} />
+
+          <div className="flex justify-between items-center">
+            <button
+              onClick={() => { playContinueClick(); setDemoStep(Math.max(0, demoStep - 1)); }}
+              disabled={demoStep === 0}
+              className="px-4 py-2 rounded font-bold disabled:opacity-30"
+              style={{ backgroundColor: colors.earthLight, color: colors.earthDark }}
+            >
+              ← Previous
+            </button>
+
+            {demoStep < 5 ? (
+              <button
+                onClick={() => { playContinueClick(); setDemoStep(demoStep + 1); }}
+                className="px-4 py-2 rounded text-white font-bold"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Next Step →
+              </button>
+            ) : (
+              <button
+                onClick={() => { playContinueClick(); setPhase('full-proposal'); }}
+                className="px-4 py-2 rounded text-white font-bold flex items-center gap-2"
+                style={{ backgroundColor: colors.success }}
+              >
+                Continue
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+
+          {devMode && (
+            <button
+              onClick={() => setPhase('full-proposal')}
+              className="w-full mt-4 py-2 rounded border text-sm"
+              style={{ borderColor: colors.warning, color: colors.warning }}
+            >
+              [DEV] Skip Demo
+            </button>
+          )}
+        </div>
+      );
+
+      // ============================================
+      // PHASE: Full Proposal
+      // ============================================
+
+      const renderFullProposal = () => (
+        <div className="p-6 pb-16">
+          {fullProposalStep === 0 && (
+            <>
+              <NarrativeBlock>
+                <p className="mb-3">
+                  You articulate the complete system to Master Nabu-rimanni:
+                </p>
+                <p className="mb-3">
+                  "When grain moves from one department to another, <strong>both tablets would be
+                  brought to the reconciliation area</strong>. A scribe would enter the count in
+                  both records. Another scribe would verify that the entries match."
+                </p>
+                <p>
+                  "Only after both records agree would they be marked as final. No single department
+                  could make counting errors that would go undetected."
+                </p>
+              </NarrativeBlock>
+
+              <InsightPanel title="The Full System">
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: colors.success }} />
+                    <span>Every transaction recorded in <strong>two places</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: colors.success }} />
+                    <span>Both entries made when <strong>both tablets are present</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: colors.success }} />
+                    <span>Agreement <strong>verified</strong> before entries are final</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: colors.success }} />
+                    <span>No single department can make <strong>undetected errors</strong></span>
+                  </li>
+                </ul>
+              </InsightPanel>
+
+              <button
+                onClick={() => { playContinueClick(); setFullProposalStep(1); }}
+                className="w-full py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Continue
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {fullProposalStep === 1 && (
+            <>
+              <NarrativeBlock>
+                <p className="mb-3">
+                  Master Nabu-rimanni is quiet for a long moment, his fingers drumming against
+                  his counting board.
+                </p>
+                <p className="mb-3">
+                  Finally, he speaks:
+                </p>
+                <p className="text-lg" style={{ color: colors.primary }}>
+                  "The King will be interested in this proposal, apprentice. <strong>Very interested
+                  indeed.</strong>"
+                </p>
+              </NarrativeBlock>
+
+              <button
+                onClick={() => { playContinueClick(); setPhase('naming'); }}
+                className="w-full py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Continue
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </div>
+      );
+
+      // ============================================
+      // PHASE: Naming
+      // ============================================
+
+      const renderNaming = () => (
+        <div className="p-6 pb-16">
+          <NarrativeBlock>
+            <p>
+              As the sun sets over Babylon, painting the ziggurats in shades of gold and crimson,
+              you feel the weight of innovation settling upon your shoulders.
+            </p>
+          </NarrativeBlock>
+
+          <div
+            className="p-6 rounded-lg text-center mb-6 border-2"
+            style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+          >
+            <div className="text-gray-700 mb-4">
+              Master Nabu-rimanni considers for a long moment, then nods slowly.
+            </div>
+            <DialogueBlock speaker="Master Nabu-rimanni">
+              We shall call this system... <strong>Tablets That Speak with One Voice</strong>.
+            </DialogueBlock>
+            <div className="text-gray-700 mt-4">
+              Two tablets, kept by different hands, telling the same truth. When they agree,
+              we know the record is sound. When they disagree, we know to investigate.
+            </div>
+          </div>
+
+          <InsightPanel title="Why 'One Voice'?">
+            <p>
+              Every transaction is recorded on <strong>two tablets</strong>: one by
+              who sends, one by who receives. Though written by different scribes,
+              they must speak with one voice — and that harmony is what catches errors.
+            </p>
+          </InsightPanel>
+
+          <NarrativeBlock>
+            <p className="text-sm italic" style={{ color: colors.earth }}>
+              Centuries later, Italian merchants would describe this same system as
+              "double-entry bookkeeping" — but the principle remains unchanged:
+              two records that must agree.
+            </p>
+          </NarrativeBlock>
+
+          <button
+            onClick={() => { playContinueClick(); setPhase('reflection'); }}
+            className="w-full py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90"
+            style={{ backgroundColor: colors.primary }}
+          >
+            Continue to Reflection
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      );
+
+      // ============================================
+      // PHASE: Reflection
+      // ============================================
+
+      const reflectionQuestions = [
+        {
+          question: "What makes the Central Record Hall different from the old system of separate halls?",
+          hint: "Think about when and where records are compared.",
+          explanation: "In the Central Record Hall, records from all departments are housed together and compared at the end of each day — before the morning reports. Disagreements surface immediately, not after a crisis. Both tablets are present when entries are made, so errors can't hide at the boundaries between organizations."
+        },
+        {
+          question: "Why does requiring two agreeing entries catch errors that a single entry system misses?",
+          hint: "Think about what happens when one side makes a mistake.",
+          explanation: "In a single-entry system, an error in one place can hide indefinitely. But when every transaction must be recorded in two places that must agree, an error in one place creates a visible disagreement with the other. The comparison reveals what would otherwise stay hidden. Errors become visible at the boundaries — exactly where they used to hide."
+        }
+      ];
+
+      const renderReflection = () => (
+        <div className="p-6 pb-16">
+          <div className="text-center mb-4">
+            <div className="font-bold text-lg" style={{ color: colors.primary }}>
+              Reflection
+            </div>
+            <div className="text-sm text-gray-600">
+              Question {reflectionStep + 1} of {reflectionQuestions.length}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <div className="font-bold mb-2" style={{ color: colors.earthDark }}>
+              {reflectionQuestions[reflectionStep].question}
+            </div>
+
+            <textarea
+              value={reflectionAnswers[reflectionStep]}
+              onChange={(e) => {
+                const newAnswers = [...reflectionAnswers];
+                newAnswers[reflectionStep] = e.target.value;
+                setReflectionAnswers(newAnswers);
+              }}
+              disabled={reflectionSubmitted[reflectionStep]}
+              placeholder="Share your understanding..."
+              className="w-full p-3 border-2 rounded-lg resize-none"
+              style={{ borderColor: colors.earthLight }}
+              rows={4}
+            />
+
+            {!reflectionSubmitted[reflectionStep] && (
+              <div className="mt-2 flex items-center justify-between">
+                <button
+                  onClick={() => {/* Show hint handled by UI */}}
+                  className="text-sm flex items-center gap-1"
+                  style={{ color: colors.earth }}
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  Hint: {reflectionQuestions[reflectionStep].hint}
+                </button>
+                <button
+                  onClick={() => handleReflectionSubmit(reflectionStep)}
+                  disabled={reflectionAnswers[reflectionStep].length < 20}
+                  className="px-4 py-2 rounded text-white font-bold disabled:opacity-50"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Submit
+                </button>
+              </div>
+            )}
+
+            {reflectionSubmitted[reflectionStep] && (
+              <div
+                className="mt-3 p-4 rounded-lg border-2"
+                style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+              >
+                <div className="flex items-start gap-2 mb-2">
+                  <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <strong>Well considered!</strong>
+                </div>
+                <div className="text-gray-700">
+                  {reflectionQuestions[reflectionStep].explanation}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {reflectionSubmitted[reflectionStep] && (
+            <button
+              onClick={() => {
+                playContinueClick();
+                if (reflectionStep < reflectionQuestions.length - 1) {
+                  setReflectionStep(reflectionStep + 1);
+                } else {
+                  setPhase('complete');
+                }
+              }}
+              className="w-full py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90"
+              style={{ backgroundColor: colors.primary }}
+            >
+              {reflectionStep < reflectionQuestions.length - 1 ? 'Next Question' : 'Complete Tutorial'}
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+
+          {devMode && !reflectionSubmitted[reflectionStep] && (
+            <button
+              onClick={() => {
+                const newSubmitted = [...reflectionSubmitted];
+                newSubmitted[reflectionStep] = true;
+                setReflectionSubmitted(newSubmitted);
+              }}
+              className="w-full mt-2 py-2 rounded border text-sm"
+              style={{ borderColor: colors.warning, color: colors.warning }}
+            >
+              [DEV] Skip Question
+            </button>
+          )}
+        </div>
+      );
+
+      // ============================================
+      // PHASE: Complete
+      // ============================================
+
+      const renderComplete = () => (
+        <div className="p-6 pb-16">
+          <div className="text-center mb-6">
+            <Trophy className="w-16 h-16 mx-auto mb-3" style={{ color: colors.accent }} />
+            <div className="text-2xl font-bold mb-2" style={{ color: colors.primary }}>
+              Tutorial Complete!
+            </div>
+            <div className="text-gray-600">
+              You've created Tablets That Speak with One Voice
+            </div>
+          </div>
+
+          <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: colors.sand }}>
+            <div className="font-bold mb-3" style={{ color: colors.primary }}>What You Learned</div>
+            <ul className="space-y-2">
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: colors.success }} />
+                <span><strong>The Conservation Principle:</strong> Every outflow somewhere is an inflow somewhere else — what one department sends, another receives</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: colors.success }} />
+                <span><strong>The Central Record Hall:</strong> A structural solution that brings all departments' records together</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: colors.success }} />
+                <span><strong>End-of-Day Reconciliation:</strong> Comparing records each evening catches errors before they become crises</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: colors.success }} />
+                <span><strong>Tablets That Speak with One Voice:</strong> Recording every transaction in two places that must agree creates automatic error detection</span>
+              </li>
+            </ul>
+          </div>
+
+          <InsightPanel title="Core Insight: Structure That Catches Errors">
+            <p>
+              Tablets That Speak with One Voice isn't just a rule about writing things twice. It's an
+              <strong> institutional architecture</strong> — a way of organizing records so that
+              errors become visible instead of hiding at the boundaries between organizations.
+            </p>
+            <p className="mt-2">
+              The structure itself forces coordination. Agreement isn't optional — it's built
+              into the system.
+            </p>
+          </InsightPanel>
+
+          <div
+            className="p-4 rounded-lg mb-6 border-2"
+            style={{ backgroundColor: '#f8f4ff', borderColor: '#7c3aed' }}
+          >
+            <div className="font-bold mb-2" style={{ color: '#7c3aed' }}>
+              Coming Next: Tutorial 2.5
+            </div>
+            <div className="text-gray-700 text-sm">
+              <p className="mb-2">
+                The King has approved your proposal. The Central Record Hall is being built.
+              </p>
+              <p>
+                But Master Nabu-rimanni sees something deeper in what you've created — a
+                discipline that governs how we handle discrepancies. The <strong>Discipline of Balance</strong>{' '}
+                awaits...
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleRestart}
+            className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 border-2"
+            style={{ borderColor: colors.primary, color: colors.primary }}
+          >
+            <RefreshCw className="w-5 h-5" />
+            Restart Tutorial
+          </button>
+        </div>
+      );
+
+      // ============================================
+      // MAIN RENDER
+      // ============================================
+
+      const renderPhase = () => {
+        switch (phase) {
+          case 'welcome': return renderWelcome();
+          case 'conservation': return renderConservation();
+          case 'problem-restated': return renderProblemRestated();
+          case 'student-proposal': return renderStudentProposal();
+          case 'demonstration': return renderDemonstration();
+          case 'full-proposal': return renderFullProposal();
+          case 'naming': return renderNaming();
+          case 'reflection': return renderReflection();
+          case 'complete': return renderComplete();
+          default: return renderWelcome();
+        }
+      };
+
+      return (
+        <div className="min-h-screen" style={{ backgroundColor: '#fafaf8' }}>
+          <div className="max-w-2xl mx-auto bg-white shadow-lg min-h-screen">
+            <Header />
+            <ProgressBar />
+            {renderPhase()}
+          </div>
+          {showGlossary && <GlossaryModal />}
+        </div>
+      );
+    };
+
+    // ============================================
+    // NAVIGATION FOOTER COMPONENT
+    // ============================================
+
+    const NavigationFooter = () => (
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex justify-between items-center">
+          <a
+            href="tutorial-2-3.html"
+            className="flex items-center gap-2 px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+            style={{ color: colors.primary }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span className="font-medium">Previous</span>
+          </a>
+
+          <a
+            href="../index.html"
+            className="flex items-center gap-2 px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+            style={{ color: colors.primary }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span className="font-medium">Hub</span>
+          </a>
+
+          <a
+            href="tutorial-2-5.html"
+            className="flex items-center gap-2 px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+            style={{ color: colors.primary }}
+          >
+            <span className="font-medium">Next</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+    );
+
+    // ============================================
+    // RENDER APPLICATION
+    // ============================================
+
+    const App = () => (
+      <>
+        <Tutorial24TabletsThatSpeak />
+        <NavigationFooter />
+      </>
+    );
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

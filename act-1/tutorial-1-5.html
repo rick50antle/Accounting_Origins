@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial 1.5: The Bountiful Harvest - Accounting Origins Project</title>
+
+    <!-- React 18 -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel Standalone -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // =============================================================================
+        // INLINE SVG ICON COMPONENTS
+        // =============================================================================
+        const ChevronRight = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+        );
+
+        const ChevronDown = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+        );
+
+        const ChevronUp = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+            </svg>
+        );
+
+        const Book = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+        );
+
+        const CheckCircle = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+
+        const AlertCircle = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+        );
+
+        const Trophy = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
+            </svg>
+        );
+
+        const RefreshCw = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+        );
+
+        const Info = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+        );
+
+        const Wheat = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+            </svg>
+        );
+
+        const TrendingUp = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+            </svg>
+        );
+
+        const TrendingDown = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6L9 12.75l4.286-4.286a11.948 11.948 0 014.306 6.43l.776 2.898m0 0l3.182-5.511m-3.182 5.51l-5.511-3.181" />
+            </svg>
+        );
+
+        const HelpCircle = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+            </svg>
+        );
+
+        // =============================================================================
+        // COLOR PALETTE (Standard project colors)
+        // =============================================================================
+        const colors = {
+            primary: '#00356b',
+            sand: '#f5f1e8',
+            earth: '#8b7355',
+            earthLight: '#d4c4a8',
+            earthDark: '#5c4d3d',
+            accent: '#c9a227',
+            clay: '#c4a574',
+            clayLight: '#e8dcc8',
+            clayDark: '#a08050',
+            success: '#22c55e',
+            successBg: '#f0fdf4',
+            warning: '#f59e0b',
+            warningBg: '#fffbeb',
+            error: '#dc2626',
+            errorBg: '#fef2f2'
+        };
+
+        // =============================================================================
+        // SOUND FUNCTIONS
+        // =============================================================================
+        const createAudioContext = () => {
+            return new (window.AudioContext || window.webkitAudioContext)();
+        };
+
+        const playSuccessTone = () => {
+            try {
+                const ctx = createAudioContext();
+                const notes = [523.25, 659.25, 783.99];
+                const startTime = ctx.currentTime;
+
+                notes.forEach((freq, i) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+
+                    const noteStart = startTime + (i * 0.1);
+                    const noteEnd = noteStart + 0.15;
+
+                    gainNode.gain.setValueAtTime(0, noteStart);
+                    gainNode.gain.linearRampToValueAtTime(0.3, noteStart + 0.02);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+                    oscillator.start(noteStart);
+                    oscillator.stop(noteEnd + 0.1);
+                });
+
+                setTimeout(() => ctx.close(), 600);
+            } catch (e) {
+                console.log('Audio not available');
+            }
+        };
+
+        const playSoftNope = () => {
+            try {
+                const ctx = createAudioContext();
+                const notes = [400, 300];
+                const startTime = ctx.currentTime;
+
+                notes.forEach((freq, i) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+
+                    const noteStart = startTime + (i * 0.12);
+                    const noteEnd = noteStart + 0.12;
+
+                    gainNode.gain.setValueAtTime(0, noteStart);
+                    gainNode.gain.linearRampToValueAtTime(0.2, noteStart + 0.02);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+                    oscillator.start(noteStart);
+                    oscillator.stop(noteEnd + 0.05);
+                });
+
+                setTimeout(() => ctx.close(), 400);
+            } catch (e) {
+                console.log('Audio not available');
+            }
+        };
+
+        const playBuzzer = () => {
+            try {
+                const ctx = createAudioContext();
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                oscillator.frequency.value = 150;
+                oscillator.type = 'sawtooth';
+
+                const startTime = ctx.currentTime;
+                gainNode.gain.setValueAtTime(0.25, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.35);
+
+                setTimeout(() => ctx.close(), 400);
+            } catch (e) {
+                console.log('Audio not available');
+            }
+        };
+
+        const playContinueClick = () => {
+            try {
+                const ctx = createAudioContext();
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                oscillator.frequency.value = 600;
+                oscillator.type = 'sine';
+
+                const startTime = ctx.currentTime;
+                gainNode.gain.setValueAtTime(0.15, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08);
+
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.1);
+
+                setTimeout(() => ctx.close(), 150);
+            } catch (e) {
+                console.log('Audio not available');
+            }
+        };
+
+        // =============================================================================
+        // GLOSSARY TERMS
+        // =============================================================================
+        const glossaryTerms = [
+            { term: 'Standard for Comparison', definition: 'A good used to express what other goods can command. In this valley, barley serves as the standard—everything is priced in barley.' },
+            { term: 'Purchasing Power', definition: 'What a given quantity of goods can actually get you. Your purchasing power depends not just on how much you have, but on what prices exist in the market.' },
+            { term: 'Nominal vs. Real', definition: 'Nominal amounts are the barley-numbers (e.g., "60 barley"). Real amounts are what those numbers can actually get you (e.g., "3 pots"). When barley becomes abundant, nominal amounts shift but real purchasing power may stay the same.' },
+            { term: 'Supply Shock', definition: 'A sudden change in the availability of a good. A bountiful harvest is a positive supply shock for barley—there is suddenly much more of it.' },
+            { term: 'Exchange Rate', definition: 'The rate at which two goods trade directly (e.g., 1 bundle of wool for 3 pots). This is the "real" relationship between goods.' },
+            { term: 'Stable Standard', definition: 'A standard for comparison whose supply does not fluctuate dramatically, making it more reliable for comparing what different goods can command.' }
+        ];
+
+        // =============================================================================
+        // PHASE ORDER (for progress calculation)
+        // =============================================================================
+        const phaseOrder = [
+            'welcome',
+            'arrival',
+            'excitement',
+            'calculation',
+            'revelation',
+            'explanation',
+            'comparison',
+            'reflection',
+            'unease',
+            'complete'
+        ];
+
+        // =============================================================================
+        // MAIN COMPONENT
+        // =============================================================================
+        const Tutorial15 = () => {
+            // ---------------------------------------------------------------------------
+            // STATE
+            // ---------------------------------------------------------------------------
+            const [phase, setPhase] = useState('welcome');
+            const [step, setStep] = useState(0);
+
+            // Question state
+            const [q1Answer, setQ1Answer] = useState('');
+            const [q1Attempts, setQ1Attempts] = useState(0);
+            const [q1Submitted, setQ1Submitted] = useState(false);
+
+            const [q2Answer, setQ2Answer] = useState('');
+            const [q2Attempts, setQ2Attempts] = useState(0);
+            const [q2Submitted, setQ2Submitted] = useState(false);
+
+            // UI state
+            const [showGlossary, setShowGlossary] = useState(false);
+            const [showHistoricalNote, setShowHistoricalNote] = useState(false);
+            const [devMode, setDevMode] = useState(false);
+            const [headerClickCount, setHeaderClickCount] = useState(0);
+
+            // ---------------------------------------------------------------------------
+            // PROGRESS CALCULATION
+            // ---------------------------------------------------------------------------
+            const currentPhaseIndex = phaseOrder.indexOf(phase);
+            const progress = Math.round((currentPhaseIndex / (phaseOrder.length - 1)) * 100);
+
+            // ---------------------------------------------------------------------------
+            // HANDLERS
+            // ---------------------------------------------------------------------------
+            const handleHeaderClick = () => {
+                const newCount = headerClickCount + 1;
+                setHeaderClickCount(newCount);
+                if (newCount >= 3) {
+                    setDevMode(!devMode);
+                    setHeaderClickCount(0);
+                }
+            };
+
+            const handleRestart = () => {
+                setPhase('welcome');
+                setStep(0);
+                setQ1Answer('');
+                setQ1Attempts(0);
+                setQ1Submitted(false);
+                setQ2Answer('');
+                setQ2Attempts(0);
+                setQ2Submitted(false);
+                setShowHistoricalNote(false);
+            };
+
+            const advancePhase = (nextPhase) => {
+                playContinueClick();
+                setStep(0);
+                setPhase(nextPhase);
+            };
+
+            // Q1: How many pots can you buy?
+            const handleQ1Submit = () => {
+                const answer = parseInt(q1Answer, 10);
+                const isCorrect = answer === 3;
+
+                if (isCorrect) {
+                    playSuccessTone();
+                    setQ1Submitted(true);
+                } else {
+                    const newAttempts = q1Attempts + 1;
+                    setQ1Attempts(newAttempts);
+
+                    if (newAttempts < 3) {
+                        playSoftNope();
+                    } else {
+                        playBuzzer();
+                        setQ1Submitted(true);
+                    }
+                }
+            };
+
+            // Q2: What made the numbers change?
+            const handleQ2Submit = () => {
+                const answer = q2Answer.toLowerCase();
+                const passKeywords = ['barley', 'harvest', 'supply', 'more barley', 'abundant', 'bountiful', 'grain', 'standard', 'command'];
+                const hasKeyword = passKeywords.some(kw => answer.includes(kw));
+                const isLongEnough = answer.length >= 20;
+
+                if (hasKeyword && isLongEnough) {
+                    playSuccessTone();
+                    setQ2Submitted(true);
+                } else {
+                    const newAttempts = q2Attempts + 1;
+                    setQ2Attempts(newAttempts);
+
+                    if (newAttempts < 3) {
+                        playSoftNope();
+                    } else {
+                        playBuzzer();
+                        setQ2Submitted(true);
+                    }
+                }
+            };
+
+            // ---------------------------------------------------------------------------
+            // SUB-COMPONENTS
+            // ---------------------------------------------------------------------------
+
+            // Header with Progress Bar
+            const HeaderWithControls = () => (
+                <div
+                    className="rounded-lg p-4 mb-4"
+                    style={{ backgroundColor: colors.primary }}
+                >
+                    <div className="flex justify-between items-start">
+                        <div onClick={handleHeaderClick} style={{ cursor: 'pointer' }}>
+                            <div className="flex items-center gap-2">
+                                <Wheat className="w-4 h-4 text-white" />
+                                <h1 className="text-lg font-bold text-white">Tutorial 1.5: The Bountiful Harvest</h1>
+                            </div>
+                            <p className="text-sm mt-1" style={{ color: colors.earthLight }}>
+                                River Valley, ~3500 BCE • ~12 min
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setShowGlossary(true)}
+                                className="p-2 rounded-lg hover:bg-white/10"
+                                title="Glossary"
+                            >
+                                <Book className="w-5 h-5 text-white" />
+                            </button>
+                            <button
+                                onClick={handleRestart}
+                                className="p-2 rounded-lg hover:bg-white/10"
+                                title="Restart tutorial"
+                            >
+                                <RefreshCw className="w-5 h-5 text-white" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="mt-4">
+                        <div className="flex justify-between text-xs text-white/70 mb-1">
+                            <span>Progress</span>
+                            <span>{progress}%</span>
+                        </div>
+                        <div className="h-2 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+                            <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{ width: `${progress}%`, backgroundColor: colors.accent }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Dev mode controls */}
+                    {devMode && (
+                        <div className="mt-3 pt-3 border-t border-white/20">
+                            <p className="text-xs text-white/70 mb-2">Dev Mode: Skip to phase</p>
+                            <div className="flex flex-wrap gap-1">
+                                {phaseOrder.map(p => (
+                                    <button
+                                        key={p}
+                                        onClick={() => { setStep(0); setPhase(p); }}
+                                        className={`px-2 py-1 rounded text-xs ${phase === p ? 'bg-white text-blue-900' : 'bg-white/20 text-white'}`}
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+
+            // Glossary Modal
+            const GlossaryModal = () => (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+                        <div className="p-4 border-b sticky top-0 bg-white flex justify-between items-center">
+                            <h3 className="font-bold" style={{ color: colors.primary }}>Glossary</h3>
+                            <button
+                                onClick={() => setShowGlossary(false)}
+                                className="text-gray-500 hover:text-gray-700 text-xl leading-none"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="p-4 space-y-3 text-sm">
+                            {glossaryTerms.map((item, i) => (
+                                <div key={i}>
+                                    <p className="font-medium" style={{ color: colors.primary }}>{item.term}</p>
+                                    <p className="text-gray-600 text-xs">{item.definition}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // Narrative Block
+            const NarrativeBlock = ({ children }) => (
+                <div
+                    className="p-4 rounded-lg border-l-4 italic mb-4"
+                    style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+                >
+                    <div style={{ color: colors.earthDark }}>{children}</div>
+                </div>
+            );
+
+            // Dialogue Block
+            const DialogueBlock = ({ speaker, children }) => (
+                <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: colors.clayLight }}>
+                    <p className="font-bold mb-2" style={{ color: colors.primary }}>{speaker}:</p>
+                    <div className="italic" style={{ color: colors.earthDark }}>{children}</div>
+                </div>
+            );
+
+            // Insight Panel
+            const InsightPanel = ({ title, children }) => (
+                <div
+                    className="p-4 rounded-lg border-2 mb-4"
+                    style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+                >
+                    <div className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                        <div>
+                            {title && <p className="font-bold mb-2" style={{ color: colors.success }}>{title}</p>}
+                            <div style={{ color: '#166534' }}>{children}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // Warning Panel
+            const WarningPanel = ({ children }) => (
+                <div
+                    className="p-4 rounded-lg border-2 mb-4"
+                    style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}
+                >
+                    <div className="flex items-start gap-2">
+                        <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.warning }} />
+                        <div style={{ color: '#92400e' }}>{children}</div>
+                    </div>
+                </div>
+            );
+
+            // Continue Button
+            const ContinueButton = ({ onClick, children = "Continue" }) => (
+                <button
+                    onClick={() => { playContinueClick(); onClick(); }}
+                    className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                    style={{ backgroundColor: colors.primary }}
+                >
+                    {children} <ChevronRight className="w-5 h-5" />
+                </button>
+            );
+
+            // Historical Note
+            const HistoricalNote = () => (
+                <div className="mb-4">
+                    <button
+                        onClick={() => setShowHistoricalNote(!showHistoricalNote)}
+                        className="w-full flex items-center justify-between p-3 rounded-lg text-sm"
+                        style={{ backgroundColor: colors.clayLight, color: colors.earthDark }}
+                    >
+                        <div className="flex items-center gap-2">
+                            <Info className="w-4 h-4" />
+                            <span className="font-medium">A Note on Historical Liberties</span>
+                        </div>
+                        {showHistoricalNote ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+
+                    {showHistoricalNote && (
+                        <div
+                            className="mt-2 p-4 rounded-lg text-sm border"
+                            style={{ backgroundColor: 'white', borderColor: colors.earthLight, color: colors.earthDark }}
+                        >
+                            <p className="mb-3">
+                                This tutorial continues our journey in a fictional pre-urban river valley, roughly 3500 BCE.
+                                We have no written records from this period—writing had not yet been invented. The specific
+                                scenarios, characters, and the "memory" of barley prices are pedagogical devices.
+                            </p>
+                            <p className="mb-3">
+                                The concept of a harvest affecting all prices simultaneously is economically sound, but
+                                prehistoric communities would have experienced this more gradually and with less explicit
+                                understanding of the mechanism we describe here.
+                            </p>
+                            <p className="italic">
+                                This is historical fiction in service of teaching accounting concepts.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            );
+
+            // ---------------------------------------------------------------------------
+            // RENDER FUNCTIONS FOR EACH PHASE
+            // ---------------------------------------------------------------------------
+
+            // WELCOME PHASE
+            const renderWelcome = () => (
+                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to bottom, ${colors.sand}, #e8e4d9)` }}>
+                    <div className="p-4 max-w-2xl mx-auto">
+                        <HeaderWithControls />
+
+                        <NarrativeBlock>
+                            <p className="mb-3">
+                                Years have passed since you first learned to trade at the Crossing. You're no longer a child
+                                running errands—you're responsible for your family's yearly trading now.
+                            </p>
+                            <p className="mb-3">
+                                The market at the river crossing is no longer new. Paths are well-worn. Traders know each
+                                other by name. You've learned to think in barley—every price, every comparison,
+                                expressed in barley without effort.
+                            </p>
+                            <p>
+                                Your family raises sheep and produces wool. Each year, you bring wool to the Crossing and
+                                trade for what you need: grain, pottery, sesame oil. You know what your wool can
+                                get you. You know what things cost. You're confident.
+                            </p>
+                        </NarrativeBlock>
+
+                        <NarrativeBlock>
+                            <p className="mb-3">
+                                This year, you've heard exciting news from across the valley: the harvest was bountiful.
+                                The best in years. Farmers are celebrating. Granaries are overflowing.
+                            </p>
+                            <p>
+                                You set out for the Crossing with your usual bundle of wool, your mind on the shopping
+                                list you've kept in your head all year.
+                            </p>
+                        </NarrativeBlock>
+
+                        {/* In This Tutorial box */}
+                        <div
+                            className="p-4 rounded-lg border-2 mb-4"
+                            style={{ backgroundColor: colors.clayLight, borderColor: colors.accent }}
+                        >
+                            <h3 className="font-bold mb-2" style={{ color: colors.primary }}>In This Tutorial</h3>
+                            <p className="text-sm" style={{ color: colors.earthDark }}>
+                                You'll discover that barley—the standard everyone uses for comparison—has a problem.
+                                When barley's supply changes, something strange happens to all the prices. You'll need
+                                to figure out what's real and what's just numbers.
+                            </p>
+                        </div>
+
+                        <HistoricalNote />
+
+                        <ContinueButton onClick={() => advancePhase('arrival')}>
+                            Begin Tutorial
+                        </ContinueButton>
+                    </div>
+                </div>
+            );
+
+            // ARRIVAL PHASE
+            const renderArrival = () => (
+                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to bottom, ${colors.sand}, #e8e4d9)` }}>
+                    <div className="p-4 max-w-2xl mx-auto">
+                        <HeaderWithControls />
+
+                        <NarrativeBlock>
+                            <p className="mb-3">
+                                You arrive at the Crossing on a bright morning. The market has grown since you
+                                first came here as a child. More traders, more goods—you see sesame oil from the
+                                river settlements, dried fish, dates, even reed mats and bitumen for waterproofing.
+                            </p>
+                            <p>
+                                But you're here for the usual: trade your wool for pottery and sesame oil. You know
+                                exactly what things cost. You remember last year's prices clearly:
+                            </p>
+                        </NarrativeBlock>
+
+                        <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                            <h4 className="font-bold mb-3" style={{ color: colors.primary }}>What You Remember (Last Year)</h4>
+                            <div className="space-y-2 text-sm" style={{ color: colors.earthDark }}>
+                                <div className="flex justify-between p-2 rounded" style={{ backgroundColor: colors.sand }}>
+                                    <span>Your wool bundle</span>
+                                    <span className="font-mono font-bold">30 barley</span>
+                                </div>
+                                <div className="flex justify-between p-2 rounded" style={{ backgroundColor: colors.sand }}>
+                                    <span>One pot</span>
+                                    <span className="font-mono font-bold">10 barley</span>
+                                </div>
+                                <div className="flex justify-between p-2 rounded" style={{ backgroundColor: colors.sand }}>
+                                    <span>One jar of sesame oil</span>
+                                    <span className="font-mono font-bold">8 barley</span>
+                                </div>
+                            </div>
+                            <p className="text-xs mt-3 italic" style={{ color: colors.earth }}>
+                                Last year, your wool could buy 3 pots. You're planning to do the same.
+                            </p>
+                        </div>
+
+                        <NarrativeBlock>
+                            <p>
+                                You head toward the wool traders first, to see what your bundle will fetch this year.
+                            </p>
+                        </NarrativeBlock>
+
+                        <ContinueButton onClick={() => advancePhase('excitement')}>
+                            Check Your Wool's Price
+                        </ContinueButton>
+                    </div>
+                </div>
+            );
+
+            // EXCITEMENT PHASE - Only reveal wool price
+            const renderExcitement = () => (
+                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to bottom, ${colors.sand}, #e8e4d9)` }}>
+                    <div className="p-4 max-w-2xl mx-auto">
+                        <HeaderWithControls />
+
+                        <NarrativeBlock>
+                            <p>
+                                A wool buyer examines your bundle, weighing it in his hands.
+                            </p>
+                        </NarrativeBlock>
+
+                        <DialogueBlock speaker="Wool Buyer">
+                            <p>"Good quality. I'll give you sixty barley for it."</p>
+                        </DialogueBlock>
+
+                        <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                            <div className="flex items-center gap-2 mb-3">
+                                <TrendingUp className="w-5 h-5" style={{ color: colors.success }} />
+                                <h4 className="font-bold" style={{ color: colors.primary }}>Your Wool This Year</h4>
+                            </div>
+
+                            <div
+                                className="p-4 rounded-lg border-2 text-center"
+                                style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}
+                            >
+                                <p className="text-sm" style={{ color: colors.earth }}>Last year: 30 barley</p>
+                                <p className="text-2xl font-bold font-mono mt-1" style={{ color: colors.primary }}>
+                                    This year: 60 barley
+                                </p>
+                            </div>
+                        </div>
+
+                        <NarrativeBlock>
+                            <p className="mb-3">
+                                Sixty barley! Your wool commands <em>twice</em> as much barley as last year!
+                            </p>
+                            <p className="font-bold">
+                                Your mind races with possibilities. Last year you bought 3 pots. This year, with
+                                double the barley, you could buy... six pots? Maybe more?
+                            </p>
+                        </NarrativeBlock>
+
+                        <div
+                            className="p-3 rounded-lg mb-4 text-center"
+                            style={{ backgroundColor: colors.successBg, border: `2px solid ${colors.success}` }}
+                        >
+                            <p className="font-bold" style={{ color: colors.success }}>
+                                This is going to be a great trading day!
+                            </p>
+                        </div>
+
+                        <ContinueButton onClick={() => advancePhase('calculation')}>
+                            Head to the Pottery Seller
+                        </ContinueButton>
+                    </div>
+                </div>
+            );
+
+            // CALCULATION PHASE (Q1) - Pottery price revealed here
+            const renderCalculation = () => (
+                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to bottom, ${colors.sand}, #e8e4d9)` }}>
+                    <div className="p-4 max-w-2xl mx-auto">
+                        <HeaderWithControls />
+
+                        <NarrativeBlock>
+                            <p>
+                                You approach the pottery seller's stall, already imagining the six pots—maybe
+                                more!—you'll bring home to your family.
+                            </p>
+                        </NarrativeBlock>
+
+                        <DialogueBlock speaker="You">
+                            <p>"I'd like to buy pottery. My wool is good for sixty barley."</p>
+                        </DialogueBlock>
+
+                        <DialogueBlock speaker="Pottery Seller">
+                            <p>"Sixty barley of wool? That's nice. Pots are twenty barley each."</p>
+                        </DialogueBlock>
+
+                        <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                            <div className="flex items-center gap-2 mb-3">
+                                <AlertCircle className="w-5 h-5" style={{ color: colors.warning }} />
+                                <h4 className="font-bold" style={{ color: colors.primary }}>Wait... Twenty?</h4>
+                            </div>
+
+                            <div className="p-3 rounded-lg mb-3" style={{ backgroundColor: colors.warningBg }}>
+                                <p className="text-sm" style={{ color: '#92400e' }}>
+                                    Last year, pots cost <strong>10 barley</strong>. Now they cost <strong>20 barley</strong>.
+                                </p>
+                            </div>
+
+                            <div className="p-3 rounded-lg mb-4" style={{ backgroundColor: colors.sand }}>
+                                <p className="text-sm" style={{ color: colors.earthDark }}>
+                                    <strong>Your wool:</strong> 60 barley<br />
+                                    <strong>Each pot costs:</strong> 20 barley
+                                </p>
+                            </div>
+
+                            <p className="text-sm mb-4" style={{ color: colors.earthDark }}>
+                                <strong>Question:</strong> How many pots can you actually buy?
+                            </p>
+
+                            <div className="flex gap-2 items-center mb-3">
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    value={q1Answer}
+                                    onChange={(e) => setQ1Answer(e.target.value)}
+                                    disabled={q1Submitted}
+                                    placeholder="?"
+                                    className="w-20 p-3 border rounded text-center font-mono text-lg"
+                                    style={{ borderColor: colors.earthLight }}
+                                />
+                                <span style={{ color: colors.earthDark }}>pots</span>
+                                {!q1Submitted && (
+                                    <button
+                                        onClick={handleQ1Submit}
+                                        disabled={!q1Answer}
+                                        className="px-4 py-3 rounded font-bold text-white disabled:opacity-50"
+                                        style={{ backgroundColor: colors.primary }}
+                                    >
+                                        Check
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Hints */}
+                            {q1Attempts > 0 && q1Attempts < 3 && !q1Submitted && (
+                                <div className="p-3 rounded-lg" style={{ backgroundColor: colors.warningBg }}>
+                                    <p className="text-sm" style={{ color: '#92400e' }}>
+                                        <strong>Hint {q1Attempts}/2:</strong>{' '}
+                                        {q1Attempts === 1
+                                            ? "Divide your wool's barley-price by the cost of one pot."
+                                            : "60 ÷ 20 = ?"
+                                        }
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Success */}
+                            {q1Submitted && parseInt(q1Answer, 10) === 3 && (
+                                <InsightPanel title="Correct!">
+                                    <p>60 barley ÷ 20 barley per pot = <strong>3 pots</strong>.</p>
+                                </InsightPanel>
+                            )}
+
+                            {/* Third strike */}
+                            {q1Submitted && q1Attempts >= 3 && (
+                                <div className="p-3 rounded-lg" style={{ backgroundColor: colors.warningBg }}>
+                                    <p className="text-sm font-medium" style={{ color: '#92400e' }}>
+                                        The answer is 3 pots.
+                                    </p>
+                                    <p className="text-sm mt-1" style={{ color: '#92400e' }}>
+                                        60 barley ÷ 20 barley per pot = 3 pots.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {q1Submitted && (
+                            <ContinueButton onClick={() => advancePhase('revelation')}>
+                                Continue
+                            </ContinueButton>
+                        )}
+                    </div>
+                </div>
+            );
+
+            // REVELATION PHASE
+            const renderRevelation = () => (
+                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to bottom, ${colors.sand}, #e8e4d9)` }}>
+                    <div className="p-4 max-w-2xl mx-auto">
+                        <HeaderWithControls />
+
+                        <NarrativeBlock>
+                            <p className="mb-3">
+                                Three pots. Only three pots.
+                            </p>
+                            <p>
+                                You stand there, confused. Your wool commands <em>twice</em> as much barley. You
+                                were expecting to buy six pots, maybe more. But you can only afford... three?
+                            </p>
+                        </NarrativeBlock>
+
+                        <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                            <h4 className="font-bold mb-3" style={{ color: colors.primary }}>But Wait...</h4>
+                            <div className="p-3 rounded-lg mb-3" style={{ backgroundColor: colors.sand }}>
+                                <p className="text-sm font-bold mb-2" style={{ color: colors.earthDark }}>Last Year:</p>
+                                <p className="text-sm" style={{ color: colors.earthDark }}>
+                                    Your wool: 30 barley<br />
+                                    Each pot: 10 barley<br />
+                                    Pots you bought: 30 ÷ 10 = <span className="font-bold">3 pots</span>
+                                </p>
+                            </div>
+                            <div className="p-3 rounded-lg" style={{ backgroundColor: colors.sand }}>
+                                <p className="text-sm font-bold mb-2" style={{ color: colors.earthDark }}>This Year:</p>
+                                <p className="text-sm" style={{ color: colors.earthDark }}>
+                                    Your wool: 60 barley<br />
+                                    Each pot: 20 barley<br />
+                                    Pots you can buy: 60 ÷ 20 = <span className="font-bold">3 pots</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <WarningPanel>
+                            <p className="font-bold mb-2">The same. Exactly the same.</p>
+                            <p className="text-sm">
+                                The barley-numbers doubled. Your wool gets you twice as much barley. But you can't
+                                buy a single extra pot.
+                            </p>
+                        </WarningPanel>
+
+                        <NarrativeBlock>
+                            <p className="font-bold">
+                                "How is this possible?" you mutter. "My wool gets me twice as much barley!"
+                            </p>
+                        </NarrativeBlock>
+
+                        <ContinueButton onClick={() => advancePhase('explanation')}>
+                            Seek an Explanation
+                        </ContinueButton>
+                    </div>
+                </div>
+            );
+
+            // EXPLANATION PHASE
+            const renderExplanation = () => (
+                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to bottom, ${colors.sand}, #e8e4d9)` }}>
+                    <div className="p-4 max-w-2xl mx-auto">
+                        <HeaderWithControls />
+
+                        <NarrativeBlock>
+                            <p>
+                                An older trader—someone who has been coming to this market for decades—notices
+                                your confused expression.
+                            </p>
+                        </NarrativeBlock>
+
+                        <DialogueBlock speaker="Elder Trader">
+                            <p>"First time trading after a big harvest?"</p>
+                        </DialogueBlock>
+
+                        <DialogueBlock speaker="You">
+                            <p>"My wool gets me twice as much barley as last year! But I can't buy any more
+                            pottery. How is that possible?"</p>
+                        </DialogueBlock>
+
+                        <DialogueBlock speaker="Elder Trader">
+                            <p className="mb-2">"Look around. What do you see?"</p>
+                        </DialogueBlock>
+
+                        <NarrativeBlock>
+                            <p>
+                                You look. Carts piled high with barley. Farmers who usually bring modest loads
+                                are overflowing with grain. The storage areas are stacked to capacity.
+                            </p>
+                        </NarrativeBlock>
+
+                        <DialogueBlock speaker="Elder Trader">
+                            <p className="mb-2">"Barley. Everywhere. When everyone has barley, what happens to what
+                            barley can command?"</p>
+                            <p className="mb-2">"You were thinking in barley. Barley moved. All your barley-prices
+                            shifted—but the things you were pricing didn't."</p>
+                        </DialogueBlock>
+
+                        {/* Brief farmer scene */}
+                        <NarrativeBlock>
+                            <p className="mb-3">
+                                As if to prove the point, a barley farmer nearby is arguing with the wool seller.
+                            </p>
+                        </NarrativeBlock>
+
+                        <DialogueBlock speaker="Barley Farmer">
+                            <p>"I worked twice as hard! I brought twice the grain! And you're telling me I can
+                            only buy the same amount of wool as last year?"</p>
+                        </DialogueBlock>
+
+                        <DialogueBlock speaker="Wool Seller">
+                            <p>"Everyone has barley this year, friend. Your barley will still make the same bread,
+                            brew the same beer. But what it can <em>command</em> from others—that depends on what
+                            everyone else has."</p>
+                        </DialogueBlock>
+
+                        <ContinueButton onClick={() => advancePhase('comparison')}>
+                            Understand the Pattern
+                        </ContinueButton>
+                    </div>
+                </div>
+            );
+
+            // COMPARISON PHASE
+            const renderComparison = () => (
+                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to bottom, ${colors.sand}, #e8e4d9)` }}>
+                    <div className="p-4 max-w-2xl mx-auto">
+                        <HeaderWithControls />
+
+                        <DialogueBlock speaker="Elder Trader">
+                            <p>"Let me show you something. Forget the barley numbers for a moment. Think about
+                            what actually trades for what."</p>
+                        </DialogueBlock>
+
+                        <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                            <h4 className="font-bold mb-3" style={{ color: colors.primary }}>
+                                Direct Exchange Rates (Wool ↔ Pottery)
+                            </h4>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-3 rounded-lg" style={{ backgroundColor: colors.sand }}>
+                                    <p className="text-xs font-bold mb-2" style={{ color: colors.earth }}>LAST YEAR</p>
+                                    <p className="text-sm" style={{ color: colors.earthDark }}>
+                                        Wool: 30 barley<br />
+                                        Pot: 10 barley
+                                    </p>
+                                    <div className="mt-2 pt-2 border-t" style={{ borderColor: colors.earthLight }}>
+                                        <p className="font-bold" style={{ color: colors.primary }}>
+                                            1 wool = 3 pots
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="p-3 rounded-lg" style={{ backgroundColor: colors.sand }}>
+                                    <p className="text-xs font-bold mb-2" style={{ color: colors.earth }}>THIS YEAR</p>
+                                    <p className="text-sm" style={{ color: colors.earthDark }}>
+                                        Wool: 60 barley<br />
+                                        Pot: 20 barley
+                                    </p>
+                                    <div className="mt-2 pt-2 border-t" style={{ borderColor: colors.earthLight }}>
+                                        <p className="font-bold" style={{ color: colors.primary }}>
+                                            1 wool = 3 pots
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                className="mt-4 p-3 rounded-lg border-2 text-center"
+                                style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+                            >
+                                <p className="font-bold" style={{ color: colors.success }}>
+                                    The direct rate is identical: 1 wool still trades for 3 pots
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                            <h4 className="font-bold mb-3" style={{ color: colors.primary }}>
+                                All Direct Rates Unchanged
+                            </h4>
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr style={{ backgroundColor: colors.clayLight }}>
+                                        <th className="p-2 text-left" style={{ color: colors.earthDark }}>Trade</th>
+                                        <th className="p-2 text-center" style={{ color: colors.earthDark }}>Last Year</th>
+                                        <th className="p-2 text-center" style={{ color: colors.earthDark }}>This Year</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="border-b" style={{ borderColor: colors.earthLight }}>
+                                        <td className="p-2" style={{ color: colors.earthDark }}>Wool ↔ Pottery</td>
+                                        <td className="p-2 text-center font-mono">1 : 3</td>
+                                        <td className="p-2 text-center font-mono">1 : 3</td>
+                                    </tr>
+                                    <tr className="border-b" style={{ borderColor: colors.earthLight }}>
+                                        <td className="p-2" style={{ color: colors.earthDark }}>Wool ↔ Sesame Oil</td>
+                                        <td className="p-2 text-center font-mono">30 : 8 ≈ 3.75</td>
+                                        <td className="p-2 text-center font-mono">60 : 16 = 3.75</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-2" style={{ color: colors.earthDark }}>Pottery ↔ Sesame Oil</td>
+                                        <td className="p-2 text-center font-mono">10 : 8 = 1.25</td>
+                                        <td className="p-2 text-center font-mono">20 : 16 = 1.25</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <InsightPanel title="The Pattern">
+                            <p className="mb-2">
+                                Only the barley-prices changed—and they all changed together.
+                            </p>
+                            <p>
+                                The real exchange rates between goods stayed exactly the same. Wool still trades
+                                for the same amount of pottery, the same amount of sesame oil. Nothing about wool
+                                or pottery or oil changed.
+                            </p>
+                        </InsightPanel>
+
+                        <ContinueButton onClick={() => advancePhase('reflection')}>
+                            Reflect on What Happened
+                        </ContinueButton>
+                    </div>
+                </div>
+            );
+
+            // REFLECTION PHASE (Q2)
+            const renderReflection = () => (
+                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to bottom, ${colors.sand}, #e8e4d9)` }}>
+                    <div className="p-4 max-w-2xl mx-auto">
+                        <HeaderWithControls />
+
+                        <DialogueBlock speaker="Elder Trader">
+                            <p>"So tell me—what actually made all those barley-numbers change?"</p>
+                        </DialogueBlock>
+
+                        <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                            <p className="text-sm mb-4" style={{ color: colors.earthDark }}>
+                                <strong>Question:</strong> What changed to make all the barley-prices double?
+                            </p>
+
+                            <textarea
+                                value={q2Answer}
+                                onChange={(e) => setQ2Answer(e.target.value)}
+                                disabled={q2Submitted}
+                                placeholder="Explain what happened..."
+                                rows={3}
+                                className="w-full p-3 border rounded text-sm resize-none mb-3"
+                                style={{ borderColor: colors.earthLight }}
+                            />
+
+                            {!q2Submitted && (
+                                <button
+                                    onClick={handleQ2Submit}
+                                    disabled={q2Answer.trim().length < 10}
+                                    className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50"
+                                    style={{ backgroundColor: colors.primary }}
+                                >
+                                    Submit
+                                </button>
+                            )}
+
+                            {/* Hints */}
+                            {q2Attempts > 0 && q2Attempts < 3 && !q2Submitted && (
+                                <div className="mt-3 p-3 rounded-lg" style={{ backgroundColor: colors.warningBg }}>
+                                    <p className="text-sm" style={{ color: '#92400e' }}>
+                                        <strong>Hint {q2Attempts}/2:</strong>{' '}
+                                        {q2Attempts === 1
+                                            ? "Think about what was different this year—what did the farmers bring more of?"
+                                            : "The harvest was bountiful. There's much more barley than usual. What does that do to what barley can command?"
+                                        }
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Success */}
+                            {q2Submitted && q2Attempts < 3 && (
+                                <InsightPanel title="Exactly right!">
+                                    <p>
+                                        The bountiful harvest flooded the market with barley. When there's more barley,
+                                        each unit of barley commands less from others. All the barley-prices had to rise
+                                        to reflect that barley itself could get you less.
+                                    </p>
+                                </InsightPanel>
+                            )}
+
+                            {/* Third strike */}
+                            {q2Submitted && q2Attempts >= 3 && (
+                                <div className="mt-3 p-3 rounded-lg" style={{ backgroundColor: colors.warningBg }}>
+                                    <p className="text-sm font-medium" style={{ color: '#92400e' }}>
+                                        Here's what happened:
+                                    </p>
+                                    <p className="text-sm mt-1" style={{ color: '#92400e' }}>
+                                        The bountiful harvest meant there was much more barley available. When barley is
+                                        abundant, each unit of barley commands less from others. All the barley-prices
+                                        doubled because barley itself could get you less—not because wool, pottery, or
+                                        oil changed.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {q2Submitted && (
+                            <ContinueButton onClick={() => advancePhase('unease')}>
+                                Continue
+                            </ContinueButton>
+                        )}
+                    </div>
+                </div>
+            );
+
+            // UNEASE PHASE
+            const renderUnease = () => (
+                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to bottom, ${colors.sand}, #e8e4d9)` }}>
+                    <div className="p-4 max-w-2xl mx-auto">
+                        <HeaderWithControls />
+
+                        <DialogueBlock speaker="Elder Trader">
+                            <p className="mb-3">
+                                "You chose barley as your standard because everyone trades in it. It made
+                                comparison easy—you could finally see if a trade was good or bad.
+                            </p>
+                            <p>
+                                "But barley is grain. It grows in good years, fails in bad years. You're comparing
+                                everything to something that won't hold still."
+                            </p>
+                        </DialogueBlock>
+
+                        <WarningPanel>
+                            <p className="font-bold mb-2">The Problem</p>
+                            <p className="text-sm">
+                                A standard for comparison is supposed to be stable. But barley's supply changes every
+                                season. When the harvest is good, all prices rise. When it's bad, all prices fall. The
+                                barley-numbers move, but the real relationships between goods stay the same.
+                            </p>
+                        </WarningPanel>
+
+                        <DialogueBlock speaker="You">
+                            <p>"Is there something better? Something that could serve as a standard for comparison
+                            without flooding the market after every harvest?"</p>
+                        </DialogueBlock>
+
+                        <DialogueBlock speaker="Elder Trader">
+                            <p className="mb-3">
+                                "That's the question, isn't it? You'd want something that doesn't grow in fields.
+                                Something that doesn't rot. Something whose supply stays... stable."
+                            </p>
+                            <p className="italic">
+                                The elder shrugs. "I don't know what that would be. But I know barley isn't it."
+                            </p>
+                        </DialogueBlock>
+
+                        <div
+                            className="p-4 rounded-lg border-2 mb-4"
+                            style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+                        >
+                            <div className="flex items-start gap-2">
+                                <HelpCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: colors.accent }} />
+                                <div>
+                                    <p className="font-bold mb-2" style={{ color: colors.earthDark }}>
+                                        The Question That Remains
+                                    </p>
+                                    <p className="text-sm" style={{ color: colors.earthDark }}>
+                                        What makes a good standard for comparison? What properties would something need
+                                        to reliably tell you what different goods can command?
+                                    </p>
+                                    <p className="text-sm italic mt-2" style={{ color: colors.earth }}>
+                                        This question will echo forward through time—through civilizations yet to come.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <ContinueButton onClick={() => advancePhase('complete')}>
+                            Complete Tutorial
+                        </ContinueButton>
+                    </div>
+                </div>
+            );
+
+            // COMPLETE PHASE
+            const renderComplete = () => (
+                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to bottom, ${colors.sand}, #e8e4d9)` }}>
+                    <div className="p-4 max-w-2xl mx-auto">
+                        <HeaderWithControls />
+
+                        <div
+                            className="text-center p-6 rounded-lg mb-4"
+                            style={{ background: `linear-gradient(135deg, ${colors.success}22, ${colors.primary}22)` }}
+                        >
+                            <Trophy className="w-12 h-12 mx-auto mb-3" style={{ color: colors.accent }} />
+                            <h2 className="text-xl font-bold" style={{ color: colors.primary }}>
+                                Tutorial Complete!
+                            </h2>
+                        </div>
+
+                        <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                            <h3 className="font-bold mb-3" style={{ color: colors.primary }}>What You Discovered</h3>
+                            <div className="space-y-3 text-sm" style={{ color: colors.earthDark }}>
+                                <div className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: colors.success }} />
+                                    <p><strong>Nominal vs. Real:</strong> Barley-prices (nominal) can double while purchasing
+                                    power (real) stays the same.</p>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: colors.success }} />
+                                    <p><strong>The Barley Moved:</strong> When barley supply increased, barley could
+                                    command less from others. All barley-prices rose to compensate—not because goods
+                                    changed, but because the standard did.</p>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: colors.success }} />
+                                    <p><strong>Direct Rates Stable:</strong> The actual exchange rates between goods (wool ↔
+                                    pottery, etc.) didn't change at all. Only the barley-denominated prices moved.</p>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: colors.success }} />
+                                    <p><strong>The Instability Problem:</strong> Barley works as a standard for
+                                    comparison, but it's not stable. Its supply fluctuates with harvests, making it
+                                    unreliable for comparing what goods can command.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            className="p-4 rounded-lg border-l-4 mb-4"
+                            style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+                        >
+                            <h3 className="font-bold mb-2" style={{ color: colors.primary }}>The Story Continues</h3>
+                            <p className="text-sm" style={{ color: colors.earthDark }}>
+                                You return home with exactly what you bought last year—three pots, some sesame oil.
+                                Your family is neither richer nor poorer than before. But you've learned something
+                                unsettling.
+                            </p>
+                            <p className="text-sm mt-2 italic" style={{ color: colors.earth }}>
+                                Using barley as a standard helps. But the choice of standard matters. And barley
+                                might not be the right choice.
+                            </p>
+                        </div>
+
+                        <div
+                            className="p-4 rounded-lg mb-4"
+                            style={{ backgroundColor: colors.clayLight }}
+                        >
+                            <h3 className="font-bold mb-2" style={{ color: colors.primary }}>
+                                Bridge to Act I Review
+                            </h3>
+                            <p className="text-sm" style={{ color: colors.earthDark }}>
+                                You've now experienced the full arc of Act I: from scattered homesteads where finding
+                                a trading partner took days, to bustling markets where prices are called aloud, to
+                                the barley standard that made comparison possible—and its hidden flaw.
+                            </p>
+                            <p className="text-sm mt-2" style={{ color: colors.earthDark }}>
+                                The Act I Review will synthesize everything you've learned about information and
+                                exchange in a world without writing, without institutions, without formal records.
+                            </p>
+                            <p className="text-sm mt-2 italic" style={{ color: colors.earth }}>
+                                And then we'll travel forward in time—to a city where writing exists, where scribes
+                                keep records, where a whole new set of information problems await...
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={handleRestart}
+                            className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+                            style={{ backgroundColor: colors.sand, color: colors.earthDark, border: `2px solid ${colors.earthLight}` }}
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                            Restart Tutorial
+                        </button>
+                    </div>
+                </div>
+            );
+
+            // ---------------------------------------------------------------------------
+            // MAIN RENDER
+            // ---------------------------------------------------------------------------
+            return (
+                <>
+                    {showGlossary && <GlossaryModal />}
+
+                    {phase === 'welcome' && renderWelcome()}
+                    {phase === 'arrival' && renderArrival()}
+                    {phase === 'excitement' && renderExcitement()}
+                    {phase === 'calculation' && renderCalculation()}
+                    {phase === 'revelation' && renderRevelation()}
+                    {phase === 'explanation' && renderExplanation()}
+                    {phase === 'comparison' && renderComparison()}
+                    {phase === 'reflection' && renderReflection()}
+                    {phase === 'unease' && renderUnease()}
+                    {phase === 'complete' && renderComplete()}
+                </>
+            );
+        };
+
+        // Render to DOM
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Tutorial15 />);
+    </script>
+
+    <!-- Navigation Footer -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,53,107,0.95), rgba(0,53,107,0.85)); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; z-index: 40;">
+        <div style="max-width: 42rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+            <a href="tutorial-1-4.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="font-size: 16px;">←</span> Previous
+            </a>
+            <a href="../index.html" style="flex: 1; padding: 10px 16px; background: rgba(201,162,39,0.9); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; text-align: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(201,162,39,1)'" onmouseout="this.style.background='rgba(201,162,39,0.9)'">
+                Hub
+            </a>
+            <a href="act-1-review.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                Next <span style="font-size: 16px;">→</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

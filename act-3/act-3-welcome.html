@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Act III Welcome: The Kingdom of Lydia - Accounting Origins Project</title>
+
+  <!-- React 18 and ReactDOM 18 from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // Inline SVG Icon Components
+    const ChevronRight = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    );
+
+    const Clock = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" strokeWidth={2} />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6l4 2" />
+      </svg>
+    );
+
+    const MapPin = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    );
+
+    const Scale = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+      </svg>
+    );
+
+    const Book = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    );
+
+    const RefreshCw = ({ className, style }) => (
+      <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+    );
+
+    const ActIIIWelcome = () => {
+      const [section, setSection] = useState(0);
+      const [showGlossary, setShowGlossary] = useState(false);
+      const [devMode, setDevMode] = useState(false);
+
+      // Restart handler
+      const handleRestart = () => {
+        setSection(0);
+      };
+
+      const colors = {
+        primary: '#00356b',
+        sand: '#f5f1e8',
+        earth: '#8b7355',
+        earthLight: '#d4c4a8',
+        earthDark: '#5c4d3d',
+        accent: '#c9a227'
+      };
+
+      const totalSections = 5;
+
+      // Glossary terms for Act III
+      const glossaryTerms = [
+        { term: 'Sardis', definition: 'Capital of the kingdom of Lydia in western Anatolia (modern Turkey). A major trading center where Greek merchants, Persian caravans, and travelers from Mesopotamia all crossed paths.' },
+        { term: 'Lydia', definition: 'An ancient kingdom in western Anatolia, credited with inventing standardized coinage around 600 BCE. The Lydians were renowned as skilled traders and metalworkers.' },
+        { term: 'Electrum', definition: 'A natural alloy of gold and silver found in rivers near Sardis. The earliest Lydian coins were struck from electrum before techniques were developed to separate the metals.' },
+        { term: 'Pactolus River', definition: 'The river flowing past Sardis whose sands contained electrum—the source of Lydian wealth. Legend held that King Midas bathed here, turning the sands to gold.' },
+        { term: 'Croesus', definition: 'King of Lydia (~560-546 BCE), whose name became synonymous with wealth ("rich as Croesus"). He standardized Lydian coinage and guaranteed its purity with the royal seal.' },
+        { term: 'Stater', definition: 'A standard weight and denomination of Lydian coins. The consistency of weight and purity made staters trustworthy across different markets.' },
+        { term: 'Mint', definition: 'The royal workshop where coins are produced under the king\'s authority. The mint\'s stamp guarantees weight and purity—transforming lumps of metal into trusted measures of worth.' },
+      ];
+
+      // Header component
+      const Header = () => (
+        <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+          <div className="flex items-center gap-2">
+            <MapPin className="w-5 h-5" />
+            <div>
+              <span className="font-bold">Act III: The Measure of Worth</span>
+              <span className="text-blue-200 text-xs ml-2">Sardis, ~550 BCE</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowGlossary(true)}
+              className="flex items-center gap-1 text-xs hover:text-blue-200"
+            >
+              <Book className="w-4 h-4" />
+              <span>Glossary</span>
+            </button>
+            <div className="flex items-center gap-1 text-xs">
+              <Clock className="w-4 h-4" />
+              <span>~5 min</span>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Glossary Modal
+      const GlossaryModal = () => (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[80vh] overflow-hidden">
+            <div className="p-4 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+              <div className="flex items-center gap-2">
+                <Book className="w-5 h-5" />
+                <span className="font-bold">Glossary: Lydian Terms</span>
+              </div>
+              <button onClick={() => setShowGlossary(false)} className="text-white hover:text-blue-200 text-xl">×</button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              {glossaryTerms.map((item, i) => (
+                <div key={i} className="mb-4 last:mb-0">
+                  <p className="font-bold text-sm" style={{ color: colors.primary }}>{item.term}</p>
+                  <p className="text-sm text-gray-700">{item.definition}</p>
+                </div>
+              ))}
+              <div className="mt-4 p-3 rounded-lg text-xs" style={{ backgroundColor: colors.sand }}>
+                <p className="text-gray-600 italic">
+                  More terms will be introduced in the tutorials as you encounter them.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Progress indicator with restart button
+      const ProgressDots = () => (
+        <div className="flex justify-center items-center gap-4 my-4">
+          <div className="flex gap-2">
+            {[...Array(totalSections)].map((_, i) => (
+              <div
+                key={i}
+                className="w-2 h-2 rounded-full transition-all"
+                style={{
+                  backgroundColor: i === section ? colors.primary : colors.earthLight,
+                  transform: i === section ? 'scale(1.3)' : 'scale(1)'
+                }}
+              />
+            ))}
+          </div>
+          {section > 0 && (
+            <button
+              onClick={handleRestart}
+              className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1"
+              title="Restart"
+            >
+              <RefreshCw className="w-3 h-3" />
+              <span>Restart</span>
+            </button>
+          )}
+        </div>
+      );
+
+      // Section 0: The Passage of Time
+      const PassageSection = () => (
+        <div className="space-y-4">
+          <div className="p-4 rounded-lg border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+            <p className="text-gray-700 mb-3">
+              Babylon is a memory now.
+            </p>
+            <p className="text-gray-700 mb-3">
+              The city still stands—it will stand for centuries yet—but the Babylon you knew, the Babylon of Hammurabi and his law code, of scribes tallying grain in the Central Record Hall, has passed into legend.
+            </p>
+            <p className="text-gray-700 mb-3">
+              Empires have risen on its foundations. Assyria conquered and was conquered in turn. A new Babylon rose briefly, gloriously. Now Persia stirs in the east, hungry for empire.
+            </p>
+            <p className="text-gray-700 mb-3">
+              Through all of it, the scribes kept writing. The tablets endured. The discipline of balance spread across Mesopotamia and beyond.
+            </p>
+            <p className="text-gray-700 font-medium">
+              But the question you left unanswered in Hammurabi's throne room—<em>how do you record worth that shifts?</em>—that question remained.
+            </p>
+          </div>
+
+          <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.sand }}>
+            <p className="text-gray-600">
+              Over <strong>a thousand years</strong> have passed. You have traveled—not in body, but in time—to a kingdom at the edge of the Greek world. A place where traders from East and West meet, and where something new is being forged in the royal workshops.
+            </p>
+          </div>
+        </div>
+      );
+
+      // Section 1: The Crossroads of the World
+      const CrossroadsSection = () => (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold" style={{ color: colors.primary }}>The Crossroads of the World</h2>
+
+          <p className="text-sm text-gray-700">
+            Sardis sprawls at the foot of Mount Tmolus, where the Pactolus River flows down from heights that glitter with gold. It is the capital of Lydia—and the place where East meets West.
+          </p>
+
+          <div className="space-y-3">
+            {[
+              { name: 'The Royal Road', desc: 'A highway stretching east to Susa and the Persian heartland, carrying merchants and messengers' },
+              { name: 'The Greek Quarter', desc: 'Where traders from Miletus, Ephesus, and the Aegean islands haggle in their own tongue' },
+              { name: 'The Marketplace', desc: 'A vast square where wool, grain, pottery, dyes, and metalwork change hands every day' },
+              { name: 'The Pactolus Banks', desc: 'Where workers sift river sand for the pale gold that has made Lydia wealthy' },
+              { name: 'The Royal Mint', desc: 'Where something new is being made—small lumps of metal stamped with the king\'s seal' },
+            ].map((item, i) => (
+              <div key={i} className="flex gap-3 items-start">
+                <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: colors.accent }} />
+                <div>
+                  <span className="font-medium text-sm" style={{ color: colors.earthDark }}>{item.name}</span>
+                  <span className="text-sm text-gray-600"> — {item.desc}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.sand }}>
+            <p className="text-gray-700 italic">
+              This is a city of traders. Greeks who deal in olive oil and wine. Persians who bring carpets and spices. Mesopotamian merchants whose ancestors kept the same records you once studied. They all meet here—and they all face the same problem.
+            </p>
+          </div>
+        </div>
+      );
+
+      // Section 2: The Problem Restated
+      const ProblemSection = () => (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold" style={{ color: colors.primary }}>The Problem Restated</h2>
+
+          <div className="p-4 rounded-lg border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+            <p className="text-gray-700 mb-3">
+              Consider a merchant in Sardis who contracts to deliver wool worth twenty measures of barley.
+            </p>
+            <p className="text-gray-700 mb-3">
+              When the agreement is made, wool is dear and barley is cheap. Twenty measures seems fair.
+            </p>
+            <p className="text-gray-700 mb-3">
+              But seasons pass. Harvests vary. By the time the wool is delivered, barley is dear and wool is cheap. Those same twenty measures of barley now represent far more than the wool is worth.
+            </p>
+            <p className="text-gray-700 font-medium">
+              Who has been cheated? The records tracked the agreement perfectly. But what was "worth twenty measures" is no longer worth twenty measures.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+            <h3 className="font-bold text-sm mb-2" style={{ color: colors.primary }}>The Unsolved Question</h3>
+            <p className="text-sm text-gray-700 mb-2">
+              In Babylon, you learned that physical records can be perfect—every garu tracked, every loss explained—and still fail to capture what traders actually care about.
+            </p>
+            <p className="text-sm text-gray-700">
+              <strong>Worth in consumption</strong> is stable: thirty garu feeds a family for a month, whether wool is cheap or dear. But <strong>worth in command</strong>—what barley can fetch in exchange—shifts with every harvest, every caravan, every rumor of war.
+            </p>
+          </div>
+
+          <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: '#fffbeb', borderColor: colors.accent, border: '1px solid' }}>
+            <p className="text-gray-700 italic">
+              The tablets tracked quantity. They could not track worth. How do you record a worth that lives not in the thing itself, but in its relation to all other things?
+            </p>
+          </div>
+        </div>
+      );
+
+      // Section 3: Your Role
+      const RoleSection = () => (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold" style={{ color: colors.primary }}>Your Role</h2>
+
+          <div className="p-4 rounded-lg border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+            <p className="text-gray-700 mb-3">
+              You are no longer a palace scribe. In Sardis, you are something different: an apprentice in a merchant house.
+            </p>
+            <p className="text-gray-700 mb-3">
+              Your master trades in wool, grain, pottery, and metalwork—whatever moves through the crossroads. He keeps records of every transaction, every debt, every promise to deliver.
+            </p>
+            <p className="text-gray-700">
+              And he is struggling with the same problem that defeated the scribes of Babylon: how to know if he is truly wealthier or poorer when the worth of everything keeps shifting.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+            <div className="flex gap-3 items-start">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.accent }}>
+                <span className="text-white text-lg">👤</span>
+              </div>
+              <div>
+                <p className="font-bold text-sm" style={{ color: colors.primary }}>Apprentice Merchant</p>
+                <p className="text-xs text-gray-600">You watch the marketplace where value is constantly negotiated. You record trades in multiple goods. And you will be present when a new invention arrives from the royal mint.</p>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-700 italic">
+            The discipline of balance you learned in Babylon—coordinated records, refusing unexplained adjustments—still applies. But something new is needed. Something that gives worth a stable measure.
+          </p>
+        </div>
+      );
+
+      // Section 4: What Awaits
+      const AwaitsSection = () => (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold" style={{ color: colors.primary }}>In the Tutorials Ahead</h2>
+
+          <div className="space-y-3 text-sm text-gray-700">
+            <p>
+              Something is happening in the royal workshops of Sardis.
+            </p>
+            <p>
+              Metalworkers are stamping small lumps of electrum with the king's seal. Each lump weighs the same. Each bears the same mark. Each carries the king's guarantee.
+            </p>
+            <p>
+              Traders are beginning to accept these stamped lumps in exchange for goods—not because the metal is useful, but because everyone agrees on what it represents.
+            </p>
+            <p className="font-medium">
+              A common measure. A stable reference. A way to record worth that doesn't shift with every harvest.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg border" style={{ borderColor: colors.accent, backgroundColor: '#fffbeb' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Scale className="w-5 h-5" style={{ color: colors.accent }} />
+              <h3 className="font-bold text-sm" style={{ color: colors.earthDark }}>What You'll Discover</h3>
+            </div>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li className="flex gap-2 items-start">
+                <span style={{ color: colors.accent }}>•</span>
+                <span>Why a stable common measure changes everything about tracking worth</span>
+              </li>
+              <li className="flex gap-2 items-start">
+                <span style={{ color: colors.accent }}>•</span>
+                <span>How the king's stamp creates trust in small lumps of metal</span>
+              </li>
+              <li className="flex gap-2 items-start">
+                <span style={{ color: colors.accent }}>•</span>
+                <span>How the same discipline of balance can track worth, not just quantity</span>
+              </li>
+              <li className="flex gap-2 items-start">
+                <span style={{ color: colors.accent }}>•</span>
+                <span>The foundations of recording value—principles still used today</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="p-4 rounded-lg text-center" style={{ backgroundColor: colors.sand }}>
+            <p className="text-sm" style={{ color: colors.earthDark }}>
+              In the tutorials ahead, you will discover what the invention of coinage makes possible—and why it finally answers the question that Abi-šarrum could not.
+            </p>
+          </div>
+        </div>
+      );
+
+      // Navigation buttons
+      const NavigationButtons = () => (
+        <div className="flex gap-3 mt-6">
+          {section > 0 && (
+            <button
+              onClick={() => setSection(section - 1)}
+              className="flex-1 py-3 rounded-lg text-sm font-medium"
+              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+            >
+              ← Back
+            </button>
+          )}
+          {section < totalSections - 1 ? (
+            <button
+              onClick={() => setSection(section + 1)}
+              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+              style={{ backgroundColor: colors.primary }}
+            >
+              Continue <ChevronRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                window.location.href = 'tutorial-3-1.html';
+              }}
+              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+              style={{ backgroundColor: '#2d6a4f' }}
+            >
+              Begin Act III <ChevronRight className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      );
+
+      // Dev mode controls
+      const DevModeControls = () => devMode && (
+        <div className="mb-3 p-2 bg-purple-100 rounded-lg flex gap-2 flex-wrap">
+          <span className="text-xs text-purple-700 font-medium">DEV:</span>
+          {[...Array(totalSections)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setSection(i)}
+              className={`text-xs px-2 py-1 rounded ${i === section ? 'bg-purple-600 text-white' : 'bg-purple-200 text-purple-700'}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      );
+
+      // Render current section
+      const renderSection = () => {
+        switch (section) {
+          case 0: return <PassageSection />;
+          case 1: return <CrossroadsSection />;
+          case 2: return <ProblemSection />;
+          case 3: return <RoleSection />;
+          case 4: return <AwaitsSection />;
+          default: return <PassageSection />;
+        }
+      };
+
+      // Section titles for context
+      const sectionTitles = [
+        'The Passage of Time',
+        'The Crossroads of the World',
+        'The Problem Restated',
+        'Your Role',
+        'What Awaits'
+      ];
+
+      return (
+        <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+          {/* Hidden dev mode toggle */}
+          <div
+            className="fixed top-0 left-0 w-4 h-4 z-50"
+            onDoubleClick={() => setDevMode(!devMode)}
+          />
+
+          <Header />
+
+          <div className="p-4 max-w-2xl mx-auto pb-16">
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+              {/* Title bar */}
+              <div className="p-4 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                <h1 className="text-xl font-bold mb-1">Welcome to Sardis</h1>
+                <p className="text-blue-200 text-sm">Where East meets West—and worth finds its measure</p>
+              </div>
+
+              {/* Section indicator */}
+              <div className="px-5 py-2 text-xs font-medium flex items-center justify-between" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                <span>{sectionTitles[section]}</span>
+                <span>{section + 1} of {totalSections}</span>
+              </div>
+
+              {/* Content */}
+              <div className="p-5">
+                <DevModeControls />
+
+                {renderSection()}
+
+                <ProgressDots />
+                <NavigationButtons />
+              </div>
+            </div>
+
+            {/* Subtitle for final screen */}
+            {section === totalSections - 1 && (
+              <p className="text-center text-xs text-gray-500 mt-3">
+                Next: Tutorial 3.1 — The Merchant's Dilemma
+              </p>
+            )}
+          </div>
+
+          {showGlossary && <GlossaryModal />}
+
+          {/* Navigation Footer */}
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4 shadow-lg z-40">
+            <div className="max-w-2xl mx-auto flex justify-between items-center">
+              <a
+                href="../act-2/act-2-review.html"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-sm font-medium text-gray-700"
+              >
+                <span>← Prev</span>
+              </a>
+              <a
+                href="../index.html"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors text-sm font-medium text-white"
+              >
+                <span>Hub</span>
+              </a>
+              <a
+                href="tutorial-3-1.html"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-sm font-medium text-gray-700"
+              >
+                <span>Next →</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Render the component
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ActIIIWelcome />);
+  </script>
+</body>
+</html>

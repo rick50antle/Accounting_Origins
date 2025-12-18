@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial 2.3: The Investigation - Accounting Origins</title>
+
+    <!-- React 18 and ReactDOM 18 from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel Standalone -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #root {
+            min-height: 100vh;
+        }
+
+        /* Navigation footer styles */
+        .nav-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to right, #00356b, #004080);
+            padding: 0.75rem;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 40;
+        }
+
+        .nav-footer-content {
+            max-width: 48rem;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-footer a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-footer a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-footer .nav-hub {
+            font-weight: 600;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- Navigation Footer -->
+    <nav class="nav-footer">
+        <div class="nav-footer-content">
+            <a href="tutorial-2-2.html" class="nav-prev">
+                <span>←</span>
+                <span>Previous</span>
+            </a>
+            <a href="../index.html" class="nav-hub">
+                <span>Hub</span>
+            </a>
+            <a href="tutorial-2-4.html" class="nav-next">
+                <span>Next</span>
+                <span>→</span>
+            </a>
+        </div>
+    </nav>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Inline SVG Icon Components
+        const ChevronRight = ({ className, style }) => (
+            <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        );
+
+        const Clock = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        );
+
+        const Book = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+        );
+
+        const Search = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        );
+
+        const CheckCircle = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        );
+
+        const AlertTriangle = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        );
+
+        const Trophy = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                <path d="M4 22h16"></path>
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+            </svg>
+        );
+
+        const HelpCircle = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        );
+
+        const Wheat = ({ className, style }) => (
+            <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 22 16 8"></path>
+                <path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"></path>
+                <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"></path>
+                <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"></path>
+                <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"></path>
+                <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"></path>
+                <path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"></path>
+                <path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"></path>
+            </svg>
+        );
+
+        const Scale = ({ className, style }) => (
+            <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                <path d="M7 21h10"></path>
+                <path d="M12 3v18"></path>
+                <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
+            </svg>
+        );
+
+        const Warehouse = ({ className, style }) => (
+            <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"></path>
+                <path d="M6 18h12"></path>
+                <path d="M6 14h12"></path>
+                <rect width="12" height="12" x="6" y="10"></rect>
+            </svg>
+        );
+
+        const RefreshCw = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                <path d="M21 3v5h-5"></path>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                <path d="M3 21v-5h5"></path>
+            </svg>
+        );
+
+        const FileText = ({ className, style }) => (
+            <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <line x1="10" y1="9" x2="8" y2="9"></line>
+            </svg>
+        );
+
+        const ScrollText = ({ className, style }) => (
+            <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"></path>
+                <path d="M19 17V5a2 2 0 0 0-2-2H4"></path>
+                <path d="M15 8h-5"></path>
+                <path d="M15 12h-5"></path>
+            </svg>
+        );
+
+        const Tutorial23 = () => {
+          // Core state
+          const [phase, setPhase] = useState('welcome');
+          const [showGlossary, setShowGlossary] = useState(false);
+          const [devMode, setDevMode] = useState(false);
+
+          // Phase 2: Fields Investigation
+          const [fieldsStep, setFieldsStep] = useState(0);
+
+          // Phase 3: Tax Investigation
+          const [taxStep, setTaxStep] = useState(0);
+          const [revealedTablets, setRevealedTablets] = useState([]);
+          const [runningTotal, setRunningTotal] = useState(0);
+          const [sumAnswer, setSumAnswer] = useState(45);
+          const [sumSubmitted, setSumSubmitted] = useState(false);
+          const [sumAttempts, setSumAttempts] = useState(0);
+
+          // Phase 4: Report
+          const [reportStep, setReportStep] = useState(0);
+
+          // Phase 5: Diagnosis
+          const [diagnosisStep, setDiagnosisStep] = useState(0);
+          const [diagramStep, setDiagramStep] = useState(0);
+          const [whyHiddenAnswer, setWhyHiddenAnswer] = useState('');
+          const [whyHiddenSubmitted, setWhyHiddenSubmitted] = useState(false);
+          const [whyHiddenAttempts, setWhyHiddenAttempts] = useState(0);
+          const [showWhyHiddenHint, setShowWhyHiddenHint] = useState(0);
+
+          // Phase 6: Reflection
+          const [reflectionStep, setReflectionStep] = useState(0);
+          const [reflectionAnswers, setReflectionAnswers] = useState(['', '']);
+          const [reflectionSubmitted, setReflectionSubmitted] = useState([false, false]);
+          const [reflectionAttempts, setReflectionAttempts] = useState([0, 0]);
+          const [showReflectionHint, setShowReflectionHint] = useState([false, false]);
+
+          // Diagram animation effect - must be at top level (Rules of Hooks)
+          useEffect(() => {
+            if (phase === 'diagnosis' && diagnosisStep === 2 && diagramStep < 4) {
+              const timer = setTimeout(() => setDiagramStep(diagramStep + 1), 800);
+              return () => clearTimeout(timer);
+            }
+          }, [phase, diagnosisStep, diagramStep]);
+
+          // Restart handler
+          const handleRestart = () => {
+            setPhase('welcome');
+            setFieldsStep(0);
+            setTaxStep(0);
+            setRevealedTablets([]);
+            setRunningTotal(0);
+            setSumAnswer(45);
+            setSumSubmitted(false);
+            setSumAttempts(0);
+            setReportStep(0);
+            setDiagnosisStep(0);
+            setDiagramStep(0);
+            setWhyHiddenAnswer('');
+            setWhyHiddenSubmitted(false);
+            setWhyHiddenAttempts(0);
+            setShowWhyHiddenHint(0);
+            setReflectionStep(0);
+            setReflectionAnswers(['', '']);
+            setReflectionSubmitted([false, false]);
+            setReflectionAttempts([0, 0]);
+            setShowReflectionHint([false, false]);
+          };
+
+          const colors = {
+            primary: '#00356b',
+            sand: '#f5f1e8',
+            earth: '#8b7355',
+            earthLight: '#d4c4a8',
+            earthDark: '#5c4d3d',
+            accent: '#c9a227',
+            success: '#22c55e',
+            successBg: '#f0fdf4',
+            warning: '#f59e0b',
+            warningBg: '#fffbeb',
+            clay: '#c4a574',
+            clayLight: '#e8dcc8',
+            clayDark: '#a08050',
+            error: '#dc2626',
+            errorBg: '#fef2f2'
+          };
+
+          // Taxpayer tablets data - each has assessed amount and paid amount
+          const taxpayerTablets = [
+            { name: 'Adad-shuma', occupation: 'Farmer', assessed: 10, paid: 8 },
+            { name: 'Bel-ibni', occupation: 'Merchant', assessed: 15, paid: 12 },
+            { name: 'Ili-eresh', occupation: 'Farmer', assessed: 8, paid: 6 },
+            { name: 'Sin-magir', occupation: 'Potter', assessed: 12, paid: 9 },
+            { name: 'Shamash-nasir', occupation: 'Farmer', assessed: 20, paid: 15 }
+          ];
+
+          // Glossary terms
+          const glossaryTerms = [
+            { term: 'Record Hall', definition: 'A dedicated building where scribes maintain tablets for a specific department of the royal administration.' },
+            { term: 'Discrepancy', definition: 'A difference between counts that should agree but don\'t.' },
+            { term: 'Verification', definition: 'Comparing records to each other (or to physical reality) to check for accuracy.' },
+            { term: 'Calculation error', definition: 'A mistake made when summing or computing totals from individual records.' },
+            { term: 'Reconciliation', definition: 'The process of comparing records from different sources to ensure they agree.' },
+            { term: 'Isolated records', definition: 'Records kept separately, without systematic comparison to related records elsewhere.' }
+          ];
+
+          // Why Hidden question hints
+          const whyHiddenHints = [
+            'Think about where each department keeps its records...',
+            'When do records from different departments get compared to each other?',
+            'The Tax Assessor and Granary each have their own record halls...'
+          ];
+
+          // Reflection questions
+          const reflectionQuestions = [
+            {
+              question: 'The Tax Assessor recorded sending grain. The Granary recorded receiving grain. What should be true about these records if both are correct?',
+              hints: ['Think about the same transaction from two perspectives...'],
+              answer: 'They should show the same amount—what one sends, the other receives.'
+            },
+            {
+              question: 'In the current system, when is the first moment that these records are compared?',
+              hints: ['Where do all the officials report their numbers?'],
+              answer: 'At the King\'s morning reports—after the tablets have already been filed.'
+            }
+          ];
+
+          // Header component
+          const Header = () => (
+            <div
+              className="p-3 text-white flex items-center justify-between"
+              style={{ backgroundColor: colors.primary }}
+              onDoubleClick={(e) => {
+                if (e.clientX < 100) setDevMode(!devMode);
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <Search className="w-5 h-5" />
+                <div>
+                  <span className="font-bold">Tutorial 2.3: The Investigation</span>
+                  <span className="text-blue-200 text-xs ml-2">Babylon ~1800 BCE</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowGlossary(true)}
+                  className="flex items-center gap-1 text-xs hover:text-blue-200"
+                >
+                  <Book className="w-4 h-4" />
+                  <span>Glossary</span>
+                </button>
+                <div className="flex items-center gap-1 text-xs">
+                  <Clock className="w-4 h-4" />
+                  <span>~10 min</span>
+                </div>
+              </div>
+            </div>
+          );
+
+          // Glossary Modal
+          const GlossaryModal = () => (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[80vh] overflow-hidden">
+                <div className="p-4 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+                  <div className="flex items-center gap-2">
+                    <Book className="w-5 h-5" />
+                    <span className="font-bold">Glossary: Record-Keeping</span>
+                  </div>
+                  <button onClick={() => setShowGlossary(false)} className="text-white hover:text-blue-200 text-xl">×</button>
+                </div>
+                <div className="p-4 overflow-y-auto max-h-[60vh]">
+                  {glossaryTerms.map((item, i) => (
+                    <div key={i} className="mb-4 last:mb-0">
+                      <p className="font-bold text-sm" style={{ color: colors.primary }}>{item.term}</p>
+                      <p className="text-sm text-gray-700">{item.definition}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+
+          // Progress bar
+          const phaseOrder = ['welcome', 'fields-investigation', 'tax-investigation', 'report', 'diagnosis', 'reflection', 'complete'];
+          const currentPhaseIndex = phaseOrder.indexOf(phase);
+
+          const ProgressBar = () => (
+            <div className="flex items-center gap-3">
+              <div className="flex gap-1 flex-1">
+                {phaseOrder.slice(0, -1).map((p, i) => (
+                  <div
+                    key={p}
+                    className="h-1.5 rounded flex-1 transition-all"
+                    style={{
+                      backgroundColor: i < currentPhaseIndex ? colors.success : i === currentPhaseIndex ? colors.primary : colors.earthLight
+                    }}
+                  />
+                ))}
+              </div>
+              <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
+                <RefreshCw className="w-3 h-3" />
+                <span>Restart</span>
+              </button>
+            </div>
+          );
+
+          // Dev controls
+          const DevControls = () => devMode && (
+            <div className="mb-3 p-2 bg-purple-100 rounded-lg flex gap-2 flex-wrap items-center">
+              <span className="text-xs text-purple-700 font-medium">DEV:</span>
+              {phaseOrder.slice(0, -1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPhase(p)}
+                  className={`text-xs px-2 py-1 rounded ${p === phase ? 'bg-purple-600 text-white' : 'bg-purple-200 text-purple-700'}`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          );
+
+          // Narrative block
+          const NarrativeBlock = ({ children }) => (
+            <div
+              className="p-4 rounded-lg border-l-4 italic text-gray-700 text-sm leading-relaxed mb-4"
+              style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+            >
+              {children}
+            </div>
+          );
+
+          // Dialogue block
+          const DialogueBlock = ({ speaker, title, children }) => (
+            <div className="p-4 rounded-lg border mb-4" style={{ backgroundColor: '#fefce8', borderColor: colors.accent }}>
+              {speaker && (
+                <p className="font-bold text-sm mb-1" style={{ color: colors.earthDark }}>
+                  {speaker}{title && <span className="font-normal text-gray-500"> — {title}</span>}
+                </p>
+              )}
+              <p className="text-sm italic text-gray-700">{children}</p>
+            </div>
+          );
+
+          // Insight panel
+          const InsightPanel = ({ title, children, type = 'success' }) => {
+            const styles = {
+              success: { bg: colors.successBg, border: colors.success },
+              warning: { bg: colors.warningBg, border: colors.warning },
+              error: { bg: colors.errorBg, border: colors.error }
+            };
+            return (
+              <div className="p-4 rounded-lg border mb-4" style={{ backgroundColor: styles[type].bg, borderColor: styles[type].border }}>
+                <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>{title}</h3>
+                <div className="text-sm text-gray-700">{children}</div>
+              </div>
+            );
+          };
+
+          // Tablet display component
+          const TabletDisplay = ({ title, children, style = 'clay' }) => (
+            <div className="mb-4">
+              <div
+                className="rounded-lg border-2 overflow-hidden"
+                style={{
+                  backgroundColor: style === 'clay' ? colors.clayLight : 'white',
+                  borderColor: style === 'clay' ? colors.clayDark : colors.earthLight
+                }}
+              >
+                {title && (
+                  <div
+                    className="text-center py-2 font-bold text-sm"
+                    style={{ backgroundColor: colors.clay, color: colors.earthDark }}
+                  >
+                    {title}
+                  </div>
+                )}
+                <div className="p-3">
+                  {children}
+                </div>
+              </div>
+            </div>
+          );
+
+          // Animated diagram for diagnosis phase
+          const IsolationDiagram = ({ step }) => {
+            return (
+              <div className="p-4 rounded-lg border mb-4" style={{ backgroundColor: '#f8fafc', borderColor: colors.earthLight }}>
+                <div className="flex justify-between items-start gap-4">
+                  {/* Tax Assessor Hall */}
+                  <div
+                    className={`flex-1 p-3 rounded-lg border-2 transition-all duration-500 ${step >= 1 ? 'opacity-100' : 'opacity-0'}`}
+                    style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark }}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Scale className="w-4 h-4" style={{ color: colors.primary }} />
+                      <span className="font-bold text-xs" style={{ color: colors.earthDark }}>Tax Assessor's Hall</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Records: "Sent 40 garu"</p>
+                    {step >= 3 && (
+                      <div className="mt-2 p-1 rounded text-xs text-red-700 bg-red-100">
+                        ⚠ Actually sent 50!
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Arrow and comparison point */}
+                  <div className={`flex flex-col items-center transition-all duration-500 ${step >= 2 ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className="text-xs text-gray-400 mb-1">No comparison</div>
+                    <div className="text-2xl text-gray-300">⟷</div>
+                    <div className="text-xs text-gray-400 mt-1">until...</div>
+                  </div>
+
+                  {/* Granary Hall */}
+                  <div
+                    className={`flex-1 p-3 rounded-lg border-2 transition-all duration-500 ${step >= 1 ? 'opacity-100' : 'opacity-0'}`}
+                    style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark }}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Warehouse className="w-4 h-4" style={{ color: colors.primary }} />
+                      <span className="font-bold text-xs" style={{ color: colors.earthDark }}>Granary's Hall</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Records: "Received 50 garu"</p>
+                  </div>
+                </div>
+
+                {/* Morning reports arrow */}
+                {step >= 4 && (
+                  <div className="mt-4 text-center transition-all duration-500">
+                    <div className="inline-block p-2 rounded-lg" style={{ backgroundColor: colors.errorBg }}>
+                      <p className="text-xs text-red-700 font-medium">↓ First comparison: King's Morning Reports ↓</p>
+                      <p className="text-xs text-red-600 mt-1">Too late to prevent the crisis!</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          };
+
+          // Evaluate why hidden answer
+          const evaluateWhyHidden = (answer) => {
+            const lower = answer.toLowerCase();
+            let matches = 0;
+
+            // Check for separation/isolation concept
+            if (lower.includes('separate') || lower.includes('apart') || lower.includes('isolat') ||
+                lower.includes('own hall') || lower.includes('different hall') || lower.includes('their own')) {
+              matches++;
+            }
+
+            // Check for no comparison concept
+            if (lower.includes('not compare') || lower.includes('no compar') || lower.includes('not check') ||
+                lower.includes('no check') || lower.includes('don\'t compare') || lower.includes('never compare') ||
+                lower.includes('no coordination') || lower.includes('don\'t talk')) {
+              matches++;
+            }
+
+            // Check for timing concept
+            if (lower.includes('morning') || lower.includes('report') || lower.includes('king') ||
+                lower.includes('too late') || lower.includes('next day') || lower.includes('throne')) {
+              matches++;
+            }
+
+            return matches >= 2;
+          };
+
+          // Evaluate reflection answers
+          const evaluateReflection = (index, answer) => {
+            const lower = answer.toLowerCase();
+            if (index === 0) {
+              // Should match/agree
+              return lower.includes('same') || lower.includes('equal') || lower.includes('match') ||
+                     lower.includes('agree') || lower.includes('identical');
+            } else {
+              // Morning reports
+              return lower.includes('morning') || lower.includes('report') || lower.includes('king') ||
+                     lower.includes('throne') || lower.includes('next day');
+            }
+          };
+
+          // WELCOME PHASE
+          if (phase === 'welcome') {
+            return (
+              <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+                <Header />
+                <div className="p-4 max-w-2xl mx-auto">
+                  <DevControls />
+                  <ProgressBar />
+
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                    <div className="p-6 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                      <h1 className="text-2xl font-bold mb-2">The Investigation</h1>
+                      <p className="text-blue-200">Finding the error, understanding why it hid</p>
+                    </div>
+
+                    <div className="p-5">
+                      <NarrativeBlock>
+                        The morning sun finds you in Master Nabu-rimanni's scriptorium. Yesterday's crisis in the throne room—the 10 garu discrepancy—has set the palace on edge, and the King has ordered an investigation.
+                      </NarrativeBlock>
+
+                      <DialogueBlock speaker="Master Nabu-rimanni">
+                        "We verified the Granary's balance by physical count—their records match what sits in their storehouses. That is a start. Now we must trace the grain back to its sources: the Royal Fields and the Tax Assessor. Visit their record halls and examine their tablets. Find where the count went wrong."
+                      </DialogueBlock>
+
+                      <div className="p-4 rounded-lg mb-4" style={{ backgroundColor: colors.sand }}>
+                        <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>What You'll Discover</h3>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          <li>• What correct records look like</li>
+                          <li>• Where the error hides</li>
+                          <li>• Why the current system couldn't catch it</li>
+                        </ul>
+                      </div>
+
+                      <button
+                        onClick={() => setPhase('fields-investigation')}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Begin the Investigation <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {showGlossary && <GlossaryModal />}
+              </div>
+            );
+          }
+
+          // FIELDS INVESTIGATION PHASE
+          if (phase === 'fields-investigation') {
+            return (
+              <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+                <Header />
+                <div className="p-4 max-w-2xl mx-auto">
+                  <DevControls />
+                  <ProgressBar />
+
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                    <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: colors.earthLight }}>
+                      <Wheat className="w-5 h-5" style={{ color: colors.primary }} />
+                      <h2 className="font-bold" style={{ color: colors.primary }}>Royal Fields Record Hall</h2>
+                    </div>
+
+                    <div className="p-5">
+                      {fieldsStep === 0 && (
+                        <>
+                          <NarrativeBlock>
+                            The Royal Fields Record Hall sits near the city's eastern gate, where cart-roads lead to the agricultural lands. Inside, you find Enlil-bani, the chief scribe of the Fields, surrounded by neatly organized tablets.
+                          </NarrativeBlock>
+
+                          <DialogueBlock speaker="Enlil-bani" title="Chief Scribe of the Royal Fields">
+                            "Ah, you come from Master Nabu-rimanni? Yes, I heard about the discrepancy. Please, examine our records. Each field has its own section. Tablets for grain harvested are kept here, while tablets for grain sent to the Royal Granary are stored there. Our records follow every grain measure—when it comes in from the fields, and when it goes out to the Granary."
+                          </DialogueBlock>
+
+                          <button
+                            onClick={() => setFieldsStep(1)}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Examine the Records <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+
+                      {fieldsStep === 1 && (
+                        <>
+                          <NarrativeBlock>
+                            You examine yesterday's tablets. The records are meticulous, matching harvest to dispatch with careful precision.
+                          </NarrativeBlock>
+
+                          <TabletDisplay title="ROYAL FIELDS — YESTERDAY'S RECORD">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p className="font-bold text-xs mb-2 text-center" style={{ color: colors.primary }}>HARVESTED</p>
+                                <div className="space-y-1 text-sm">
+                                  <div className="flex justify-between">
+                                    <span>North Fields</span>
+                                    <span className="font-medium">60 garu</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>East Fields</span>
+                                    <span className="font-medium">50 garu</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>South Fields</span>
+                                    <span className="font-medium">40 garu</span>
+                                  </div>
+                                  <div className="flex justify-between pt-2 border-t" style={{ borderColor: colors.earthLight }}>
+                                    <span className="font-bold">Total</span>
+                                    <span className="font-bold">150 garu</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="font-bold text-xs mb-2 text-center" style={{ color: colors.primary }}>SENT TO GRANARY</p>
+                                <div className="space-y-1 text-sm">
+                                  <div className="flex justify-between">
+                                    <span>Morning cart</span>
+                                    <span className="font-medium">80 garu</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Afternoon cart</span>
+                                    <span className="font-medium">70 garu</span>
+                                  </div>
+                                  <div className="flex justify-between pt-2 border-t" style={{ borderColor: colors.earthLight }}>
+                                    <span className="font-bold">Total</span>
+                                    <span className="font-bold">150 garu</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </TabletDisplay>
+
+                          <div className="flex items-center gap-2 p-3 rounded-lg mb-4" style={{ backgroundColor: colors.successBg }}>
+                            <CheckCircle className="w-5 h-5 text-green-600" />
+                            <p className="text-sm text-green-800">
+                              <strong>Records match:</strong> Harvested 150 garu = Sent 150 garu
+                            </p>
+                          </div>
+
+                          <DialogueBlock speaker="Enlil-bani">
+                            "As you can see, every grain measure is accounted for. What we harvested, we sent. The field managers and cart drivers have all verified the counts. Our records are flawless."
+                          </DialogueBlock>
+
+                          <InsightPanel title="Fields Investigation: Complete">
+                            <p>The Royal Fields' records are correct. They harvested 150 garu and sent 150 garu to the Granary—exactly what Marduk-nasir reported to the King.</p>
+                            <p className="mt-2 font-medium">The error must lie elsewhere.</p>
+                          </InsightPanel>
+
+                          <button
+                            onClick={() => setPhase('tax-investigation')}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Proceed to Tax Assessor's Hall <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {showGlossary && <GlossaryModal />}
+              </div>
+            );
+          }
+
+          // TAX INVESTIGATION PHASE
+          if (phase === 'tax-investigation') {
+            const allTabletsRevealed = revealedTablets.length === taxpayerTablets.length;
+
+            return (
+              <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+                <Header />
+                <div className="p-4 max-w-2xl mx-auto">
+                  <DevControls />
+                  <ProgressBar />
+
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                    <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: colors.earthLight }}>
+                      <Scale className="w-5 h-5" style={{ color: colors.primary }} />
+                      <h2 className="font-bold" style={{ color: colors.primary }}>Tax Assessor's Record Hall</h2>
+                    </div>
+
+                    <div className="p-5">
+                      {taxStep === 0 && (
+                        <>
+                          <NarrativeBlock>
+                            The Tax Assessor's Record Hall stands near the market district, where merchants and farmers come to settle their obligations. Inside, you find Marduk-shapik, the assistant scribe, organizing yesterday's tablets.
+                          </NarrativeBlock>
+
+                          <DialogueBlock speaker="Marduk-shapik" title="Assistant Scribe to the Tax Assessor">
+                            "Welcome. Master Shamash-gamil is with the King's investigators, but I can show you our records."
+                          </DialogueBlock>
+
+                          <NarrativeBlock>
+                            He gestures to two sets of shelves along the walls.
+                          </NarrativeBlock>
+
+                          <DialogueBlock speaker="Marduk-shapik">
+                            "We keep two kinds of tablets. Here are the daily summary tablets, where I record the total collections each day for Master Shamash-gamil to report to the King. And on those shelves are the individual taxpayer records—one tablet for each person showing their assessment and what they've paid."
+                          </DialogueBlock>
+
+                          <button
+                            onClick={() => setTaxStep(1)}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Examine the Daily Summary Tablet <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+
+                      {taxStep === 1 && (
+                        <>
+                          <NarrativeBlock>
+                            You start with the daily summary tablet—the record Marduk-shapik prepared for Master Shamash-gamil to report to the King.
+                          </NarrativeBlock>
+
+                          <TabletDisplay title="DAILY SUMMARY — TAX COLLECTIONS">
+                            <div className="text-sm text-center py-2">
+                              <p className="text-gray-600 text-xs mb-3">Day 14 of Nisannu<br/>Year 38 of Hammurabi, King of Babylon</p>
+                              <p className="text-2xl font-bold" style={{ color: colors.primary }}>40 garu</p>
+                              <p className="text-gray-500 text-xs mt-1">sent to Royal Granary</p>
+                            </div>
+                          </TabletDisplay>
+
+                          <NarrativeBlock>
+                            Forty garu—exactly what was reported to the King. But you want to verify this against the source records.
+                          </NarrativeBlock>
+
+                          <button
+                            onClick={() => setTaxStep(2)}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Examine the Individual Taxpayer Tablets <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+
+                      {taxStep === 2 && (
+                        <>
+                          <NarrativeBlock>
+                            You turn to the individual taxpayer tablets from yesterday—the detailed records of each person who paid taxes in grain.
+                          </NarrativeBlock>
+
+                          <p className="text-sm font-medium mb-2" style={{ color: colors.earthDark }}>
+                            Individual Taxpayer Tablets
+                          </p>
+                          <p className="text-xs text-gray-500 mb-3">
+                            Click each tablet to examine the record:
+                          </p>
+
+                          <div className="space-y-3 mb-4">
+                            {taxpayerTablets.map((tablet, i) => (
+                              <div key={i}>
+                                {!revealedTablets.includes(i) ? (
+                                  <button
+                                    onClick={() => {
+                                      setRevealedTablets([...revealedTablets, i]);
+                                      setRunningTotal(runningTotal + tablet.paid);
+                                    }}
+                                    className="w-full p-3 rounded-lg border-2 text-left transition-all bg-amber-50 border-amber-200 hover:border-amber-400 cursor-pointer"
+                                  >
+                                    <div className="flex justify-between items-center">
+                                      <div className="flex items-center gap-2">
+                                        <FileText className="w-4 h-4" style={{ color: colors.accent }} />
+                                        <span className="text-sm font-medium" style={{ color: colors.earthDark }}>
+                                          {tablet.name} <span className="text-gray-500 font-normal">({tablet.occupation})</span>
+                                        </span>
+                                      </div>
+                                      <span className="text-xs text-amber-600">Click to examine</span>
+                                    </div>
+                                  </button>
+                                ) : (
+                                  <TabletDisplay title={`${tablet.name.toUpperCase()} — ${tablet.occupation}`}>
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <p className="font-bold text-xs mb-2 text-center" style={{ color: colors.primary }}>ASSESSED</p>
+                                        <div className="text-sm text-center">
+                                          <span className="font-medium">{tablet.assessed} garu</span>
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <p className="font-bold text-xs mb-2 text-center" style={{ color: colors.primary }}>PAID</p>
+                                        <div className="text-sm text-center">
+                                          <span className="font-medium">{tablet.paid} garu</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </TabletDisplay>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+
+                          {revealedTablets.length > 0 && (
+                            <div className="p-3 rounded-lg mb-4" style={{ backgroundColor: colors.sand }}>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium" style={{ color: colors.earthDark }}>
+                                  Total payments examined ({revealedTablets.length}/5 tablets):
+                                </span>
+                                <span className="font-bold" style={{ color: colors.primary }}>{runningTotal} garu</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {allTabletsRevealed && !sumSubmitted && (
+                            <>
+                              <div className="p-4 rounded-lg border mb-4" style={{ backgroundColor: '#f8fafc', borderColor: colors.earthLight }}>
+                                <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                                  <strong>What is the total of all payments (the right column of each tablet)?</strong>
+                                </p>
+                                <div className="flex items-center gap-4">
+                                  <input
+                                    type="range"
+                                    min="40"
+                                    max="60"
+                                    value={sumAnswer}
+                                    onChange={(e) => setSumAnswer(parseInt(e.target.value))}
+                                    className="flex-1"
+                                  />
+                                  <span className="font-bold text-lg w-20 text-center" style={{ color: colors.primary }}>
+                                    {sumAnswer} garu
+                                  </span>
+                                </div>
+                              </div>
+
+                              {sumAttempts > 0 && sumAttempts < 3 && (
+                                <div className="p-3 rounded-lg mb-4" style={{ backgroundColor: colors.warningBg }}>
+                                  <p className="text-sm text-amber-800">
+                                    Not quite. Add up the five payments: 8 + 12 + 6 + 9 + 15 = ?
+                                    <span className="block mt-1 text-xs">Attempts: {sumAttempts}/3</span>
+                                  </p>
+                                </div>
+                              )}
+
+                              <button
+                                onClick={() => {
+                                  if (sumAnswer === 50) {
+                                    setSumSubmitted(true);
+                                  } else {
+                                    setSumAttempts(sumAttempts + 1);
+                                    if (sumAttempts >= 2) {
+                                      setSumAnswer(50);
+                                      setSumSubmitted(true);
+                                    }
+                                  }
+                                }}
+                                className="w-full text-white font-bold py-3 rounded-lg hover:opacity-90"
+                                style={{ backgroundColor: colors.primary }}
+                              >
+                                Submit Answer
+                              </button>
+                            </>
+                          )}
+
+                          {sumSubmitted && (
+                            <>
+                              <div
+                                className="p-4 rounded-lg border mb-4"
+                                style={{ backgroundColor: colors.errorBg, borderColor: colors.error }}
+                              >
+                                <div className="flex items-start gap-2">
+                                  <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                  <div>
+                                    <p className="font-bold text-sm text-red-800">The Records Don't Match!</p>
+                                    <p className="text-sm text-red-700 mt-1">
+                                      Daily summary tablet: <strong>40 garu</strong>
+                                    </p>
+                                    <p className="text-sm text-red-700">
+                                      Your sum of individual tablets: <strong>50 garu</strong>
+                                    </p>
+                                    <p className="text-sm text-red-700 mt-1">
+                                      Discrepancy: <strong>10 garu</strong>
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <button
+                                onClick={() => setTaxStep(3)}
+                                className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                                style={{ backgroundColor: colors.primary }}
+                              >
+                                Continue <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                        </>
+                      )}
+
+                      {taxStep === 3 && (
+                        <>
+                          <NarrativeBlock>
+                            Marduk-shapik stares at the two sets of records, his face draining of color.
+                          </NarrativeBlock>
+
+                          <DialogueBlock speaker="Marduk-shapik">
+                            "The individual tablets... they sum to fifty. But my summary tablet says forty. I prepared that summary myself. I must have made an error when I added the amounts..."
+                          </DialogueBlock>
+
+                          <NarrativeBlock>
+                            He sinks onto a bench, his hands trembling.
+                          </NarrativeBlock>
+
+                          <DialogueBlock speaker="Marduk-shapik">
+                            "Master Shamash-gamil reported my total to the King. And my total was wrong."
+                          </DialogueBlock>
+
+                          <InsightPanel title="The Error Discovered" type="warning">
+                            <p>The error occurred when Marduk-shapik summarized the individual taxpayer tablets into the daily total. The individual records were correct, but his summary calculation was wrong.</p>
+                            <p className="mt-2">The Granary received 50 garu from taxes (and recorded it correctly), but the Tax Assessor's summary said only 40—creating the 10 garu discrepancy that erupted at the morning reports.</p>
+                          </InsightPanel>
+
+                          <button
+                            onClick={() => setPhase('report')}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Report to Master Nabu-rimanni <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {showGlossary && <GlossaryModal />}
+              </div>
+            );
+          }
+
+          // REPORT PHASE
+          if (phase === 'report') {
+            return (
+              <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+                <Header />
+                <div className="p-4 max-w-2xl mx-auto">
+                  <DevControls />
+                  <ProgressBar />
+
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                    <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: colors.earthLight }}>
+                      <ScrollText className="w-5 h-5" style={{ color: colors.primary }} />
+                      <h2 className="font-bold" style={{ color: colors.primary }}>Report to Master Nabu-rimanni</h2>
+                    </div>
+
+                    <div className="p-5">
+                      {reportStep === 0 && (
+                        <>
+                          <NarrativeBlock>
+                            You find Master Nabu-rimanni in his scriptorium, reviewing his own notes from yesterday's morning reports. He looks up as you enter.
+                          </NarrativeBlock>
+
+                          <DialogueBlock speaker="Master Nabu-rimanni">
+                            "You have returned. What did you find?"
+                          </DialogueBlock>
+
+                          <DialogueBlock speaker="You">
+                            "The Royal Fields' records are correct, Master. They sent exactly 150 garu, as reported. But the Tax Assessor's records... the individual taxpayer tablets sum to 50 garu, not 40. A calculation error."
+                          </DialogueBlock>
+
+                          <button
+                            onClick={() => setReportStep(1)}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Continue <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+
+                      {reportStep === 1 && (
+                        <>
+                          <NarrativeBlock>
+                            Master Nabu-rimanni nods slowly, unsurprised.
+                          </NarrativeBlock>
+
+                          <DialogueBlock speaker="Master Nabu-rimanni">
+                            "A calculation error. The assistant scribe added the daily totals incorrectly. It could happen to anyone—the marks are small, the lists are long, and the eye grows tired."
+                          </DialogueBlock>
+
+                          <NarrativeBlock>
+                            He pauses, stroking his beard.
+                          </NarrativeBlock>
+
+                          <DialogueBlock speaker="Master Nabu-rimanni">
+                            "But finding the error is only the beginning. The King will want to know how this happened—and how to prevent it from happening again."
+                          </DialogueBlock>
+
+                          <button
+                            onClick={() => setPhase('diagnosis')}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Continue <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {showGlossary && <GlossaryModal />}
+              </div>
+            );
+          }
+
+          // DIAGNOSIS PHASE
+          if (phase === 'diagnosis') {
+            return (
+              <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+                <Header />
+                <div className="p-4 max-w-2xl mx-auto">
+                  <DevControls />
+                  <ProgressBar />
+
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                    <div className="p-4 border-b flex items-center gap-2" style={{ borderColor: colors.earthLight }}>
+                      <HelpCircle className="w-5 h-5" style={{ color: colors.primary }} />
+                      <h2 className="font-bold" style={{ color: colors.primary }}>The Diagnosis</h2>
+                    </div>
+
+                    <div className="p-5">
+                      {diagnosisStep === 0 && (
+                        <>
+                          <DialogueBlock speaker="Master Nabu-rimanni">
+                            "The Tax Assessor made a calculation error—this much is clear. But here is the deeper question: Why wasn't this error discovered until the King's morning reports? Why did it take a crisis in the throne room to reveal a mistake made the day before?"
+                          </DialogueBlock>
+
+                          <div className="p-4 rounded-lg border mb-4" style={{ backgroundColor: '#f8fafc', borderColor: colors.earthLight }}>
+                            <p className="text-sm font-medium mb-3" style={{ color: colors.earthDark }}>
+                              Why wasn't the Tax Assessor's calculation error caught sooner?
+                            </p>
+                            <textarea
+                              value={whyHiddenAnswer}
+                              onChange={(e) => setWhyHiddenAnswer(e.target.value)}
+                              placeholder="Think about how the records are organized..."
+                              className="w-full p-3 border rounded-lg text-sm resize-none"
+                              style={{ borderColor: colors.earthLight, minHeight: '80px' }}
+                              disabled={whyHiddenSubmitted}
+                            />
+                          </div>
+
+                          {!whyHiddenSubmitted && (
+                            <>
+                              {whyHiddenAttempts > 0 && whyHiddenAttempts < 3 && (
+                                <div className="p-3 rounded-lg mb-4" style={{ backgroundColor: colors.warningBg }}>
+                                  <p className="text-sm text-amber-800">
+                                    Not quite what we're looking for. Think about where each department keeps their records and when they get compared.
+                                    <span className="block mt-1 text-xs">Attempts: {whyHiddenAttempts}/3</span>
+                                  </p>
+                                </div>
+                              )}
+
+                              <div className="flex gap-2 mb-4">
+                                <button
+                                  onClick={() => setShowWhyHiddenHint(Math.min(showWhyHiddenHint + 1, 3))}
+                                  className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg"
+                                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                  disabled={showWhyHiddenHint >= 3}
+                                >
+                                  <HelpCircle className="w-3 h-3" />
+                                  {showWhyHiddenHint >= 3 ? 'All hints shown' : `Hint ${showWhyHiddenHint + 1}/3`}
+                                </button>
+                              </div>
+
+                              {showWhyHiddenHint > 0 && (
+                                <div className="p-3 rounded-lg mb-4" style={{ backgroundColor: colors.sand }}>
+                                  {whyHiddenHints.slice(0, showWhyHiddenHint).map((hint, i) => (
+                                    <p key={i} className="text-sm text-gray-700 mb-1 last:mb-0">
+                                      <strong>Hint {i + 1}:</strong> {hint}
+                                    </p>
+                                  ))}
+                                </div>
+                              )}
+
+                              <button
+                                onClick={() => {
+                                  if (whyHiddenAnswer.length < 20) {
+                                    // Too short
+                                    setWhyHiddenAttempts(whyHiddenAttempts + 1);
+                                  } else if (evaluateWhyHidden(whyHiddenAnswer)) {
+                                    setWhyHiddenSubmitted(true);
+                                  } else {
+                                    setWhyHiddenAttempts(whyHiddenAttempts + 1);
+                                    if (whyHiddenAttempts >= 2) {
+                                      setWhyHiddenSubmitted(true);
+                                    }
+                                  }
+                                }}
+                                className="w-full text-white font-bold py-3 rounded-lg hover:opacity-90"
+                                style={{ backgroundColor: colors.primary }}
+                                disabled={!whyHiddenAnswer.trim()}
+                              >
+                                Submit
+                              </button>
+                            </>
+                          )}
+
+                          {whyHiddenSubmitted && (
+                            <>
+                              <div
+                                className="p-4 rounded-lg mb-4"
+                                style={{
+                                  backgroundColor: whyHiddenAttempts < 3 ? colors.successBg : colors.warningBg,
+                                  borderColor: whyHiddenAttempts < 3 ? colors.success : colors.warning
+                                }}
+                              >
+                                <p className="font-bold text-sm mb-2" style={{ color: whyHiddenAttempts < 3 ? '#166534' : '#92400e' }}>
+                                  {whyHiddenAttempts < 3 ? '✓ Well understood!' : 'Here\'s what we were looking for:'}
+                                </p>
+                                <p className="text-sm text-gray-700">
+                                  The Tax Assessor and the Granary each keep records in their own halls—completely separate from each other. There's no mechanism to compare them until the morning reports, when it's already too late.
+                                </p>
+                              </div>
+
+                              <button
+                                onClick={() => setDiagnosisStep(1)}
+                                className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                                style={{ backgroundColor: colors.primary }}
+                              >
+                                Continue <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                        </>
+                      )}
+
+                      {diagnosisStep === 1 && (
+                        <>
+                          <DialogueBlock speaker="Master Nabu-rimanni">
+                            "Exactly. Each department keeps its records in its own hall. The Tax Assessor's scribes never see the Granary's tablets. The Granary's scribes never see the Tax Assessor's tablets. Each set of records is isolated from the others."
+                          </DialogueBlock>
+
+                          <DialogueBlock speaker="Master Nabu-rimanni">
+                            "The first time anyone compares what one department sent with what another received is at the morning reports—standing before the King. By then, the tablets have been filed, the scribes have gone home, and a discrepancy means a crisis."
+                          </DialogueBlock>
+
+                          <button
+                            onClick={() => setDiagnosisStep(2)}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Continue <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+
+                      {diagnosisStep === 2 && (
+                        <>
+                          <NarrativeBlock>
+                            Master Nabu-rimanni takes up a stylus and draws on a fresh tablet, illustrating the problem.
+                          </NarrativeBlock>
+
+                          <IsolationDiagram step={diagramStep} />
+
+                          {diagramStep >= 4 && (
+                            <>
+                              <InsightPanel title="Records That Never Meet" type="warning">
+                                <p>Each department keeps its own records in its own hall. There is no built-in mechanism to compare what one department claims to have sent with what another claims to have received.</p>
+                                <p className="mt-2">The records exist in isolation—never meeting until the King's morning reports, when it's too late to prevent problems.</p>
+                              </InsightPanel>
+
+                              <button
+                                onClick={() => setDiagnosisStep(3)}
+                                className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                                style={{ backgroundColor: colors.primary }}
+                              >
+                                Continue <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                        </>
+                      )}
+
+                      {diagnosisStep === 3 && (
+                        <>
+                          <DialogueBlock speaker="Master Nabu-rimanni">
+                            "You have found the error and understood why it hid. But understanding the problem is not the same as solving it."
+                          </DialogueBlock>
+
+                          <DialogueBlock speaker="Master Nabu-rimanni">
+                            "Consider: what the Tax Assessor sends, the Granary receives. What leaves one place arrives at another. If both recorded correctly, their counts would agree."
+                          </DialogueBlock>
+
+                          <DialogueBlock speaker="Master Nabu-rimanni">
+                            "The question now is not what went wrong, but how might we build a system where such errors cannot hide?"
+                          </DialogueBlock>
+
+                          <NarrativeBlock>
+                            He sets down his stylus.
+                          </NarrativeBlock>
+
+                          <DialogueBlock speaker="Master Nabu-rimanni">
+                            "Rest tonight, apprentice. Tomorrow, we think about solutions."
+                          </DialogueBlock>
+
+                          <button
+                            onClick={() => setPhase('reflection')}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Continue to Reflection <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {showGlossary && <GlossaryModal />}
+              </div>
+            );
+          }
+
+          // REFLECTION PHASE
+          if (phase === 'reflection') {
+            const currentQuestion = reflectionQuestions[reflectionStep];
+
+            return (
+              <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+                <Header />
+                <div className="p-4 max-w-2xl mx-auto">
+                  <DevControls />
+                  <ProgressBar />
+
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                    <div className="p-4 border-b" style={{ borderColor: colors.earthLight }}>
+                      <h2 className="font-bold" style={{ color: colors.primary }}>
+                        Reflection ({reflectionStep + 1}/2)
+                      </h2>
+                    </div>
+
+                    <div className="p-5">
+                      <p className="text-sm font-medium mb-3" style={{ color: colors.earthDark }}>
+                        {currentQuestion.question}
+                      </p>
+
+                      <textarea
+                        value={reflectionAnswers[reflectionStep]}
+                        onChange={(e) => {
+                          const newAnswers = [...reflectionAnswers];
+                          newAnswers[reflectionStep] = e.target.value;
+                          setReflectionAnswers(newAnswers);
+                        }}
+                        placeholder="Type your answer..."
+                        className="w-full p-3 border rounded-lg text-sm resize-none"
+                        style={{ borderColor: colors.earthLight, minHeight: '80px' }}
+                        disabled={reflectionSubmitted[reflectionStep]}
+                      />
+
+                      {!reflectionSubmitted[reflectionStep] && (
+                        <>
+                          {reflectionAttempts[reflectionStep] > 0 && reflectionAttempts[reflectionStep] < 3 && (
+                            <div className="p-3 rounded-lg mt-3" style={{ backgroundColor: colors.warningBg }}>
+                              <p className="text-sm text-amber-800">
+                                Not quite. Try again!
+                                <span className="block mt-1 text-xs">Attempts: {reflectionAttempts[reflectionStep]}/3</span>
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="flex gap-2 mt-3">
+                            <button
+                              onClick={() => {
+                                const newHints = [...showReflectionHint];
+                                newHints[reflectionStep] = true;
+                                setShowReflectionHint(newHints);
+                              }}
+                              className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                              disabled={showReflectionHint[reflectionStep]}
+                            >
+                              <HelpCircle className="w-3 h-3" />
+                              {showReflectionHint[reflectionStep] ? 'Hint shown' : 'Show hint'}
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                const answer = reflectionAnswers[reflectionStep];
+                                if (evaluateReflection(reflectionStep, answer)) {
+                                  const newSubmitted = [...reflectionSubmitted];
+                                  newSubmitted[reflectionStep] = true;
+                                  setReflectionSubmitted(newSubmitted);
+                                } else {
+                                  const newAttempts = [...reflectionAttempts];
+                                  newAttempts[reflectionStep]++;
+                                  setReflectionAttempts(newAttempts);
+                                  if (newAttempts[reflectionStep] >= 3) {
+                                    const newSubmitted = [...reflectionSubmitted];
+                                    newSubmitted[reflectionStep] = true;
+                                    setReflectionSubmitted(newSubmitted);
+                                  }
+                                }
+                              }}
+                              className="flex-1 text-white font-medium py-2 rounded-lg hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                              disabled={!reflectionAnswers[reflectionStep].trim()}
+                            >
+                              Submit
+                            </button>
+                          </div>
+
+                          {showReflectionHint[reflectionStep] && (
+                            <div className="mt-3 p-3 rounded-lg" style={{ backgroundColor: colors.sand }}>
+                              <p className="text-sm text-gray-700">
+                                <strong>Hint:</strong> {currentQuestion.hints[0]}
+                              </p>
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      {reflectionSubmitted[reflectionStep] && (
+                        <>
+                          <div
+                            className="mt-4 p-4 rounded-lg border"
+                            style={{
+                              backgroundColor: reflectionAttempts[reflectionStep] < 3 ? colors.successBg : colors.warningBg,
+                              borderColor: reflectionAttempts[reflectionStep] < 3 ? colors.success : colors.warning
+                            }}
+                          >
+                            <p className="font-bold text-sm mb-2" style={{ color: reflectionAttempts[reflectionStep] < 3 ? '#166534' : '#92400e' }}>
+                              {reflectionAttempts[reflectionStep] < 3 ? '✓ Correct!' : 'Here\'s the answer:'}
+                            </p>
+                            <p className="text-sm text-gray-700">{currentQuestion.answer}</p>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              if (reflectionStep < 1) {
+                                setReflectionStep(reflectionStep + 1);
+                              } else {
+                                setPhase('complete');
+                              }
+                            }}
+                            className="w-full mt-4 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            {reflectionStep < 1 ? 'Next Question' : 'Complete Tutorial'} <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {showGlossary && <GlossaryModal />}
+              </div>
+            );
+          }
+
+          // COMPLETE PHASE
+          if (phase === 'complete') {
+            return (
+              <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+                <Header />
+                <div className="p-4 max-w-2xl mx-auto">
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                    <div className="p-6 text-white text-center" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                      <Trophy className="w-12 h-12 mx-auto mb-3 text-yellow-300" />
+                      <h1 className="text-2xl font-bold mb-1">Tutorial Complete!</h1>
+                      <p className="text-blue-200">You've diagnosed the structural problem</p>
+                    </div>
+
+                    <div className="p-5">
+                      <div className="mb-6">
+                        <h2 className="font-bold text-sm mb-3" style={{ color: colors.primary }}>What You Learned</h2>
+                        <div className="space-y-3">
+                          {[
+                            { title: 'The Source of the Error', desc: 'The Tax Assessor\'s assistant made a calculation error when summarizing individual taxpayer tablets into the daily total—50 garu became 40.' },
+                            { title: 'Correct Records as Contrast', desc: 'The Royal Fields maintained accurate records where individual counts matched the summary, showing what good record-keeping looks like.' },
+                            { title: 'Why Errors Hide', desc: 'Each department keeps records in isolation. The Tax Assessor\'s summary was never compared to the Granary\'s receipt until it was too late.' },
+                            { title: 'The Timing Problem', desc: 'Records are only compared at the King\'s morning reports—after tablets are filed and scribes have gone home. By then, a discrepancy means a crisis.' }
+                          ].map((item, i) => (
+                            <div key={i} className="flex gap-3 items-start">
+                              <CheckCircle className="w-5 h-5 mt-0.5 text-green-600 flex-shrink-0" />
+                              <div>
+                                <p className="font-medium text-sm" style={{ color: colors.earthDark }}>{item.title}</p>
+                                <p className="text-xs text-gray-600">{item.desc}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <InsightPanel title="The Diagnosis: Isolation">
+                        <p className="mb-2">
+                          <strong>Records that never meet cannot catch each other's errors.</strong>
+                        </p>
+                        <p className="mb-2">
+                          What the Tax Assessor sends, the Granary receives. If both recorded correctly, their counts would agree. But there's no structure requiring this agreement—no moment when the records must meet and balance before they're filed away.
+                        </p>
+                        <p className="font-medium">
+                          The question Master Nabu-rimanni has posed: How might we build a system where such errors cannot hide?
+                        </p>
+                      </InsightPanel>
+
+                      <NarrativeBlock>
+                        As evening falls over Babylon, you return to the scriptorium. Master Nabu-rimanni listens to your full report, nodding slowly.
+                      </NarrativeBlock>
+
+                      <DialogueBlock speaker="Master Nabu-rimanni">
+                        "You have done well. The error is found, and more importantly, you understand why it hid."
+                      </DialogueBlock>
+
+                      <NarrativeBlock>
+                        He gazes out at the darkening city.
+                      </NarrativeBlock>
+
+                      <DialogueBlock speaker="Master Nabu-rimanni">
+                        "Rest tonight, apprentice. Tomorrow, we think about solutions."
+                      </DialogueBlock>
+
+                      <div className="p-4 rounded-lg border mb-4" style={{ borderColor: colors.accent, backgroundColor: '#fffbeb' }}>
+                        <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>Coming Next: Tutorial 2.4</h3>
+                        <p className="text-sm text-gray-700 mb-2">
+                          You've found the error and understood why it hid. Now comes the harder question: How do we prevent this from happening again?
+                        </p>
+                        <p className="text-sm text-gray-700 mb-2">
+                          Master Nabu-rimanni has been thinking about a revolutionary idea—a way of keeping records where the very structure demands agreement.
+                        </p>
+                        <p className="text-sm text-gray-700 font-medium">
+                          The invention of double-entry awaits.
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={handleRestart}
+                        className="w-full py-3 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      >
+                        Restart Tutorial
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {showGlossary && <GlossaryModal />}
+              </div>
+            );
+          }
+
+          return null;
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Tutorial23 />);
+    </script>
+</body>
+</html>

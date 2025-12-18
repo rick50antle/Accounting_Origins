@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial 1.1: The Search - Accounting Origins</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Inline SVG Icon Components
+        const ChevronRight = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+        );
+
+        const MapPin = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+            </svg>
+        );
+
+        const Clock = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+            </svg>
+        );
+
+        const MessageCircle = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            </svg>
+        );
+
+        const Users = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+        );
+
+        const ArrowLeft = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+        );
+
+        const CheckCircle = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <path d="M22 4L12 14.01l-3-3" />
+            </svg>
+        );
+
+        const HelpCircle = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <path d="M12 17h.01" />
+            </svg>
+        );
+
+        const Book = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+        );
+
+        const Trophy = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                <path d="M4 22h16" />
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+            </svg>
+        );
+
+        const Scroll = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4" />
+                <path d="M19 17V5a2 2 0 0 0-2-2H4" />
+            </svg>
+        );
+
+        const Info = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4M12 8h.01" />
+            </svg>
+        );
+
+        const RefreshCw = ({ className = "w-6 h-6", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+                <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16" />
+            </svg>
+        );
+
+        // Custom location icons (preserved from original)
+        const HillsIcon = () => <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor"><path d="M12 2L2 22h20L12 2zm0 4l7 14H5l7-14z"/></svg>;
+        const RiverIcon = () => <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor"><path d="M12 3c-1.5 0-2.5 1.5-2.5 3s1 3 2.5 3 2.5-1.5 2.5-3-1-3-2.5-3zm-7 8c-1.5 0-2.5 1.5-2.5 3s1 3 2.5 3 2.5-1.5 2.5-3-1-3-2.5-3zm14 0c-1.5 0-2.5 1.5-2.5 3s1 3 2.5 3 2.5-1.5 2.5-3-1-3-2.5-3zm-7 4c-1.5 0-2.5 1.5-2.5 3s1 3 2.5 3 2.5-1.5 2.5-3-1-3-2.5-3z"/></svg>;
+        const ClayIcon = () => <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor"><path d="M12 2C8 2 4 6 4 10c0 5 8 12 8 12s8-7 8-12c0-4-4-8-8-8zm0 14c-3 0-6-3-6-6s3-6 6-6 6 3 6 6-3 6-6 6z"/></svg>;
+        const ForestIcon = () => <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor"><path d="M12 2L7 9h2l-3 5h2l-4 8h16l-4-8h2l-3-5h2L12 2z"/></svg>;
+        const SaltIcon = () => <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor"><path d="M4 4h16v16H4V4zm2 2v12h12V6H6z"/></svg>;
+        const FieldsIcon = () => <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor"><path d="M2 20h20v2H2v-2zm2-4h3v3H4v-3zm5 0h3v3H9v-3zm5 0h3v3h-3v-3zm5 0h3v3h-3v-3zM4 11h3v3H4v-3zm5 0h3v3H9v-3zm5 0h3v3h-3v-3zm5 0h3v3h-3v-3z"/></svg>;
+
+        // Simple markdown renderer for explanations
+        const renderMarkdown = (text) => {
+          if (!text) return null;
+          const lines = text.split('\n');
+          const elements = [];
+          let key = 0;
+          for (let i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            if (line.trim().startsWith('•')) {
+              const bulletContent = line.trim().substring(1).trim();
+              elements.push(
+                <div key={key++} className="flex items-start gap-2 ml-2 my-1">
+                  <span className="text-gray-500">•</span>
+                  <span>{renderInlineMarkdown(bulletContent)}</span>
+                </div>
+              );
+            } else if (line.trim() === '') {
+              elements.push(<div key={key++} className="h-2" />);
+            } else {
+              elements.push(<p key={key++} className="my-1">{renderInlineMarkdown(line)}</p>);
+            }
+          }
+          return <>{elements}</>;
+        };
+
+        const renderInlineMarkdown = (text) => {
+          if (!text) return null;
+          const parts = [];
+          let remaining = text;
+          let key = 0;
+          while (remaining.length > 0) {
+            const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+            const italicMatch = remaining.match(/(?<!\*)\*([^*]+)\*(?!\*)/);
+            let firstMatch = null;
+            let matchType = null;
+            if (boldMatch && (!italicMatch || boldMatch.index <= italicMatch.index)) {
+              firstMatch = boldMatch;
+              matchType = 'bold';
+            } else if (italicMatch) {
+              firstMatch = italicMatch;
+              matchType = 'italic';
+            }
+            if (firstMatch) {
+              if (firstMatch.index > 0) {
+                parts.push(<span key={key++}>{remaining.substring(0, firstMatch.index)}</span>);
+              }
+              if (matchType === 'bold') {
+                parts.push(<strong key={key++}>{firstMatch[1]}</strong>);
+              } else {
+                parts.push(<em key={key++}>{firstMatch[1]}</em>);
+              }
+              remaining = remaining.substring(firstMatch.index + firstMatch[0].length);
+            } else {
+              parts.push(<span key={key++}>{remaining}</span>);
+              break;
+            }
+          }
+          return parts.length > 0 ? <>{parts}</> : text;
+        };
+
+        const Tutorial11 = () => {
+          const [phase, setPhase] = useState('intro');
+          const [step, setStep] = useState(-1);
+          const [answer, setAnswer] = useState('');
+          const [showExplanation, setShowExplanation] = useState(false);
+          const [hintIndex, setHintIndex] = useState(0);
+          const [showGlossary, setShowGlossary] = useState(false);
+          const [devMode, setDevMode] = useState(false);
+          const [attemptCount, setAttemptCount] = useState(0);
+          const [showIncorrectFeedback, setShowIncorrectFeedback] = useState(false);
+          const [currentLocation, setCurrentLocation] = useState(null);
+          const [locationsVisited1, setLocationsVisited1] = useState([]);
+          const [locationsVisited2, setLocationsVisited2] = useState([]);
+          const [totalTime1, setTotalTime1] = useState(0);
+          const [totalTime2, setTotalTime2] = useState(0);
+          const [travelLog1, setTravelLog1] = useState([]);
+          const [travelLog2, setTravelLog2] = useState([]);
+          const [peopleSpokenTo1, setPeopleSpokenTo1] = useState([]);
+          const [peopleSpokenTo2, setPeopleSpokenTo2] = useState([]);
+
+          const handleRestart = () => {
+            setPhase('intro');
+            setStep(-1);
+            setAnswer('');
+            setShowExplanation(false);
+            setHintIndex(0);
+            setAttemptCount(0);
+            setShowIncorrectFeedback(false);
+            setCurrentLocation(null);
+            setLocationsVisited1([]);
+            setLocationsVisited2([]);
+            setTotalTime1(0);
+            setTotalTime2(0);
+            setTravelLog1([]);
+            setTravelLog2([]);
+            setPeopleSpokenTo1([]);
+            setPeopleSpokenTo2([]);
+          };
+
+          const colors = {
+            primary: '#00356b',
+            sand: '#f5f1e8',
+            earth: '#8b7355',
+            earthLight: '#d4c4a8',
+            earthDark: '#5c4d3d',
+            accent: '#c9a227'
+          };
+
+          const locations1 = [
+            { id: 'hills', name: 'Hills', icon: HillsIcon, distance: 'Long walk west', time: 4, timeLabel: '~half day' },
+            { id: 'river', name: 'River Camps', icon: RiverIcon, distance: 'Short walk east', time: 1, timeLabel: '~1 hour' },
+            { id: 'clay', name: 'Clay Beds', icon: ClayIcon, distance: 'Short walk south', time: 1, timeLabel: '~1 hour' },
+            { id: 'forest', name: 'Forest Edge', icon: ForestIcon, distance: 'Moderate walk west', time: 2, timeLabel: '~2 hours' },
+            { id: 'bend', name: 'River Bend', icon: RiverIcon, distance: 'Moderate walk east', time: 2, timeLabel: '~2 hours' },
+            { id: 'salt', name: 'Salt Flats', icon: SaltIcon, distance: 'Long walk north', time: 4, timeLabel: '~half day' }
+          ];
+
+          const locations2 = [
+            { id: 'hills', name: 'Hills', icon: HillsIcon, distance: 'Long walk west', time: 4, timeLabel: '~half day' },
+            { id: 'river', name: 'River Camps', icon: RiverIcon, distance: 'Short walk east', time: 1, timeLabel: '~1 hour' },
+            { id: 'clay', name: 'Clay Beds', icon: ClayIcon, distance: 'Short walk south', time: 1, timeLabel: '~1 hour' },
+            { id: 'forest', name: 'Forest Edge', icon: ForestIcon, distance: 'Moderate walk west', time: 2, timeLabel: '~2 hours' },
+            { id: 'salt', name: 'Salt Flats', icon: SaltIcon, distance: 'Long walk north', time: 4, timeLabel: '~half day' },
+            { id: 'fields', name: 'Fields', icon: FieldsIcon, distance: 'Nearby', time: 0.5, timeLabel: '~30 min' }
+          ];
+
+          const peopleByLocation1 = {
+            hills: [
+              { name: 'Asha', has: 'wool', wants: 'barley', isTarget: true },
+              { name: 'Corra', has: 'goats', wants: 'leather' },
+              { name: 'Meren', has: 'wool', wants: 'barley', isTarget: true },
+              { name: 'Old Tobias', has: 'wool', wants: 'pottery' },
+              { name: 'Young Pell', has: 'hides', wants: 'tools' }
+            ],
+            river: [
+              { name: 'Brin', has: 'rope', wants: 'leather' },
+              { name: 'Kesh', has: 'cloth', wants: 'wool' },
+              { name: 'Yara', has: 'fish', wants: 'honey' }
+            ],
+            clay: [
+              { name: 'Mira', has: 'pottery', wants: 'tools' },
+              { name: 'Dara', has: 'baskets', wants: 'pottery' },
+              { name: 'Senna', has: 'clay tiles', wants: 'grain' }
+            ],
+            forest: [
+              { name: 'Jorak', has: 'tools', wants: 'cloth' },
+              { name: 'Lila', has: 'leather', wants: 'honey' },
+              { name: 'Wren', has: 'charcoal', wants: 'salt' }
+            ],
+            bend: [
+              { name: 'Tam', has: 'honey', wants: 'baskets' },
+              { name: 'Petra', has: 'dried fruit', wants: 'salt' },
+              { name: 'Orin', has: 'reeds', wants: 'cloth' }
+            ],
+            salt: [
+              { name: 'Nara', has: 'salt', wants: 'rope' },
+              { name: 'Omar', has: 'grain', wants: 'salt' },
+              { name: 'Desta', has: 'salt', wants: 'honey' }
+            ]
+          };
+
+          const peopleByLocation2 = {
+            hills: [
+              { name: 'Ulric', has: 'spices', wants: 'pottery', isTarget: true },
+              { name: 'Shepherd', has: 'wool', wants: 'grain' },
+              { name: 'Venna', has: 'wool', wants: 'tools' },
+              { name: 'Halda', has: 'herbs', wants: 'cloth' },
+              { name: 'Corra', has: 'goats', wants: 'leather' }
+            ],
+            river: [
+              { name: 'Felix', has: 'rope', wants: 'cloth' },
+              { name: 'Yuki', has: 'cloth', wants: 'leather' },
+              { name: 'Greta', has: 'fish', wants: 'tools' }
+            ],
+            clay: [
+              { name: 'Ravi', has: 'pottery', wants: 'fish', isTarget: true },
+              { name: 'Senna', has: 'baskets', wants: 'tools' },
+              { name: 'Brenna', has: 'tiles', wants: 'grain' }
+            ],
+            forest: [
+              { name: 'Maya', has: 'tools', wants: 'grain' },
+              { name: 'Thom', has: 'honey', wants: 'baskets' },
+              { name: 'Wren', has: 'leather', wants: 'salt' }
+            ],
+            salt: [
+              { name: 'Vera', has: 'salt', wants: 'honey' },
+              { name: 'Kelso', has: 'salt', wants: 'tools' },
+              { name: 'Desta', has: 'salt', wants: 'cloth' }
+            ],
+            fields: [
+              { name: 'Zara', has: 'grain', wants: 'rope' },
+              { name: 'Tomás', has: 'barley', wants: 'pottery' },
+              { name: 'Wen', has: 'grain', wants: 'wool' }
+            ]
+          };
+
+          const glossaryTerms = [
+            { term: 'Transaction Costs', definition: 'The costs of making an exchange happen—finding partners, negotiating terms, verifying quality. These are driven by information problems.' },
+            { term: 'Search Costs', definition: 'Time and effort spent producing information about potential trading partners—who has what, who wants what, where they are.' },
+            { term: 'Double Coincidence of Wants', definition: 'The requirement that each trader has what the other wants. Without this, direct trade is impossible.' },
+            { term: 'Trading Chain', definition: 'A sequence of trades needed when there\'s no double coincidence. Fish → Pottery → Spices requires finding two connected trades.' },
+            { term: 'Value', definition: 'Information about transformation possibilities—what your stuff could become through exchange, and at what rates.' }
+          ];
+
+          const questions = [
+            { id: 0, narrative: "Your mother pulls you aside as the morning fog lifts.\n\n\"We have barley to spare, but we need wool before the cold comes. Find someone to trade with.\"\n\nYou know of settlements in six areas of the valley. Where will you start?", question: "How many locations do you expect to visit before getting the information you need—finding someone who has wool AND wants barley? (1-6)", type: "prediction", hints: ["Shepherds in the hills probably have wool—but do they want barley? You won't know until you go.", "Any number is reasonable—just your prediction."], evaluate: (a) => { const n = parseInt(a.replace(/[^0-9]/g, '')); return !isNaN(n) && n >= 1 && n <= 6; }, answer: "1-6", explanation: "You have a hunch about who might have wool. But hunches aren't information. The only way to know for sure is to travel there and talk to people." },
+            { id: 1, narrative: "You set out from your family's plot. The valley stretches before you.", question: "Choose destinations and travel there. When you arrive, you'll see who is present—but you won't know what they have or want until you talk to them.\n\nGather information until you find someone who has wool AND wants barley. Enter their name:", type: "search1", hints: ["Shepherds tend flocks in the hills...", "Keep gathering information. There may be more than one potential partner."], evaluate: (a) => { const lower = a.toLowerCase(); return lower.includes('asha') || lower.includes('meren'); }, answer: "Asha or Meren", explanation: "" },
+            { id: 2, narrative: "You return home with good news—you found potential trading partners in the hills. But your neighbor has a harder problem.\n\n\"I have dried fish, but I need spices. No one at the river camps has spices, and the traders I've talked to who have spices don't want fish.\"\n\nHe sighs. \"I'll need two trades. Fish for something, then that for spices.\"", question: "Would finding a two-trade chain require visiting more locations and talking to more people than finding a direct trade? Why?", type: "prediction2", hints: ["You need to gather information about TWO people whose trades connect...", "More trades = more information to gather."], evaluate: (a) => a.toLowerCase().length > 10 && (a.toLowerCase().includes('more') || a.toLowerCase().includes('yes') || a.toLowerCase().includes('harder') || a.toLowerCase().includes('longer')), answer: "Yes, more locations and conversations expected", explanation: "A two-trade chain typically requires gathering more information. You need to find two people whose trades connect—which could mean visiting several locations and talking to many people to piece together the chain." },
+            { id: 3, narrative: "Your neighbor sets out. He has dried fish. He needs spices.\n\nHe needs information about two people:\n1. Someone who wants fish → and what they have\n2. Someone who wants THAT and has spices\n\n\"This could take all day,\" he mutters. \"Maybe two.\"", question: "Travel to locations and talk to people to gather information. Piece together a chain.\n\nYour travel log records the information you've gathered. Use it to find connections.\n\nList both people IN ORDER (First, Second):", type: "search2", hints: ["Gather information: who wants fish? Talk to people to find out.", "Ravi at the clay beds wants fish. Who wants what Ravi has?"], evaluate: (a) => { const clean = a.toLowerCase().replace(/[^a-z,]/g, ''); return clean.includes('ravi') && clean.includes('ulric'); }, answer: "Ravi, Ulric", explanation: "" },
+            { id: 4, narrative: "That evening, you compare notes.", question: "Compare your two searches. What pattern emerges as trading chains get longer?", type: "pattern", hints: ["Look at the numbers: locations visited, time spent, people talked to.", "Each additional trade = more information to gather..."], evaluate: (a) => a.toLowerCase().length > 10 && (a.toLowerCase().includes('more') || a.toLowerCase().includes('increase') || a.toLowerCase().includes('longer') || a.toLowerCase().includes('harder') || a.toLowerCase().includes('escal') || a.toLowerCase().includes('worse')), answer: "Costs increase with chain length", explanation: "The cost of producing information escalates as chains get longer. More trades mean more people to identify, more locations to visit, more conversations to have, more time spent traveling and talking.\n\nA two-trade chain might take a day or two. A three-trade chain could take a week. A five-trade chain? Most people would give up.\n\nThis is why complex trades so often fail—not because they're impossible, but because the information costs are overwhelming." },
+            { id: 5, narrative: "That night, you lie awake.\n\nThe problem is clear: to identify potential trading partners, you travel location by location, then talk to each person individually to learn what they have and want. The information exists—but it's scattered across the valley, held by people you have to find and question one by one.", question: "What would reduce the time and effort needed to gather information about potential trading partners?", type: "whatif", hints: ["Information is scattered across locations and people. What would concentrate it?", "All that traveling and talking. What would reduce it?"], evaluate: (a) => a.toLowerCase().length > 10, answer: "Any reasonable suggestion", explanation: "The most direct solution: a central place where traders gather—a marketplace.\n\nIf everyone who wanted to trade came to the same location, you wouldn't have to travel the whole valley. And if people announced what they have and want, you wouldn't have to talk to each one individually. You could see who's there, learn what they have and want, and find matches in hours instead of days.\n\nThe information would be concentrated instead of scattered.\n\nThis is exactly what markets do. But that's a story for Tutorial 1.3..." },
+            { id: 6, narrative: "You've completed your search. You have information now that you didn't have this morning.\n\nTomorrow you'll walk back to the hills with barley. But here's something you noticed: both Asha and Meren have wool and want barley. You have two potential trading partners.\n\nWhich one should you trade with?", question: "Your search produced information. What information do you now HAVE that you didn't have before? And what information do you still LACK?", type: "bridge", hints: ["Think about what information you gathered: who, where, what they have, what they want...", "Think about what information is still missing: how much, what rate, who offers better terms..."], evaluate: (a) => { const lower = a.toLowerCase(); const hasKnow = lower.includes('asha') || lower.includes('meren') || lower.includes('wool') || lower.includes('hill') || lower.includes('who') || lower.includes('where') || lower.includes('exist'); const hasNotKnow = lower.includes('how much') || lower.includes('rate') || lower.includes('worth') || lower.includes('price') || lower.includes('amount') || lower.includes('terms') || lower.includes('accept') || lower.includes('offer') || lower.includes('better') || lower.includes('which'); return lower.length > 20 && (hasKnow || hasNotKnow); }, answer: "Have: who, where, has/wants. Lack: how much, terms, which partner is better", explanation: "Your search produced crucial information:\n\n**Information you now have:**\n• Asha and Meren are both potential trading partners\n• They're both in the hills\n• They both have wool available\n• They both want barley\n\n**Information you still lack:**\n• How much barley for how much wool (from either of them)\n• What terms each will accept\n• Which one will give you a better deal\n• What your barley is \"worth\"\n\nProducing information about *who* and *where* required costly search. But producing information about *terms*—about which partner offers better value—requires something else: negotiation. And that's a different information problem entirely." }
+          ];
+
+          const formatTime = (hours) => {
+            if (hours >= 8) return `${Math.round(hours / 8)} day(s)`;
+            if (hours >= 4) return '~half day';
+            if (hours === 0.5) return '30 min';
+            if (hours === 1) return '1 hour';
+            return `${hours} hours`;
+          };
+
+          const handleTravel = (locationId, scenario) => {
+            const locs = scenario === 1 ? locations1 : locations2;
+            const loc = locs.find(l => l.id === locationId);
+            if (scenario === 1) {
+              if (!locationsVisited1.includes(locationId)) {
+                setLocationsVisited1([...locationsVisited1, locationId]);
+                setTotalTime1(totalTime1 + loc.time);
+              }
+            } else {
+              if (!locationsVisited2.includes(locationId)) {
+                setLocationsVisited2([...locationsVisited2, locationId]);
+                setTotalTime2(totalTime2 + loc.time);
+              }
+            }
+            setCurrentLocation(locationId);
+          };
+
+          const handleTalkTo = (person, locationId, scenario) => {
+            const entry = { location: locationId, name: person.name, has: person.has, wants: person.wants };
+            if (scenario === 1) {
+              if (!peopleSpokenTo1.includes(person.name)) {
+                setPeopleSpokenTo1([...peopleSpokenTo1, person.name]);
+                setTravelLog1([...travelLog1, entry]);
+              }
+            } else {
+              if (!peopleSpokenTo2.includes(person.name)) {
+                setPeopleSpokenTo2([...peopleSpokenTo2, person.name]);
+                setTravelLog2([...travelLog2, entry]);
+              }
+            }
+          };
+
+          const hasSpokenTo = (personName, scenario) => {
+            const spoken = scenario === 1 ? peopleSpokenTo1 : peopleSpokenTo2;
+            return spoken.includes(personName);
+          };
+
+          const getPersonInfo = (personName, scenario) => {
+            const log = scenario === 1 ? travelLog1 : travelLog2;
+            return log.find(p => p.name === personName);
+          };
+
+          const handleSubmit = () => {
+            const q = questions.find(q => q.id === step);
+            if (q && q.evaluate(answer)) {
+              setShowExplanation(true);
+              setShowIncorrectFeedback(false);
+            } else {
+              const newAttemptCount = attemptCount + 1;
+              setAttemptCount(newAttemptCount);
+              if (newAttemptCount >= 3) {
+                setShowExplanation(true);
+                setShowIncorrectFeedback(false);
+              } else {
+                setShowIncorrectFeedback(true);
+              }
+            }
+          };
+
+          const nextStep = () => {
+            setAnswer('');
+            setShowExplanation(false);
+            setHintIndex(0);
+            setAttemptCount(0);
+            setShowIncorrectFeedback(false);
+            setCurrentLocation(null);
+            if (step === 3) {
+              setStep('note');
+            } else if (step === 'note') {
+              setStep(4);
+            } else if (step < 6) {
+              setStep(step + 1);
+            } else {
+              setPhase('complete');
+            }
+          };
+
+          const getExplanation = () => {
+            const q = questions.find(q => q.id === step);
+            if (!q) return '';
+            let explanation = q.explanation;
+            if (q.type === 'search1') {
+              const partnerFound = answer.toLowerCase().trim();
+              explanation = `You found the information you needed. ${partnerFound.charAt(0).toUpperCase() + partnerFound.slice(1)} has wool and wants barley—a potential trading partner!\n\nYou visited ${locationsVisited1.length} location(s), traveled ${formatTime(totalTime1)}, and talked to ${peopleSpokenTo1.length} people. Each trip produced information about who was there. Each conversation produced information about what they have and want.\n\nBut notice: in the Hills, there's more than one person with wool who wants barley. Asha and Meren are both potential partners.\n\n**Which one should you trade with?** That depends on who will give you better terms—and you don't have that information yet. That's a problem for the negotiation tutorial.\n\nFor now, you've identified potential partners. That alone was costly.`;
+            } else if (q.type === 'search2') {
+              explanation = `The chain: Fish → Ravi (pottery) → Ulric (spices).\n\nYou visited ${locationsVisited2.length} location(s), traveled ${formatTime(totalTime2)}, and talked to ${peopleSpokenTo2.length} people gathering information. That's a lot of effort just to produce the information needed to identify a trading chain—before any actual trading happens.`;
+            }
+            return explanation;
+          };
+
+          const GlossaryModal = ({ terms, colors, onClose }) => (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-xl max-w-lg w-full max-h-[80vh] overflow-y-auto">
+                <div className="p-4 border-b flex justify-between items-center" style={{ borderColor: colors.earthLight }}>
+                  <h2 className="font-bold text-lg" style={{ color: colors.primary }}>Glossary</h2>
+                  <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-xl">×</button>
+                </div>
+                <div className="p-4">
+                  {terms.map((t, i) => (
+                    <div key={i} className="mb-4 last:mb-0">
+                      <h3 className="font-bold text-sm" style={{ color: colors.earthDark }}>{t.term}</h3>
+                      <p className="text-gray-600 text-sm">{t.definition}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+
+          const LocationSelector = ({ locs, visited, onSelect, scenario }) => (
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {locs.map(loc => {
+                const isVisited = visited.includes(loc.id);
+                const Icon = loc.icon;
+                return (
+                  <button key={loc.id} onClick={() => onSelect(loc.id, scenario)} className={`p-3 rounded-lg border text-left transition-all ${isVisited ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'}`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span style={{ color: isVisited ? '#22c55e' : colors.earth }}><Icon /></span>
+                      <span className="font-medium text-sm" style={{ color: colors.earthDark }}>{loc.name}</span>
+                      {isVisited && <CheckCircle className="w-4 h-4 text-green-500 ml-auto" />}
+                    </div>
+                    <div className="text-xs text-gray-500">{loc.distance}</div>
+                    <div className="text-xs font-medium" style={{ color: colors.primary }}>{loc.timeLabel}</div>
+                  </button>
+                );
+              })}
+            </div>
+          );
+
+          const AtLocationView = ({ locationId, scenario, onBack }) => {
+            const locs = scenario === 1 ? locations1 : locations2;
+            const peopleByLoc = scenario === 1 ? peopleByLocation1 : peopleByLocation2;
+            const loc = locs.find(l => l.id === locationId);
+            const people = peopleByLoc[locationId] || [];
+            const Icon = loc.icon;
+            return (
+              <div className="border rounded-lg overflow-hidden" style={{ borderColor: colors.earthLight }}>
+                <div className="p-3 flex items-center gap-2" style={{ backgroundColor: colors.sand }}>
+                  <span style={{ color: colors.earth }}><Icon /></span>
+                  <div>
+                    <span className="font-medium" style={{ color: colors.earthDark }}>{loc.name}</span>
+                    <span className="text-xs text-gray-500 ml-2">({loc.timeLabel} travel)</span>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <p className="text-xs text-gray-600 mb-3">You find {people.length} people here. Talk to them to learn what they have and want.</p>
+                  <div className="space-y-2">
+                    {people.map((person, i) => {
+                      const spoken = hasSpokenTo(person.name, scenario);
+                      const info = getPersonInfo(person.name, scenario);
+                      return (
+                        <div key={i} className={`p-2 rounded border ${spoken ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}`}>
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-sm" style={{ color: colors.earthDark }}>{person.name}</span>
+                            {!spoken ? (
+                              <button onClick={() => handleTalkTo(person, locationId, scenario)} className="text-xs px-2 py-1 rounded text-white flex items-center gap-1" style={{ backgroundColor: colors.primary }}>
+                                <MessageCircle className="w-3 h-3" /> Talk
+                              </button>
+                            ) : (
+                              <span className="text-xs text-blue-600">✓ Spoke</span>
+                            )}
+                          </div>
+                          {spoken && info && (
+                            <div className="mt-1 text-xs">
+                              <span className="text-green-700">Has: {info.has}</span>
+                              <span className="text-gray-400 mx-2">|</span>
+                              <span className="text-orange-700">Wants: {info.wants}</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <button onClick={onBack} className="mt-3 w-full py-2 rounded text-sm font-medium flex items-center justify-center gap-1" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                    <ArrowLeft className="w-4 h-4" /> Travel somewhere else
+                  </button>
+                </div>
+              </div>
+            );
+          };
+
+          const TravelLog = ({ log, scenario }) => (
+            <div className="mt-4 p-3 rounded-lg border" style={{ backgroundColor: '#f0fff4', borderColor: '#86efac' }}>
+              <div className="flex items-center gap-2 mb-2">
+                <Scroll className="w-4 h-4 text-green-700" />
+                <span className="font-medium text-sm text-green-800">Travel Log</span>
+                <span className="text-xs text-green-600">({log.length} {log.length === 1 ? 'person' : 'people'})</span>
+              </div>
+              {log.length === 0 ? (
+                <p className="text-xs text-green-700 italic">No information gathered yet. Travel and talk to people.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-left text-green-700">
+                        <th className="pb-1">Location</th>
+                        <th className="pb-1">Person</th>
+                        <th className="pb-1">Has</th>
+                        <th className="pb-1">Wants</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {log.map((entry, i) => (
+                        <tr key={i} className="border-t border-green-200">
+                          <td className="py-1 capitalize">{entry.location}</td>
+                          <td className="py-1 font-medium">{entry.name}</td>
+                          <td className="py-1 text-green-700">{entry.has}</td>
+                          <td className="py-1 text-orange-700">{entry.wants}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {scenario === 2 && log.length > 0 && (
+                <p className="text-xs text-green-700 mt-2 italic">Use this information to find connections: who wants fish? What do they have? Who wants that?</p>
+              )}
+            </div>
+          );
+
+          const SearchStats = () => (
+            <div className="grid grid-cols-2 gap-3 my-4 p-3 rounded-lg" style={{ backgroundColor: colors.sand }}>
+              <div className="text-center">
+                <p className="text-xs text-gray-600">Your search (direct)</p>
+                <p className="font-bold" style={{ color: colors.earthDark }}>{locationsVisited1.length} locations</p>
+                <p className="text-sm" style={{ color: colors.earth }}>{formatTime(totalTime1)}</p>
+                <p className="text-xs text-gray-500">{peopleSpokenTo1.length} conversations</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-600">Neighbor's search (2-trade)</p>
+                <p className="font-bold" style={{ color: colors.earthDark }}>{locationsVisited2.length} locations</p>
+                <p className="text-sm" style={{ color: colors.earth }}>{formatTime(totalTime2)}</p>
+                <p className="text-xs text-gray-500">{peopleSpokenTo2.length} conversations</p>
+              </div>
+            </div>
+          );
+
+          const Header = () => (
+            <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                <span className="font-bold">Tutorial 1.1</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <Clock className="w-4 h-4" />
+                <span>~15 min</span>
+              </div>
+            </div>
+          );
+
+          // INTRO
+          if (phase === 'intro') return (
+            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+              <Header />
+              <div className="p-4 max-w-2xl mx-auto">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                  <div className="p-5 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                    <h1 className="text-xl font-bold mb-1">Why We Start Here</h1>
+                    <p className="text-blue-200 text-sm">Before markets, before prices</p>
+                  </div>
+                  <div className="p-5 text-sm leading-relaxed">
+                    <p className="text-gray-700 mb-3">Suppose you have a basket of barley. It has value. But what does that mean?</p>
+                    <p className="text-gray-700 mb-3">It means there are things your barley could become through exchange. You might be able to trade your basket of barley for one large pot, or two bundles of rope, or a fleece of wool. <strong>Value is information about these transformation possibilities</strong>—what your stuff could become, and at what rates.</p>
+                    <p className="text-gray-700 mb-3">But here's the problem: you don't <em>know</em> those possibilities until you produce the information. What could your barley become? Who would trade with you? At what rates? This information doesn't come free.</p>
+                    <div className="my-4 p-4 rounded-lg border-l-4" style={{ backgroundColor: colors.sand, borderColor: colors.primary }}>
+                      <p className="font-medium mb-2" style={{ color: colors.primary }}>Transaction costs are driven by information problems.</p>
+                      <p className="text-gray-600 text-xs">Exchange requires information—about who might be a trading partner, what terms they'll accept, whether their goods are what they claim. This information is costly to produce. And when it's too costly, otherwise valuable trades simply don't happen.</p>
+                    </div>
+                    <p className="text-gray-700 mb-3">And here's what ties it together: the information that exchange produces reflects the information that went into making it happen.</p>
+                    <p className="text-gray-700 mb-4">Before we can understand how exchange produces information, we need to experience how costly it is to produce the information that exchange requires.</p>
+                    <div className="p-4 rounded-lg text-center" style={{ backgroundColor: colors.sand }}>
+                      <p className="font-medium" style={{ color: colors.earthDark }}>In this tutorial, you won't learn about transaction costs.</p>
+                      <p className="font-bold" style={{ color: colors.primary }}>You'll live them.</p>
+                    </div>
+                    <button onClick={() => setPhase('tutorial')} className="w-full mt-5 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
+                      Continue <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {/* Navigation Footer */}
+              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
+                <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg> Prev
+                </a>
+                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
+                <a href="tutorial-1-2.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  Next <ChevronRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          );
+
+          // WELCOME
+          if (phase === 'tutorial' && step === -1) return (
+            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+              <Header />
+              <div className="p-4 max-w-2xl mx-auto">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                  <div className="p-5" style={{ background: `linear-gradient(to right, ${colors.earth}, ${colors.earthDark})` }}>
+                    <h1 className="text-xl font-bold text-white mb-1">The Search for Trading Partners</h1>
+                    <p className="text-sm" style={{ color: colors.earthLight }}>Information costs in a world without markets</p>
+                  </div>
+                  <div className="p-5 text-sm">
+                    <div className="mb-4 p-4 rounded-lg border-l-4 italic text-gray-700 text-sm" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+                      <p>The river curves through the valley. Fishers live by the river, potters near the clay beds, shepherds up in the hills. Your family lives near the barley fields.</p>
+                      <p className="mt-2 font-medium not-italic">Winter is coming, and your family needs wool.</p>
+                      <p className="mt-2 not-italic text-gray-600">Wool exists in the valley—the shepherds have plenty, and others may have traded for some. But you don't have <em>information</em>: you don't know <em>who</em> has wool available, <em>where</em> they are, or whether they want barley. There's no market, no message board, no one to ask. To get that information, you'll have to travel—and talk to people.</p>
+                    </div>
+                    <div className="mb-4">
+                      <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>What You'll Discover</h3>
+                      {["Producing information requires travel and conversation", "Information costs are measured in hours and days", "These costs escalate with longer trading chains", "Finding a partner isn't enough—you want the best terms"].map((t, i) => (
+                        <div key={i} className="flex items-start gap-2 p-2 rounded border mb-1 text-xs" style={{ backgroundColor: '#f8f9fa', borderColor: colors.earthLight }}>
+                          <span className="font-bold" style={{ color: colors.primary }}>{i+1}</span>
+                          <span className="text-gray-700">{t}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 mb-4 pt-3 border-t" style={{ borderColor: colors.earthLight }}>
+                      <button onClick={() => setDevMode(!devMode)} className={`${devMode ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'} px-3 py-1.5 rounded text-xs font-medium`}>
+                        Dev: {devMode ? 'ON' : 'OFF'}
+                      </button>
+                      <button onClick={() => setShowGlossary(true)} className="px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                        <Book className="w-3 h-3" /> Glossary
+                      </button>
+                      <span className="text-xs text-gray-500 ml-auto self-center">~15 min • 7 questions</span>
+                    </div>
+                    <button onClick={() => setStep(0)} className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.earth }}>
+                      Begin Your Search <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {showGlossary && <GlossaryModal terms={glossaryTerms} colors={colors} onClose={() => setShowGlossary(false)} />}
+              {/* Navigation Footer */}
+              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
+                <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg> Prev
+                </a>
+                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
+                <a href="tutorial-1-2.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  Next <ChevronRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          );
+
+          // ABOUT THE TRAVEL LOG (Note screen after Q3)
+          if (phase === 'tutorial' && step === 'note') return (
+            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+              <Header />
+              <div className="p-4 max-w-2xl mx-auto">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                  <div className="p-4 flex items-center gap-2" style={{ backgroundColor: colors.sand }}>
+                    <Info className="w-5 h-5" style={{ color: colors.primary }} />
+                    <h2 className="font-bold" style={{ color: colors.primary }}>About the Travel Log</h2>
+                  </div>
+                  <div className="p-5 text-sm">
+                    <div className="mb-4 p-4 rounded-lg border-l-4 italic text-gray-700" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+                      <p>Your neighbor returns, exhausted but with a plan.</p>
+                      <p className="mt-2">"I kept it all in my head," he says. "Every place I went, every person I talked to, what they had, what they wanted. It's a lot to remember."</p>
+                    </div>
+                    <div className="space-y-3 text-gray-700">
+                      <p>The travel log you used doesn't exist in this world. There's no writing yet—that innovation is still centuries away.</p>
+                      <p>In reality, your neighbor had to hold all that information in his head: every location visited, every person, every has/wants. If he forgot something, he'd have to make the trip again just to recover information he'd already gathered.</p>
+                      <p>We gave you the travel log to reduce frustration. But notice what it did: it <strong>stored information externally</strong>, so you could see it all at once and spot connections.</p>
+                      <p>Without it, the information cost is even higher. You're not just paying to <em>produce</em> information—you're paying to <em>retain</em> it.</p>
+                      <div className="p-3 rounded-lg mt-4" style={{ backgroundColor: '#f0f7ff', borderLeft: `4px solid ${colors.primary}` }}>
+                        <p className="text-sm" style={{ color: colors.primary }}>This hints at why writing will matter so much when it finally arrives.</p>
+                      </div>
+                    </div>
+                    <button onClick={nextStep} className="w-full mt-5 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
+                      Continue <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {/* Navigation Footer */}
+              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
+                <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg> Prev
+                </a>
+                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
+                <a href="tutorial-1-2.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  Next <ChevronRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          );
+
+          // COMPLETE
+          if (phase === 'complete') return (
+            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+              <Header />
+              <div className="p-4 max-w-2xl mx-auto">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                  <div className="p-5 text-white text-center" style={{ background: 'linear-gradient(to right, #2d6a4f, #40916c)' }}>
+                    <Trophy className="w-12 h-12 mx-auto mb-2 text-yellow-300" />
+                    <h1 className="text-xl font-bold">Tutorial Complete!</h1>
+                    <p className="text-green-100 text-sm">You've experienced the cost of producing information</p>
+                  </div>
+                  <div className="p-5 text-sm">
+                    <div className="mb-4 p-4 rounded-lg border-l-4" style={{ backgroundColor: '#f0f7ff', borderColor: colors.primary }}>
+                      <h3 className="font-bold mb-2" style={{ color: colors.primary }}>What You Discovered</h3>
+                      {[
+                        ["Information requires travel AND conversation", "each location is a trip, each person is a conversation"],
+                        ["Information costs are real time", `direct: ${formatTime(totalTime1)}, chain: ${formatTime(totalTime2)}`],
+                        ["Costs escalate with chain length", "more trades = more information to gather"],
+                        ["Finding a partner isn't enough", "you want the one with the best terms"]
+                      ].map(([t, d], i) => (
+                        <div key={i} className="flex items-start gap-2 mb-1 text-xs">
+                          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <div><strong>{t}</strong>—{d}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: colors.sand }}>
+                      <h3 className="font-bold text-xs mb-2" style={{ color: colors.earthDark }}>Your Search Summary</h3>
+                      <div className="grid grid-cols-2 gap-3 text-center">
+                        <div>
+                          <p className="text-xs text-gray-600">Direct trade</p>
+                          <p className="font-bold" style={{ color: colors.earthDark }}>{locationsVisited1.length} locations</p>
+                          <p className="text-xs" style={{ color: colors.earth }}>{formatTime(totalTime1)}</p>
+                          <p className="text-xs text-gray-500">{peopleSpokenTo1.length} conversations</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-600">Two-trade chain</p>
+                          <p className="font-bold" style={{ color: colors.earthDark }}>{locationsVisited2.length} locations</p>
+                          <p className="text-xs" style={{ color: colors.earth }}>{formatTime(totalTime2)}</p>
+                          <p className="text-xs text-gray-500">{peopleSpokenTo2.length} conversations</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mb-4 p-4 rounded-lg border" style={{ backgroundColor: '#f8f9fa', borderColor: colors.earthLight }}>
+                      <p className="font-bold text-xs mb-1" style={{ color: colors.earthDark }}>Next: Tutorial 1.2 — The Negotiation Problem</p>
+                      <p className="text-gray-700 text-xs">You have information about who and where. But you lack information about terms—how much barley for how much wool, and which partner will give you a better deal. You'll discover why producing that information requires a different process: negotiation.</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={handleRestart} className="flex-1 py-3 rounded-lg text-sm font-medium" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                        Restart
+                      </button>
+                      <a href="tutorial-1-2.html" className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 no-underline" style={{ backgroundColor: colors.primary }}>
+                        Next Tutorial <ChevronRight className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Navigation Footer */}
+              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
+                <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg> Prev
+                </a>
+                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
+                <a href="tutorial-1-2.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  Next <ChevronRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          );
+
+          // MAIN TUTORIAL - Questions
+          const q = questions.find(q => q.id === step);
+          if (!q) return null;
+
+          const scenario = q.type === 'search1' ? 1 : (q.type === 'search2' ? 2 : null);
+          const locs = scenario === 1 ? locations1 : locations2;
+          const visited = scenario === 1 ? locationsVisited1 : locationsVisited2;
+          const log = scenario === 1 ? travelLog1 : travelLog2;
+
+          return (
+            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+              <Header />
+              <div className="p-4 max-w-2xl mx-auto">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                  <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
+                    <span className="text-xs font-medium text-gray-600">Question {step + 1} of 7</span>
+                    <div className="flex gap-1">
+                      {[0,1,2,3,4,5,6].map(i => (
+                        <div key={i} className={`w-6 h-1.5 rounded ${i < step ? 'bg-green-500' : i === step ? 'bg-blue-500' : 'bg-gray-200'}`} style={i === step ? { backgroundColor: colors.primary } : {}} />
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {devMode && <button onClick={nextStep} className="text-xs bg-purple-600 text-white px-2 py-1 rounded">Skip</button>}
+                      <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Restart</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-5">
+                    <div className="mb-4 p-4 rounded-lg border-l-4 italic text-gray-700 text-sm whitespace-pre-line" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+                      {q.narrative}
+                    </div>
+
+                    {scenario && (
+                      <div className="mb-3 p-2 rounded text-xs font-medium text-center" style={{ backgroundColor: '#fef3c7', color: '#92400e' }}>
+                        {scenario === 1 ? 'Goal: You HAVE barley. You NEED wool.' : 'Goal: He HAS fish. He NEEDS spices.'}
+                      </div>
+                    )}
+
+                    <div className="mb-4">
+                      <p className="font-medium text-sm mb-3 whitespace-pre-line" style={{ color: colors.earthDark }}>{q.question}</p>
+
+                      {scenario && !showExplanation && (
+                        <div className="mb-4">
+                          {currentLocation ? (
+                            <AtLocationView locationId={currentLocation} scenario={scenario} onBack={() => setCurrentLocation(null)} />
+                          ) : (
+                            <LocationSelector locs={locs} visited={visited} onSelect={handleTravel} scenario={scenario} />
+                          )}
+                          <div className="flex items-center justify-center gap-4 text-xs py-2 px-3 rounded" style={{ backgroundColor: '#f0f7ff' }}>
+                            <span style={{ color: colors.primary }}>{visited.length} locations</span>
+                            <span style={{ color: colors.earth }}>{formatTime(scenario === 1 ? totalTime1 : totalTime2)}</span>
+                            <span style={{ color: colors.earthDark }}>{(scenario === 1 ? peopleSpokenTo1 : peopleSpokenTo2).length} conversations</span>
+                          </div>
+                          {scenario === 2 && <TravelLog log={log} scenario={scenario} />}
+                        </div>
+                      )}
+
+                      {q.type === 'pattern' && <SearchStats />}
+
+                      {!showExplanation && (
+                        <div className="space-y-3">
+                          <textarea value={answer} onChange={(e) => setAnswer(e.target.value)} className="w-full p-3 border rounded-lg text-sm focus:outline-none focus:ring-2" style={{ borderColor: colors.earthLight }} rows={2} placeholder="Your answer..." />
+                          {hintIndex > 0 && (
+                            <div className="p-3 rounded-lg text-xs" style={{ backgroundColor: '#fff7ed', borderLeft: `3px solid ${colors.accent}` }}>
+                              {q.hints.slice(0, hintIndex).map((h, i) => (
+                                <p key={i} className="mb-1 last:mb-0">{h}</p>
+                              ))}
+                            </div>
+                          )}
+                          {showIncorrectFeedback && (
+                            <div className="p-3 rounded-lg border-l-4 mb-3" style={{ backgroundColor: '#fef3c7', borderColor: '#f59e0b' }}>
+                              <p className="text-amber-800 text-sm">Not quite. Try again! ({3 - attemptCount} attempt{3 - attemptCount !== 1 ? 's' : ''} remaining)</p>
+                            </div>
+                          )}
+                          <div className="flex gap-2">
+                            {hintIndex < q.hints.length && (
+                              <button onClick={() => setHintIndex(hintIndex + 1)} className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                                <HelpCircle className="w-4 h-4" /> Hint
+                              </button>
+                            )}
+                            <button onClick={handleSubmit} disabled={!answer.trim()} className="flex-1 text-white py-2 rounded-lg text-sm font-medium disabled:opacity-50" style={{ backgroundColor: colors.primary }}>
+                              Submit
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {showExplanation && (
+                        <div className="space-y-4">
+                          <div className="p-4 rounded-lg border-l-4" style={{ backgroundColor: q.type.includes('prediction') ? '#fffbeb' : (attemptCount >= 3 ? '#fef3c7' : '#f0fff4'), borderColor: q.type.includes('prediction') ? '#f59e0b' : (attemptCount >= 3 ? '#f59e0b' : '#22c55e') }}>
+                            <p className="font-bold text-sm mb-2" style={{ color: q.type.includes('prediction') ? '#92400e' : (attemptCount >= 3 ? '#92400e' : '#166534') }}>
+                              {q.type.includes('prediction') ? "Let's see..." : (attemptCount >= 3 ? "Here's what we were looking for:" : '✓ Correct!')}
+                            </p>
+                            <div className="text-gray-700 text-sm">{renderMarkdown(getExplanation())}</div>
+                          </div>
+                          <button onClick={nextStep} className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
+                            Continue <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {showGlossary && <GlossaryModal terms={glossaryTerms} colors={colors} onClose={() => setShowGlossary(false)} />}
+              {/* Navigation Footer */}
+              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
+                <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg> Prev
+                </a>
+                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
+                <a href="tutorial-1-2.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
+                  Next <ChevronRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Tutorial11 />);
+    </script>
+</body>
+</html>

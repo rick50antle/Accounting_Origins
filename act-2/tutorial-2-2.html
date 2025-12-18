@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 2.2: Inconsistent Reports</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // Inline SVG icon components
+    const ChevronRight = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    );
+
+    const Clock = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" strokeWidth={2}></circle>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6l4 2" />
+      </svg>
+    );
+
+    const Book = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    );
+
+    const ScrollText = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    );
+
+    const CheckCircle = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+
+    const AlertTriangle = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    );
+
+    const Trophy = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v16a2 2 0 002 2h10a2 2 0 002-2V3M9 8h6m-6 4h6m-3 8v-6m-1 0h2" />
+      </svg>
+    );
+
+    const HelpCircle = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" strokeWidth={2}></circle>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+        <circle cx="12" cy="17" r="0.5" fill="currentColor" strokeWidth={0}></circle>
+      </svg>
+    );
+
+    const Wheat = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v20M8 6c-2 2-2 4 0 6 2-2 2-4 0-6zm8 0c2 2 2 4 0 6-2-2-2-4 0-6zM8 14c-2 2-2 4 0 6 2-2 2-4 0-6zm8 0c2 2 2 4 0 6-2-2-2-4 0-6z" />
+      </svg>
+    );
+
+    const Scale = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+      </svg>
+    );
+
+    const Building2 = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    );
+
+    const Warehouse = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    );
+
+    const RefreshCw = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+    );
+
+    const Tutorial22 = () => {
+      // Core state
+      const [phase, setPhase] = useState('welcome');
+      const [showGlossary, setShowGlossary] = useState(false);
+      const [devMode, setDevMode] = useState(false);
+
+      // Phase 2: Morning Reports
+      const [currentOfficial, setCurrentOfficial] = useState(0);
+      const [officialsComplete, setOfficialsComplete] = useState([false, false, false, false]);
+
+      // Phase 3: Discrepancy
+      const [calculationAnswer, setCalculationAnswer] = useState(180);
+      const [calculationSubmitted, setCalculationSubmitted] = useState(false);
+      const [discrepancyStep, setDiscrepancyStep] = useState(0);
+
+      // Phase 4: Verification
+      const [verificationStep, setVerificationStep] = useState(0);
+
+      // Phase 5: King's Judgment
+      const [judgmentStep, setJudgmentStep] = useState(0);
+
+      // Phase 6: Reflection
+      const [reflectionStep, setReflectionStep] = useState(0);
+      const [reflectionAnswers, setReflectionAnswers] = useState(['', '', '']);
+      const [reflectionSubmitted, setReflectionSubmitted] = useState([false, false, false]);
+      const [showReflectionHint, setShowReflectionHint] = useState([false, false, false]);
+
+      // Restart handler - resets all state
+      const handleRestart = () => {
+        setPhase('welcome');
+        setCurrentOfficial(0);
+        setOfficialsComplete([false, false, false, false]);
+        setCalculationAnswer(180);
+        setCalculationSubmitted(false);
+        setDiscrepancyStep(0);
+        setVerificationStep(0);
+        setJudgmentStep(0);
+        setReflectionStep(0);
+        setReflectionAnswers(['', '', '']);
+        setReflectionSubmitted([false, false, false]);
+        setShowReflectionHint([false, false, false]);
+      };
+
+      const colors = {
+        primary: '#00356b',
+        sand: '#f5f1e8',
+        earth: '#8b7355',
+        earthLight: '#d4c4a8',
+        earthDark: '#5c4d3d',
+        accent: '#c9a227',
+        success: '#22c55e',
+        successBg: '#f0fdf4',
+        warning: '#f59e0b',
+        warningBg: '#fffbeb',
+        clay: '#c4a574',
+        clayLight: '#e8dcc8',
+        clayDark: '#a08050',
+        royal: '#7c3aed',
+        royalBg: '#f5f3ff',
+        error: '#dc2626',
+        errorBg: '#fef2f2'
+      };
+
+      // Officials data
+      const officials = [
+        {
+          name: 'Marduk-nasir',
+          title: 'Manager of the Royal Fields',
+          icon: Wheat,
+          dialogue: '"Great King, the harvest proceeds well. Today my workers brought in two sixties and thirty garu (150 garu) of barley, all delivered to the Royal Granary."',
+          reportType: 'sent',
+          amount: 150,
+          destination: 'Granary'
+        },
+        {
+          name: 'Shamash-gamil',
+          title: 'Royal Assessor and Collector of Taxes',
+          icon: Scale,
+          dialogue: '"My King, today\'s collections bring forty garu (40 garu) of barley as payment of taxes, delivered to the Royal Granary."',
+          reportType: 'sent',
+          amount: 40,
+          destination: 'Granary'
+        },
+        {
+          name: 'Warad-Sin',
+          title: 'Head of Royal Construction',
+          icon: Building2,
+          dialogue: '"My King, the new storehouse rises on schedule. Today I received two sixties and fifty garu (170 garu) of barley from the Royal Granary, all distributed as payment to my workers."',
+          reportType: 'received',
+          amount: 170,
+          source: 'Granary'
+        },
+        {
+          name: 'Ili-ippalsam',
+          title: 'Manager of the Royal Granary',
+          icon: Warehouse,
+          dialogue: '"My King, the Royal Granary stands strong. This day, we received three sixties and twenty garu (200 garu) of barley. We distributed two sixties and fifty garu (170 garu), maintaining our stores at fifty buru (3,000 garu) total."',
+          reportType: 'summary',
+          received: 200,
+          distributed: 170,
+          balance: 3000
+        }
+      ];
+
+      // Glossary terms
+      const glossaryTerms = [
+        { term: 'Garu', definition: 'A Babylonian measure of volume equal to 10 sila, approximately 15 liters.' },
+        { term: 'Buru', definition: 'A Babylonian measure of volume equal to 60 garu, approximately 900 liters.' },
+        { term: 'Reconciliation', definition: 'Comparing records from different sources to verify they agree.' },
+        { term: 'Discrepancy', definition: 'A difference between counts that should agree but don\'t.' },
+        { term: 'Seal of Office', definition: 'A cylinder seal identifying an official\'s authority; surrendering it means loss of position.' },
+        { term: 'Manager of the Royal Fields', definition: 'Official responsible for agricultural production on royal lands.' },
+        { term: 'Royal Assessor and Collector of Taxes', definition: 'Official responsible for collecting taxes throughout the kingdom.' },
+        { term: 'Head of Royal Construction', definition: 'Official overseeing building projects who receives grain to pay workers.' },
+        { term: 'Manager of the Royal Granary', definition: 'Official responsible for the central storehouse.' }
+      ];
+
+      // Reflection questions
+      const reflectionQuestions = [
+        {
+          question: 'The granary\'s records balanced perfectly. Why wasn\'t that enough?',
+          hints: ['Think about what "balanced" means for a single tablet versus across organizations.', 'The granary\'s inflows minus outflows equaled their physical count...'],
+          explanation: '"A record can be internally consistent—every mark correct, every sum accurate—yet still disagree with records kept elsewhere. The granary\'s tablet told a complete story of what *they* recorded. But it couldn\'t tell us whether what they recorded matched what others sent."'
+        },
+        {
+          question: 'Where could the 10 garu discrepancy have come from?',
+          hints: ['Consider each point where barley changed hands.', 'The error could be in counting, recording, or reporting...'],
+          explanation: '"The error could lie in many places: Perhaps the Fields delivered more than they recorded. Perhaps the Tax Collector\'s scribe made a mistake. Perhaps the Granary received a delivery they failed to attribute correctly. Perhaps yesterday\'s balance was wrong. With separate records, we cannot know—we can only investigate each set of tablets independently."'
+        },
+        {
+          question: 'What would have to be true for errors like this to be caught automatically?',
+          hints: ['Think about what connects the granary\'s records to the fields\' records.', 'Currently, each scribe sees only their own flows...'],
+          explanation: 'Master Nabu-rimanni strokes his beard thoughtfully.\n\n"A record that requires agreement by its very structure... Where every flow that leaves one tablet must appear on another. Where the very act of recording creates a check that cannot be ignored."\n\nHe pauses. "Perhaps such a system exists. Perhaps we must invent it."'
+        }
+      ];
+
+      // Header component
+      const Header = () => (
+        <div
+          className="p-3 text-white flex items-center justify-between"
+          style={{ backgroundColor: colors.primary }}
+          onDoubleClick={(e) => {
+            if (e.clientX < 100) setDevMode(!devMode);
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <ScrollText className="w-5 h-5" />
+            <div>
+              <span className="font-bold">Tutorial 2.2: Inconsistent Reports</span>
+              <span className="text-blue-200 text-xs ml-2">Babylon ~1800 BCE</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowGlossary(true)}
+              className="flex items-center gap-1 text-xs hover:text-blue-200"
+            >
+              <Book className="w-4 h-4" />
+              <span>Glossary</span>
+            </button>
+            <div className="flex items-center gap-1 text-xs">
+              <Clock className="w-4 h-4" />
+              <span>~8 min</span>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Glossary Modal
+      const GlossaryModal = () => (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[80vh] overflow-hidden">
+            <div className="p-4 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+              <div className="flex items-center gap-2">
+                <Book className="w-5 h-5" />
+                <span className="font-bold">Glossary: Royal Administration</span>
+              </div>
+              <button onClick={() => setShowGlossary(false)} className="text-white hover:text-blue-200">×</button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              {glossaryTerms.map((item, i) => (
+                <div key={i} className="mb-4 last:mb-0">
+                  <p className="font-bold text-sm" style={{ color: colors.primary }}>{item.term}</p>
+                  <p className="text-sm text-gray-700">{item.definition}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+
+      // Progress indicator
+      const phaseOrder = ['welcome', 'morning-reports', 'discrepancy', 'verification', 'judgment', 'reflection', 'complete'];
+      const currentPhaseIndex = phaseOrder.indexOf(phase);
+
+      const ProgressBar = () => (
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1 flex-1">
+            {phaseOrder.slice(0, -1).map((p, i) => (
+              <div
+                key={p}
+                className="h-1.5 rounded flex-1 transition-all"
+                style={{
+                  backgroundColor: i < currentPhaseIndex ? colors.success : i === currentPhaseIndex ? colors.primary : colors.earthLight
+                }}
+              />
+            ))}
+          </div>
+          <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
+            <RefreshCw className="w-3 h-3" />
+            <span>Restart</span>
+          </button>
+        </div>
+      );
+
+      // Dev mode controls
+      const DevControls = () => devMode && (
+        <div className="mb-3 p-2 bg-purple-100 rounded-lg flex gap-2 flex-wrap items-center">
+          <span className="text-xs text-purple-700 font-medium">DEV:</span>
+          {phaseOrder.slice(0, -1).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPhase(p)}
+              className={`text-xs px-2 py-1 rounded ${p === phase ? 'bg-purple-600 text-white' : 'bg-purple-200 text-purple-700'}`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      );
+
+      // Narrative block component
+      const NarrativeBlock = ({ children }) => (
+        <div
+          className="p-4 rounded-lg border-l-4 italic text-gray-700 text-sm leading-relaxed mb-4"
+          style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+        >
+          {children}
+        </div>
+      );
+
+      // Royal narrative block (for King's dialogue)
+      const RoyalNarrativeBlock = ({ children }) => (
+        <div
+          className="p-4 rounded-lg border-l-4 text-gray-700 text-sm leading-relaxed mb-4"
+          style={{ backgroundColor: colors.royalBg, borderColor: colors.royal }}
+        >
+          {children}
+        </div>
+      );
+
+      // Insight panel component
+      const InsightPanel = ({ title, children }) => (
+        <div className="p-4 rounded-lg border mb-4" style={{ backgroundColor: colors.successBg, borderColor: colors.success }}>
+          <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>{title}</h3>
+          <div className="text-sm text-gray-700">{children}</div>
+        </div>
+      );
+
+      // Official card component
+      const OfficialCard = ({ official, isActive, isComplete }) => {
+        const IconComponent = official.icon;
+        return (
+          <div
+            className={`p-3 rounded-lg border-2 transition-all ${isActive ? 'ring-2 ring-offset-2' : ''}`}
+            style={{
+              backgroundColor: isComplete ? colors.successBg : 'white',
+              borderColor: isActive ? colors.primary : isComplete ? colors.success : colors.earthLight,
+              ringColor: colors.primary,
+              opacity: isComplete || isActive ? 1 : 0.5
+            }}
+          >
+            <div className="flex items-start gap-2">
+              <div
+                className="p-1.5 rounded"
+                style={{ backgroundColor: isComplete ? colors.success : colors.primary }}
+              >
+                <IconComponent className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm" style={{ color: colors.earthDark }}>{official.name}</p>
+                <p className="text-xs text-gray-500 truncate">{official.title}</p>
+                {isComplete && (
+                  <div className="mt-2 text-xs" style={{ color: colors.earthDark }}>
+                    {official.reportType === 'sent' && (
+                      <p><span className="font-medium">{official.amount} garu</span> → Granary</p>
+                    )}
+                    {official.reportType === 'received' && (
+                      <p>Granary → <span className="font-medium">{official.amount} garu</span></p>
+                    )}
+                    {official.reportType === 'summary' && (
+                      <>
+                        <p>Received: <span className="font-medium">{official.received} garu</span></p>
+                        <p>Distributed: <span className="font-medium">{official.distributed} garu</span></p>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+              {isComplete && <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />}
+            </div>
+          </div>
+        );
+      };
+
+      // Granary tablet component - T-account format
+      const GranaryTablet = ({ showVerified = false }) => (
+        <div className="mb-4">
+          <p className="text-xs font-bold mb-2 text-center" style={{ color: colors.earthDark }}>
+            THE GRANARY'S OWN TABLET FOR TODAY:
+          </p>
+          <div
+            className="rounded-lg border-2 overflow-hidden"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark }}
+          >
+            {/* Header */}
+            <div
+              className="text-center py-2 font-bold text-sm"
+              style={{ backgroundColor: colors.clay, color: colors.earthDark }}
+            >
+              BARLEY COUNT
+            </div>
+
+            {/* Column Headers */}
+            <div className="grid grid-cols-2 text-center font-bold text-sm py-2" style={{ color: colors.primary }}>
+              <div>RECEIVED</div>
+              <div>DISTRIBUTED</div>
+            </div>
+
+            {/* T-Account Body */}
+            <div className="grid grid-cols-2" style={{ borderTop: `1px solid ${colors.clayDark}` }}>
+              {/* Left Column - Received */}
+              <div className="p-3 text-sm space-y-2" style={{ borderRight: `2px solid ${colors.clayDark}` }}>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Carried forward from yesterday</span>
+                  <span className="font-medium">2,970 garu</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Received today</span>
+                  <span className="font-medium">200 garu</span>
+                </div>
+              </div>
+
+              {/* Right Column - Distributed */}
+              <div className="p-3 text-sm space-y-2">
+                <div className="flex justify-between">
+                  <span className="font-medium">170 garu</span>
+                  <span className="text-gray-600">Distributed to Construction</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Totals Row */}
+            <div
+              className="grid grid-cols-2 text-center font-bold py-2"
+              style={{ backgroundColor: colors.clay, color: colors.earthDark }}
+            >
+              <div>Total: 3,170 garu</div>
+              <div>Total: 170 garu</div>
+            </div>
+          </div>
+
+          {/* Summary Calculation */}
+          <div
+            className="mt-3 rounded-lg border-2 overflow-hidden"
+            style={{ backgroundColor: 'white', borderColor: colors.earthLight }}
+          >
+            <div className="grid grid-cols-3 text-center py-3">
+              <div>
+                <div className="text-xs text-gray-500 mb-1">RECEIVED</div>
+                <div className="text-xl font-bold" style={{ color: colors.primary }}>3,170</div>
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="text-2xl text-gray-400">−</span>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 mb-1">DISTRIBUTED</div>
+                <div className="text-xl font-bold" style={{ color: colors.earthDark }}>170</div>
+              </div>
+            </div>
+            <div
+              className="text-center py-3"
+              style={{ backgroundColor: colors.successBg, borderTop: `1px solid ${colors.success}` }}
+            >
+              <div className="font-bold text-lg" style={{ color: colors.earthDark }}>Should remain: 3,000 garu</div>
+              <div className="text-sm" style={{ color: colors.success }}>2,970 carried + 200 received − 170 distributed = 3,000 garu</div>
+            </div>
+            {showVerified && (
+              <div
+                className="text-center py-2"
+                style={{ backgroundColor: colors.successBg, borderTop: `1px solid ${colors.success}` }}
+              >
+                <span className="text-sm font-medium" style={{ color: colors.success }}>
+                  ✓ Verified by physical count
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+
+      // Number selector component
+      const NumberSelector = ({ value, onChange, min, max }) => (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onChange(Math.max(min, value - 1))}
+            className="w-8 h-8 rounded bg-gray-200 hover:bg-gray-300 font-bold"
+            disabled={value <= min}
+          >
+            −
+          </button>
+          <span className="w-16 text-center font-bold text-lg">{value}</span>
+          <button
+            onClick={() => onChange(Math.min(max, value + 1))}
+            className="w-8 h-8 rounded bg-gray-200 hover:bg-gray-300 font-bold"
+            disabled={value >= max}
+          >
+            +
+          </button>
+          <span className="text-sm text-gray-600">garu</span>
+        </div>
+      );
+
+      // WELCOME PHASE
+      if (phase === 'welcome') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <DevControls />
+              <ProgressBar />
+
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                <div className="p-6 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                  <h1 className="text-2xl font-bold mb-2">Inconsistent Reports</h1>
+                  <p className="text-blue-200">When the counts don't agree</p>
+                </div>
+
+                <div className="p-5">
+                  <NarrativeBlock>
+                    The sun has barely touched the ziggurats when you hurry through the palace corridors, fresh clay tablets clutched against your chest. Three seasons as Master Nabu-rimanni's apprentice have earned you a place in the King's receiving hall—where the morning reports are heard.
+                  </NarrativeBlock>
+
+                  <NarrativeBlock>
+                    Today, four officials will report to King Hammurabi: the Manager of the Royal Fields, the Tax Collector, the Head of Construction, and the Manager of the Royal Granary. Each keeps their own records. Each swears to their accuracy.
+                  </NarrativeBlock>
+
+                  <div className="p-4 rounded-lg mb-4" style={{ backgroundColor: colors.sand }}>
+                    <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>What You'll Experience</h3>
+                    <ul className="text-sm text-gray-700 space-y-1">
+                      <li>• Watch four officials report their counts to the King</li>
+                      <li>• Discover what happens when records don't agree</li>
+                      <li>• Understand why separate records create problems</li>
+                    </ul>
+                  </div>
+
+                  <button
+                    onClick={() => setPhase('morning-reports')}
+                    className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Enter the Receiving Hall <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // MORNING REPORTS PHASE
+      if (phase === 'morning-reports') {
+        const allOfficialsComplete = officialsComplete.every(Boolean);
+
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <DevControls />
+              <ProgressBar />
+
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                <div className="p-4 border-b" style={{ borderColor: colors.earthLight }}>
+                  <h2 className="font-bold" style={{ color: colors.primary }}>The Morning Reports</h2>
+                </div>
+
+                <div className="p-5">
+                  {/* Officials grid - building display */}
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    {officials.map((official, i) => (
+                      <OfficialCard
+                        key={i}
+                        official={official}
+                        isActive={currentOfficial === i && !officialsComplete[i]}
+                        isComplete={officialsComplete[i]}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Current official's dialogue */}
+                  {!allOfficialsComplete && (
+                    <>
+                      <NarrativeBlock>
+                        <strong>{officials[currentOfficial].name}</strong>, {officials[currentOfficial].title}, steps forward.
+                      </NarrativeBlock>
+
+                      <div
+                        className="p-4 rounded-lg border mb-4"
+                        style={{ backgroundColor: '#fefce8', borderColor: colors.accent }}
+                      >
+                        <p className="text-sm italic text-gray-700">
+                          {officials[currentOfficial].dialogue}
+                        </p>
+                      </div>
+
+                      <NarrativeBlock>
+                        Master Nabu-rimanni makes his marks with steady precision, recording the count on his tablet. You keep your own mental tally, a habit he has insisted upon.
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => {
+                          const newComplete = [...officialsComplete];
+                          newComplete[currentOfficial] = true;
+                          setOfficialsComplete(newComplete);
+                          if (currentOfficial < 3) {
+                            setCurrentOfficial(currentOfficial + 1);
+                          }
+                        }}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        {currentOfficial < 3 ? 'Next Official' : 'Reports Complete'} <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {/* All reports complete */}
+                  {allOfficialsComplete && (
+                    <>
+                      <NarrativeBlock>
+                        The formal reports concluded, the four officials begin to withdraw. But Master Nabu-rimanni raises his hand—a small gesture that freezes everyone in place.
+                      </NarrativeBlock>
+
+                      <NarrativeBlock>
+                        His fingers fly across his counting board with sudden urgency. You keep your own mental tally. Two sixties and thirty plus forty makes three sixties and ten... not three sixties and twenty.
+                      </NarrativeBlock>
+
+                      <NarrativeBlock>
+                        He glances back at you briefly, and you understand. He is checking if you, too, have caught that the counts do not agree. You give the slightest nod.
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => setPhase('discrepancy')}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // DISCREPANCY PHASE
+      if (phase === 'discrepancy') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <DevControls />
+              <ProgressBar />
+
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                <div className="p-4 border-b" style={{ borderColor: colors.earthLight }}>
+                  <h2 className="font-bold" style={{ color: colors.primary }}>The Discrepancy</h2>
+                </div>
+
+                <div className="p-5">
+                  {discrepancyStep === 0 && (
+                    <>
+                      <NarrativeBlock>
+                        Before Master Nabu-rimanni speaks, you review what you heard. The Royal Fields delivered barley to the Granary. The Tax Collector delivered barley to the Granary. What should the Granary have received in total?
+                      </NarrativeBlock>
+
+                      {/* Summary of what was sent */}
+                      <div className="p-4 rounded-lg border mb-4" style={{ backgroundColor: colors.sand, borderColor: colors.earthLight }}>
+                        <p className="text-sm font-medium mb-2" style={{ color: colors.earthDark }}>Deliveries to the Granary:</p>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span>From the Royal Fields:</span>
+                            <span className="font-medium">150 garu</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>From Tax Collection:</span>
+                            <span className="font-medium">40 garu</span>
+                          </div>
+                          <div className="flex justify-between pt-2 border-t" style={{ borderColor: colors.earthLight }}>
+                            <span className="font-medium">Total sent to Granary:</span>
+                            <span className="font-bold">?</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-lg border mb-4" style={{ backgroundColor: '#f8fafc', borderColor: colors.earthLight }}>
+                        <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                          <strong>What should the Granary have received?</strong>
+                        </p>
+                        <div className="flex items-center justify-center">
+                          <NumberSelector
+                            value={calculationAnswer}
+                            onChange={setCalculationAnswer}
+                            min={176}
+                            max={195}
+                          />
+                        </div>
+                      </div>
+
+                      {!calculationSubmitted ? (
+                        <button
+                          onClick={() => setCalculationSubmitted(true)}
+                          className="w-full text-white font-bold py-3 rounded-lg hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Submit Answer
+                        </button>
+                      ) : (
+                        <>
+                          {calculationAnswer === 190 ? (
+                            <div className="p-3 rounded-lg mb-4" style={{ backgroundColor: colors.successBg, borderColor: colors.success }}>
+                              <p className="text-sm text-green-800">
+                                <strong>Correct.</strong> 150 + 40 = 190 garu should have been received by the Granary.
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="p-3 rounded-lg mb-4" style={{ backgroundColor: colors.warningBg }}>
+                              <p className="text-sm text-amber-800">
+                                <strong>Not quite.</strong> 150 + 40 = 190 garu. That's what should have been received.
+                              </p>
+                            </div>
+                          )}
+                          <button
+                            onClick={() => setDiscrepancyStep(1)}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Continue <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </>
+                  )}
+
+                  {discrepancyStep === 1 && (
+                    <>
+                      <NarrativeBlock>
+                        Master Nabu-rimanni's voice cuts through the silence:
+                      </NarrativeBlock>
+
+                      <RoyalNarrativeBlock>
+                        <p className="font-medium">"My King, the counts do not agree."</p>
+                      </RoyalNarrativeBlock>
+
+                      <NarrativeBlock>
+                        The temperature in the room seems to drop. King Hammurabi leans forward, his rings catching the lamplight.
+                      </NarrativeBlock>
+
+                      <RoyalNarrativeBlock>
+                        <p className="font-medium">"Speak."</p>
+                      </RoyalNarrativeBlock>
+
+                      {/* The discrepancy revealed */}
+                      <div
+                        className="p-4 rounded-lg border mb-4"
+                        style={{ backgroundColor: colors.errorBg, borderColor: colors.error }}
+                      >
+                        <div className="flex items-start gap-2 mb-3">
+                          <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                          <p className="text-sm font-medium text-red-800">The counts do not agree</p>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-700">Sent to Granary (Fields + Taxes):</span>
+                            <span className="font-bold">190 garu</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-700">Granary claims received:</span>
+                            <span className="font-bold">200 garu</span>
+                          </div>
+                          <div className="flex justify-between pt-2 border-t border-red-200">
+                            <span className="text-red-800 font-medium">Discrepancy:</span>
+                            <span className="font-bold text-red-800">10 garu unaccounted for</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <NarrativeBlock>
+                        Master Nabu-rimanni continues: "The Royal Granary reports receiving three sixties and twenty garu of barley today. Yet the Royal Fields reported two sixties and thirty delivered, and the Tax Collector reported forty delivered. The sum is three sixties and ten garu—not three sixties and twenty."
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => setPhase('verification')}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // VERIFICATION PHASE
+      if (phase === 'verification') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <DevControls />
+              <ProgressBar />
+
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                <div className="p-4 border-b" style={{ borderColor: colors.earthLight }}>
+                  <h2 className="font-bold" style={{ color: colors.primary }}>Verification</h2>
+                </div>
+
+                <div className="p-5">
+                  {verificationStep === 0 && (
+                    <>
+                      <NarrativeBlock>
+                        Master Nabu-rimanni turns to you. "Apprentice, run to the Royal Granary. Examine their records. Then count the grain markers yourself."
+                      </NarrativeBlock>
+
+                      <NarrativeBlock>
+                        You run through the corridors, past guards who recognize your scribe's seal. At the granary, the chief scribe presents today's tablet.
+                      </NarrativeBlock>
+
+                      <GranaryTablet />
+
+                      <NarrativeBlock>
+                        The tablet is clear: they claim to have received 200 garu today. Their math is perfect—yesterday's balance plus receipts minus distributions equals today's balance exactly.
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => setVerificationStep(1)}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Now Count the Grain <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {verificationStep === 1 && (
+                    <>
+                      <NarrativeBlock>
+                        You move to the storage chambers and count the marked sections quickly, carefully.
+                      </NarrativeBlock>
+
+                      <div
+                        className="p-4 rounded-lg border mb-4 text-center"
+                        style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+                      >
+                        <p className="font-bold text-lg" style={{ color: colors.earthDark }}>Fifty buru. Exactly as their tablet claims.</p>
+                        <p className="text-sm text-gray-600 mt-1">3,000 garu confirmed by physical count</p>
+                      </div>
+
+                      <NarrativeBlock>
+                        You run back to the receiving hall, gasping. "Fifty buru, Master. The granary's records match their physical stores exactly."
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => setVerificationStep(2)}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {verificationStep === 2 && (
+                    <>
+                      <NarrativeBlock>
+                        Master Nabu-rimanni nods slowly—the same slight nod that has marked your successful calculations in the past. He addresses the King:
+                      </NarrativeBlock>
+
+                      <NarrativeBlock>
+                        "The granary count is accurate. The physical grain matches their records. The error lies elsewhere—either the Royal Fields or the Tax Collection has misreported, or the Granary's previous reports were in error. What we know for certain: ten garu of barley exists that has not been properly accounted for."
+                      </NarrativeBlock>
+
+                      <InsightPanel title="The Granary's Internal Consistency">
+                        <p className="mb-2">
+                          The granary's own records are <strong>internally consistent</strong>. Yesterday's balance plus today's receipts minus today's distributions equals today's balance—and that balance matches the physical count.
+                        </p>
+                        <p>
+                          But internal consistency is not enough. The granary's record of what they <em>received</em> doesn't match what others say they <em>sent</em>. The error exists at the <strong>boundary</strong> between organizations.
+                        </p>
+                      </InsightPanel>
+
+                      <button
+                        onClick={() => setPhase('judgment')}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // KING'S JUDGMENT PHASE
+      if (phase === 'judgment') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <DevControls />
+              <ProgressBar />
+
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                <div className="p-4 border-b" style={{ borderColor: colors.earthLight }}>
+                  <h2 className="font-bold" style={{ color: colors.primary }}>The King's Judgment</h2>
+                </div>
+
+                <div className="p-5">
+                  {judgmentStep === 0 && (
+                    <>
+                      <NarrativeBlock>
+                        What follows is terrible to witness. The King's face darkens like the sky before a sandstorm.
+                      </NarrativeBlock>
+
+                      <RoyalNarrativeBlock>
+                        <p className="mb-3">
+                          "Ten garu of barley entered my granary without proper documentation. This is not theft—the grain is there, counted and confirmed."
+                        </p>
+                        <p className="mb-3">
+                          "But this is something perhaps worse: <strong>carelessness with the royal counts</strong>."
+                        </p>
+                        <p className="font-medium">
+                          "How can I govern if I cannot trust the counts brought before me? How can I plan for siege or famine if my officials cannot report accurately what passes through their hands?"
+                        </p>
+                      </RoyalNarrativeBlock>
+
+                      <NarrativeBlock>
+                        All three officials—Marduk-nasir, Shamash-gamil, and Ili-ippalsam—fall to their knees, sweat beading on their foreheads despite the morning cool.
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => setJudgmentStep(1)}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {judgmentStep === 1 && (
+                    <>
+                      <RoyalNarrativeBlock>
+                        <p className="mb-3">
+                          "Today it is ten garu. Tomorrow it could be one buru. Chaos begins with small disorders."
+                        </p>
+                        <p className="font-medium">
+                          "All of you will surrender your seals of office. You and your scribes will be examined by Master Nabu-rimanni to determine where this error originated. And you will supply the Royal Granary with the amount of the discrepancy: <strong>ten garu of grain from your own stores</strong>."
+                        </p>
+                      </RoyalNarrativeBlock>
+
+                      {/* Stakes callout */}
+                      <div
+                        className="p-4 rounded-lg border mb-4"
+                        style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}
+                      >
+                        <p className="text-sm font-bold mb-2" style={{ color: colors.earthDark }}>The Stakes</p>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          <li>• <strong>Seals surrendered</strong> — stripped of authority pending investigation</li>
+                          <li>• <strong>Personal liability</strong> — must pay the 10 garu discrepancy from their own grain</li>
+                          <li>• <strong>Careers at risk</strong> — if found negligent, reduced in rank; if found dishonest, the penalties in Hammurabi's Code are severe</li>
+                        </ul>
+                      </div>
+
+                      <NarrativeBlock>
+                        As guards lead the officials away, you see their shoulders slump in defeat. Their scribes follow, clutching tablets like shields that have failed to protect them.
+                      </NarrativeBlock>
+
+                      <NarrativeBlock>
+                        Master Nabu-rimanni turns to you quietly. "You did well, apprentice. Quick thinking, quick feet. But observe carefully what happened here."
+                      </NarrativeBlock>
+
+                      <InsightPanel title="The Limitation of Separate Records">
+                        <p className="mb-2">
+                          "Because the counts did not agree, we know there is an error. But <em>where</em>? Is it the Fields? The Tax Collector? Yesterday's granary count? Perhaps more than one error?"
+                        </p>
+                        <p>
+                          "With separate records, finding errors requires examining each set of books independently. There is no automatic check—no mechanism that would have revealed this discrepancy before it reached the King."
+                        </p>
+                      </InsightPanel>
+
+                      <button
+                        onClick={() => setPhase('reflection')}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue to Reflection <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // REFLECTION PHASE
+      if (phase === 'reflection') {
+        const currentQuestion = reflectionQuestions[reflectionStep];
+
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <DevControls />
+              <ProgressBar />
+
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border mt-4" style={{ borderColor: colors.earthLight }}>
+                <div className="p-4 border-b" style={{ borderColor: colors.earthLight }}>
+                  <h2 className="font-bold" style={{ color: colors.primary }}>Reflection</h2>
+                  <p className="text-xs text-gray-500 mt-1">Question {reflectionStep + 1} of 3</p>
+                </div>
+
+                <div className="p-5">
+                  <div className="mb-4">
+                    <p className="font-medium text-sm mb-3" style={{ color: colors.earthDark }}>
+                      {currentQuestion.question}
+                    </p>
+
+                    <textarea
+                      value={reflectionAnswers[reflectionStep]}
+                      onChange={(e) => {
+                        const newAnswers = [...reflectionAnswers];
+                        newAnswers[reflectionStep] = e.target.value;
+                        setReflectionAnswers(newAnswers);
+                      }}
+                      placeholder="Type your thoughts here..."
+                      className="w-full p-3 border rounded-lg text-sm resize-none"
+                      style={{ borderColor: colors.earthLight, minHeight: '100px' }}
+                      disabled={reflectionSubmitted[reflectionStep]}
+                    />
+
+                    {!reflectionSubmitted[reflectionStep] && (
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={() => {
+                            const newHints = [...showReflectionHint];
+                            newHints[reflectionStep] = true;
+                            setShowReflectionHint(newHints);
+                          }}
+                          className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                          disabled={showReflectionHint[reflectionStep]}
+                        >
+                          <HelpCircle className="w-3 h-3" />
+                          {showReflectionHint[reflectionStep] ? 'Hint shown' : 'Show hint'}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            const newSubmitted = [...reflectionSubmitted];
+                            newSubmitted[reflectionStep] = true;
+                            setReflectionSubmitted(newSubmitted);
+                          }}
+                          className="flex-1 text-white font-medium py-2 rounded-lg hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                          disabled={!reflectionAnswers[reflectionStep].trim()}
+                        >
+                          Submit
+                        </button>
+                      </div>
+                    )}
+
+                    {showReflectionHint[reflectionStep] && !reflectionSubmitted[reflectionStep] && (
+                      <div className="mt-3 p-3 rounded-lg text-sm" style={{ backgroundColor: colors.warningBg }}>
+                        <p className="text-amber-800">
+                          <strong>Hint:</strong> {currentQuestion.hints[0]}
+                        </p>
+                      </div>
+                    )}
+
+                    {reflectionSubmitted[reflectionStep] && (
+                      <div className="mt-4 p-4 rounded-lg border" style={{ backgroundColor: colors.successBg, borderColor: colors.success }}>
+                        <p className="text-sm text-gray-700 whitespace-pre-line">
+                          {currentQuestion.explanation}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {reflectionSubmitted[reflectionStep] && (
+                    <button
+                      onClick={() => {
+                        if (reflectionStep < 2) {
+                          setReflectionStep(reflectionStep + 1);
+                        } else {
+                          setPhase('complete');
+                        }
+                      }}
+                      className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      {reflectionStep < 2 ? 'Next Question' : 'Complete Tutorial'} <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // COMPLETE PHASE
+      if (phase === 'complete') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-6 text-white text-center" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                  <Trophy className="w-12 h-12 mx-auto mb-3 text-yellow-300" />
+                  <h1 className="text-2xl font-bold mb-1">Tutorial Complete!</h1>
+                  <p className="text-blue-200">You've witnessed the problem of inconsistent records</p>
+                </div>
+
+                <div className="p-5">
+                  <div className="mb-6">
+                    <h2 className="font-bold text-sm mb-3" style={{ color: colors.primary }}>What You Learned</h2>
+                    <div className="space-y-3">
+                      {[
+                        { title: 'Internal vs External Consistency', desc: 'A record can be internally consistent—every sum correct—yet disagree with records kept elsewhere.' },
+                        { title: 'Errors Hide at Boundaries', desc: 'With separate records, errors at the boundaries between organizations remain invisible until someone compares the counts.' },
+                        { title: 'No Automatic Check', desc: 'When each scribe sees only their own flows, there\'s no mechanism to catch discrepancies before they reach the King.' },
+                        { title: 'The Stakes Are Real', desc: 'Inaccurate records cost officials their positions, their property, and potentially their freedom under Hammurabi\'s Code.' }
+                      ].map((item, i) => (
+                        <div key={i} className="flex gap-3 items-start">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-green-600 flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-sm" style={{ color: colors.earthDark }}>{item.title}</p>
+                            <p className="text-xs text-gray-600">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <InsightPanel title="The Core Problem">
+                    <p className="mb-2">
+                      <strong>Separate records can each be internally consistent yet mutually inconsistent.</strong>
+                    </p>
+                    <p className="mb-2">
+                      Each tablet balances. Each scribe's math is correct. But at the boundaries between organizations—where one person's outflow should equal another's inflow—there's no automatic check.
+                    </p>
+                    <p className="font-medium">
+                      The question Master Nabu-rimanni has set before you: What kind of record-keeping system would catch these errors automatically?
+                    </p>
+                  </InsightPanel>
+
+                  <div className="p-4 rounded-lg border mb-4" style={{ borderColor: colors.accent, backgroundColor: '#fffbeb' }}>
+                    <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>Coming Next: Tutorial 2.3</h3>
+                    <p className="text-sm text-gray-700 mb-2">
+                      You've seen the problem: records that don't agree, and no way to know who's wrong.
+                    </p>
+                    <p className="text-sm text-gray-700 mb-2">
+                      In your investigation, you'll discover a pattern—and with Master Nabu-rimanni's guidance, you'll help devise a solution.
+                    </p>
+                    <p className="text-sm text-gray-700 font-medium">
+                      A way of keeping records where every transaction must balance, where errors reveal themselves, where the very structure of the record demands agreement.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={handleRestart}
+                    className="w-full py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    Restart Tutorial
+                  </button>
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      return null;
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Tutorial22 />);
+  </script>
+
+  <!-- Navigation Footer -->
+  <footer style="position: fixed; bottom: 0; left: 0; right: 0; background-color: #00356b; color: white; padding: 12px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+      <a href="tutorial-2-1.html" style="color: white; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span>Previous: Tutorial 2.1</span>
+      </a>
+      <a href="../index.html" style="color: white; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        <span>Hub</span>
+      </a>
+      <a href="tutorial-2-3.html" style="color: white; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+        <span>Next: Tutorial 2.3</span>
+        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </footer>
+</body>
+</html>

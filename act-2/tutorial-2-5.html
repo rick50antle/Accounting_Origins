@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 2.5: The Discipline of Balance</title>
+
+  <!-- React 18 and ReactDOM 18 from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .nav-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #00356b;
+      border-top: 3px solid #c9a227;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+
+    .nav-footer a {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      transition: background-color 0.2s;
+      font-weight: 600;
+    }
+
+    .nav-footer a:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    .nav-footer .nav-center {
+      color: #f5f1e8;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Navigation Footer -->
+  <div class="nav-footer">
+    <a href="tutorial-2-4.html">← Previous</a>
+    <div class="nav-center">Tutorial 2.5</div>
+    <a href="tutorial-2-6.html">Next →</a>
+  </div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // Inline SVG Icon Components
+    const ChevronRight = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    );
+
+    const BookOpen = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+      </svg>
+    );
+
+    const RefreshCw = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+    );
+
+    const X = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    );
+
+    const Lightbulb = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="9" y1="18" x2="15" y2="18"></line>
+        <line x1="10" y1="22" x2="14" y2="22"></line>
+        <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+      </svg>
+    );
+
+    const CheckCircle = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    );
+
+    const AlertCircle = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    );
+
+    const Search = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    );
+
+    const Building = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+        <path d="M9 22v-4h6v4"></path>
+        <path d="M8 6h.01"></path>
+        <path d="M16 6h.01"></path>
+        <path d="M12 6h.01"></path>
+        <path d="M12 10h.01"></path>
+        <path d="M12 14h.01"></path>
+        <path d="M16 10h.01"></path>
+        <path d="M16 14h.01"></path>
+        <path d="M8 10h.01"></path>
+        <path d="M8 14h.01"></path>
+      </svg>
+    );
+
+    const Users = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+    );
+
+    const CloudRain = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="16" y1="13" x2="16" y2="21"></line>
+        <line x1="8" y1="13" x2="8" y2="21"></line>
+        <line x1="12" y1="15" x2="12" y2="23"></line>
+        <path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path>
+      </svg>
+    );
+
+    const Package = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      </svg>
+    );
+
+    const Calculator = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+        <line x1="8" y1="6" x2="16" y2="6"></line>
+        <line x1="16" y1="14" x2="16" y2="18"></line>
+        <path d="M16 10h.01"></path>
+        <path d="M12 10h.01"></path>
+        <path d="M8 10h.01"></path>
+        <path d="M12 14h.01"></path>
+        <path d="M8 14h.01"></path>
+        <path d="M12 18h.01"></path>
+        <path d="M8 18h.01"></path>
+      </svg>
+    );
+
+    const TrendingUp = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+        <polyline points="17 6 23 6 23 12"></polyline>
+      </svg>
+    );
+
+    const Trophy = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+        <path d="M4 22h16"></path>
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+      </svg>
+    );
+
+    const RotateCcw = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="1 4 1 10 7 10"></polyline>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+      </svg>
+    );
+
+    // ============================================
+    // SOUND FEEDBACK UTILITIES
+    // ============================================
+    const createAudioContext = () => {
+      return new (window.AudioContext || window.webkitAudioContext)();
+    };
+
+    const playSuccessTone = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [523.25, 659.25, 783.99];
+        const startTime = ctx.currentTime;
+
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+
+          const noteStart = startTime + (i * 0.1);
+          const noteEnd = noteStart + 0.15;
+
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.3, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.1);
+        });
+
+        setTimeout(() => ctx.close(), 600);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playSoftNope = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [400, 300];
+        const startTime = ctx.currentTime;
+
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+
+          const noteStart = startTime + (i * 0.12);
+          const noteEnd = noteStart + 0.12;
+
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.2, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.05);
+        });
+
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playBuzzer = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.value = 150;
+        oscillator.type = 'sawtooth';
+
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0.25, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.35);
+
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playContinueClick = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.value = 600;
+        oscillator.type = 'sine';
+
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.1);
+
+        setTimeout(() => ctx.close(), 150);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    // ============================================
+    // COLOR PALETTE
+    // ============================================
+    const colors = {
+      primary: '#00356b',
+      sand: '#f5f1e8',
+      earth: '#8b7355',
+      earthLight: '#d4c4a8',
+      earthDark: '#5c4d3d',
+      accent: '#c9a227',
+      clay: '#c4a574',
+      clayLight: '#e8dcc8',
+      clayDark: '#a08050',
+      success: '#22c55e',
+      successBg: '#f0fdf4',
+      warning: '#f59e0b',
+      warningBg: '#fffbeb',
+      error: '#dc2626',
+      errorBg: '#fef2f2'
+    };
+
+    // ============================================
+    // GLOSSARY DATA
+    // ============================================
+    const glossaryTerms = [
+      { term: 'Discipline of Balance', definition: 'The choice to refuse unexplained adjustments — demanding that every change to records be explained and recorded as a named flow' },
+      { term: 'Losses Tablets', definition: 'Records that capture resources lost through unobserved flows (spoilage, theft, pests, etc.) — treating the loss as a real destination rather than erasing it' },
+      { term: 'Unobserved Flow', definition: 'A movement of resources that was not directly witnessed but can be inferred from discrepancies — the grain went somewhere, even if no scribe saw it leave' },
+      { term: 'Discrepancy', definition: 'A difference between expected and actual counts that reveals an unrecorded flow' },
+      { term: 'Sila', definition: 'A Babylonian unit of volume, approximately 1.5 liters' },
+      { term: 'Buru', definition: 'A Babylonian measure of volume equal to 60 garu' },
+      { term: 'Garu', definition: 'A Babylonian measure of volume equal to 10 sila' },
+      { term: 'Central Record Hall', definition: 'The location where all departments\' records are housed together, enabling reconciliation' },
+      { term: 'Tablets That Speak with One Voice', definition: 'The coordinated system where two departments each keep records of the same flow — if their tablets disagree, something is wrong' }
+    ];
+
+    // ============================================
+    // PATTERN MATCHING DATA
+    // ============================================
+    const patterns = [
+      { id: 1, text: 'Losses occur repeatedly from the northwest corner, but never from other storage areas', correctCause: 'structural' },
+      { id: 2, text: 'Losses appear only on days when a specific worker is assigned to evening inventory', correctCause: 'theft' },
+      { id: 3, text: 'Losses spike during flood season, drop to near zero in dry months', correctCause: 'moisture' },
+      { id: 4, text: 'Losses correlate with number of disbursements made, regardless of total quantity', correctCause: 'spillage' }
+    ];
+
+    const causes = [
+      { id: 'structural', label: 'Structural damage (holes allowing pests)', icon: Building, correct: true },
+      { id: 'theft', label: 'Theft by specific individuals', icon: Users, correct: true },
+      { id: 'moisture', label: 'Moisture damage or mold', icon: CloudRain, correct: true },
+      { id: 'spillage', label: 'Spillage during loading/unloading', icon: Package, correct: true },
+      { id: 'counting', label: 'Counting errors by scribes', icon: Calculator, correct: false },
+      { id: 'general-rats', label: 'General rat infestation throughout', icon: TrendingUp, correct: false }
+    ];
+
+    // ============================================
+    // HELPER COMPONENTS
+    // ============================================
+
+    const NarrativeBlock = ({ children }) => (
+      <div
+        className="p-4 rounded-lg mb-4 border-l-4"
+        style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+      >
+        <p className="italic" style={{ color: colors.earthDark }}>{children}</p>
+      </div>
+    );
+
+    const DialogueBlock = ({ speaker, children }) => (
+      <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: colors.clayLight }}>
+        <p className="font-bold mb-2" style={{ color: colors.primary }}>{speaker}:</p>
+        <p className="italic" style={{ color: colors.earthDark }}>"{children}"</p>
+      </div>
+    );
+
+    const InsightPanel = ({ title, children }) => (
+      <div
+        className="p-4 rounded-lg border-2 mb-4"
+        style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+      >
+        <div className="flex items-start gap-2">
+          <Lightbulb className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+          <div>
+            {title && <p className="font-bold mb-2" style={{ color: colors.success }}>{title}</p>}
+            <div style={{ color: '#166534' }}>{children}</div>
+          </div>
+        </div>
+      </div>
+    );
+
+    const WarningPanel = ({ title, children }) => (
+      <div
+        className="p-4 rounded-lg border-2 mb-4"
+        style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}
+      >
+        <div className="flex items-start gap-2">
+          <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.warning }} />
+          <div>
+            {title && <p className="font-bold mb-2" style={{ color: '#92400e' }}>{title}</p>}
+            <div style={{ color: '#92400e' }}>{children}</div>
+          </div>
+        </div>
+      </div>
+    );
+
+    const TAccountTablet = ({ title, received = [], distributed = [], showBalance = true, note = null }) => {
+      const receivedTotal = received.reduce((sum, e) => sum + (e.amount || 0), 0);
+      const distributedTotal = distributed.reduce((sum, e) => sum + (e.amount || 0), 0);
+      const unit = received[0]?.unit || distributed[0]?.unit || 'garu';
+
+      return (
+        <div
+          className="rounded-lg border-2 overflow-hidden mb-4"
+          style={{ backgroundColor: colors.clay, borderColor: colors.clayDark }}
+        >
+          {/* Title */}
+          <div
+            className="py-2 text-center font-bold border-b-2"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark, color: colors.earthDark }}
+          >
+            {title}
+          </div>
+
+          {/* Two-column header */}
+          <div className="grid grid-cols-2 border-b-2" style={{ borderColor: colors.clayDark }}>
+            <div
+              className="py-2 text-center font-bold text-sm border-r"
+              style={{ borderColor: colors.earthLight, color: colors.earthDark }}
+            >
+              RECEIVED
+            </div>
+            <div className="py-2 text-center font-bold text-sm" style={{ color: colors.earthDark }}>
+              DISTRIBUTED
+            </div>
+          </div>
+
+          {/* Entry rows */}
+          <div className="grid grid-cols-2">
+            {/* Left column - Received/Inflows */}
+            <div className="border-r p-3 space-y-1" style={{ borderColor: colors.earthLight }}>
+              {received.length > 0 ? received.map((entry, i) => (
+                <div key={i} className="flex justify-between text-sm gap-2">
+                  <span style={{ color: colors.earthDark }}>{entry.label}</span>
+                  <span className="font-mono whitespace-nowrap" style={{ color: colors.primary }}>{entry.value}</span>
+                </div>
+              )) : (
+                <div className="text-sm italic" style={{ color: colors.earth }}>—</div>
+              )}
+              {received.length > 0 && (
+                <div className="flex justify-between pt-2 mt-2 border-t font-bold text-sm" style={{ borderColor: colors.earthLight }}>
+                  <span style={{ color: colors.earthDark }}>Total:</span>
+                  <span className="font-mono" style={{ color: colors.primary }}>
+                    {receivedTotal} {unit}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Right column - Distributed/Outflows */}
+            <div className="p-3 space-y-1">
+              {distributed.length > 0 ? distributed.map((entry, i) => (
+                <div key={i} className="flex justify-between text-sm gap-2">
+                  <span style={{ color: colors.earthDark }}>{entry.label}</span>
+                  <span className="font-mono whitespace-nowrap" style={{ color: colors.primary }}>{entry.value}</span>
+                </div>
+              )) : (
+                <div className="text-sm italic" style={{ color: colors.earth }}>—</div>
+              )}
+              {distributed.length > 0 && (
+                <div className="flex justify-between pt-2 mt-2 border-t font-bold text-sm" style={{ borderColor: colors.earthLight }}>
+                  <span style={{ color: colors.earthDark }}>Total:</span>
+                  <span className="font-mono" style={{ color: colors.primary }}>
+                    {distributedTotal} {unit}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Note field (for causes, etc.) */}
+          {note && (
+            <div
+              className="border-t px-3 py-2 text-sm"
+              style={{ borderColor: colors.clayDark, backgroundColor: colors.clayLight }}
+            >
+              <span style={{ color: colors.earthDark }}>{note}</span>
+            </div>
+          )}
+
+          {/* Balance calculation */}
+          {showBalance && (received.length > 0 || distributed.length > 0) && (
+            <div
+              className="border-t-2 p-3 text-center"
+              style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark }}
+            >
+              <div className="text-xs mb-1" style={{ color: colors.earthDark }}>
+                RECEIVED − DISTRIBUTED
+              </div>
+              <div className="font-mono font-bold" style={{ color: colors.primary }}>
+                {receivedTotal} − {distributedTotal}
+              </div>
+              <div className="mt-2 text-xs font-bold" style={{ color: colors.earthDark }}>
+                SHOULD REMAIN
+              </div>
+              <div className="font-mono text-lg font-bold" style={{ color: colors.primary }}>
+                {receivedTotal - distributedTotal} {unit}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // Legacy TabletDisplay for simple displays (will be phased out)
+    const TabletDisplay = ({ title, entries }) => (
+      <div
+        className="p-4 rounded-lg border-2 mb-4"
+        style={{ backgroundColor: colors.clay, borderColor: colors.clayDark }}
+      >
+        <p className="font-bold text-center mb-3" style={{ color: colors.earthDark }}>{title}</p>
+        <div className="space-y-2">
+          {entries.map((entry, i) => (
+            <div key={i} className="flex justify-between px-2 py-1 rounded" style={{ backgroundColor: colors.clayLight }}>
+              <span style={{ color: colors.earthDark }}>{entry.label}</span>
+              <span className="font-mono font-bold" style={{ color: colors.primary }}>{entry.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
+    const GranaryArea = ({ name, icon: Icon, description, isClickable, isInvestigated, hasClue, onClick }) => (
+      <div
+        className={`p-4 rounded-lg border-2 transition-all ${isClickable && !isInvestigated ? 'cursor-pointer hover:shadow-lg' : ''}`}
+        style={{
+          backgroundColor: isInvestigated ? (hasClue ? colors.warningBg : colors.clayLight) : colors.clay,
+          borderColor: isInvestigated ? (hasClue ? colors.warning : colors.earthLight) : colors.clayDark,
+          opacity: isInvestigated && !hasClue ? 0.7 : 1
+        }}
+        onClick={isClickable && !isInvestigated ? onClick : undefined}
+      >
+        <div className="flex items-center gap-2 mb-2">
+          {Icon && <Icon className="w-5 h-5" style={{ color: hasClue ? colors.warning : colors.earthDark }} />}
+          <span className="font-bold" style={{ color: hasClue ? '#92400e' : colors.earthDark }}>{name}</span>
+        </div>
+        <p className="text-sm" style={{ color: colors.earthDark }}>{description}</p>
+        {isInvestigated && !hasClue && (
+          <p className="text-sm mt-2 italic" style={{ color: colors.earth }}>Nothing unusual found.</p>
+        )}
+        {hasClue && isInvestigated && (
+          <p className="text-sm mt-2 font-bold" style={{ color: '#92400e' }}>Evidence found!</p>
+        )}
+      </div>
+    );
+
+    // ============================================
+    // MAIN COMPONENT
+    // ============================================
+    const Tutorial25DisciplineOfBalance = () => {
+      // Phase control
+      const [phase, setPhase] = useState('welcome');
+
+      // Report phase
+      const [reportStep, setReportStep] = useState(0);
+
+      // Calculation phase
+      const [missingAnswer, setMissingAnswer] = useState('');
+      const [missingSubmitted, setMissingSubmitted] = useState(false);
+      const [missingAttempts, setMissingAttempts] = useState(0);
+
+      // Investigation phase
+      const [investigatedAreas, setInvestigatedAreas] = useState([]);
+      const [foundClue, setFoundClue] = useState(false);
+      const [investigationStep, setInvestigationStep] = useState(0);
+
+      // Discipline phase
+      const [disciplineStep, setDisciplineStep] = useState(0);
+      const [choseWrongPath, setChoseWrongPath] = useState(false);
+      const [wrongPathStep, setWrongPathStep] = useState(0);
+
+      // Patterns phase
+      const [patternAssignments, setPatternAssignments] = useState({});
+      const [draggedCause, setDraggedCause] = useState(null);
+      const [patternSubmitted, setPatternSubmitted] = useState(false);
+      const [patternResults, setPatternResults] = useState(null);
+      const [patternAttempts, setPatternAttempts] = useState(0);
+
+      // Reflection phase
+      const [reflectionAnswer, setReflectionAnswer] = useState('');
+      const [reflectionSubmitted, setReflectionSubmitted] = useState(false);
+      const [reflectionAttempts, setReflectionAttempts] = useState(0);
+
+      // UI state
+      const [showGlossary, setShowGlossary] = useState(false);
+      const [devMode, setDevMode] = useState(false);
+      const [headerClickCount, setHeaderClickCount] = useState(0);
+
+      // ============================================
+      // HANDLERS
+      // ============================================
+
+      const handleHeaderClick = () => {
+        const newCount = headerClickCount + 1;
+        setHeaderClickCount(newCount);
+        if (newCount >= 2) {
+          setDevMode(!devMode);
+          setHeaderClickCount(0);
+        }
+      };
+
+      const handleRestart = () => {
+        setPhase('welcome');
+        setReportStep(0);
+        setMissingAnswer('');
+        setMissingSubmitted(false);
+        setMissingAttempts(0);
+        setInvestigatedAreas([]);
+        setFoundClue(false);
+        setInvestigationStep(0);
+        setDisciplineStep(0);
+        setChoseWrongPath(false);
+        setWrongPathStep(0);
+        setPatternAssignments({});
+        setDraggedCause(null);
+        setPatternSubmitted(false);
+        setPatternResults(null);
+        setPatternAttempts(0);
+        setReflectionAnswer('');
+        setReflectionSubmitted(false);
+        setReflectionAttempts(0);
+      };
+
+      const handleMissingSubmit = () => {
+        const answer = missingAnswer.trim().toLowerCase();
+        const isCorrect = answer === '2' || answer === 'two' || answer === '2 sila' || answer === 'two sila';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setMissingSubmitted(true);
+        } else {
+          const newAttempts = missingAttempts + 1;
+          setMissingAttempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setMissingSubmitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      const handleInvestigateArea = (areaId) => {
+        if (!investigatedAreas.includes(areaId)) {
+          setInvestigatedAreas([...investigatedAreas, areaId]);
+          if (areaId === 'northwest') {
+            setFoundClue(true);
+            playSuccessTone();
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      const handlePatternDrop = (patternId) => {
+        if (draggedCause && !patternSubmitted) {
+          setPatternAssignments({ ...patternAssignments, [patternId]: draggedCause });
+          setDraggedCause(null);
+        }
+      };
+
+      const handlePatternSubmit = () => {
+        const results = {};
+        let allCorrect = true;
+
+        patterns.forEach(pattern => {
+          const assigned = patternAssignments[pattern.id];
+          const correct = assigned === pattern.correctCause;
+          results[pattern.id] = correct;
+          if (!correct) allCorrect = false;
+        });
+
+        setPatternResults(results);
+
+        if (allCorrect) {
+          playSuccessTone();
+          setPatternSubmitted(true);
+        } else {
+          const newAttempts = patternAttempts + 1;
+          setPatternAttempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            // Auto-fill correct answers
+            const correctAssignments = {};
+            patterns.forEach(p => { correctAssignments[p.id] = p.correctCause; });
+            setPatternAssignments(correctAssignments);
+            setPatternSubmitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      const handleReflectionSubmit = () => {
+        if (reflectionAnswer.trim().length < 20) {
+          playSoftNope();
+          return;
+        }
+
+        const lower = reflectionAnswer.toLowerCase();
+        const keywords = ['information', 'mystery', 'explain', 'pattern', 'track', 'data', 'record', 'name', 'transaction', 'understand', 'know', 'learn', 'discover', 'reveal'];
+        const hasKeyword = keywords.some(k => lower.includes(k));
+
+        if (hasKeyword || reflectionAnswer.trim().length >= 30) {
+          playSuccessTone();
+          setReflectionSubmitted(true);
+        } else {
+          const newAttempts = reflectionAttempts + 1;
+          setReflectionAttempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setReflectionSubmitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Progress calculation
+      const phaseOrder = ['welcome', 'report', 'calculation', 'investigation', 'discipline', 'patterns', 'reflection', 'complete'];
+      const currentPhaseIndex = phaseOrder.indexOf(phase);
+      const progress = Math.round((currentPhaseIndex / (phaseOrder.length - 1)) * 100);
+
+      // ============================================
+      // RENDER PHASES
+      // ============================================
+
+      const renderWelcome = () => (
+        <div className="space-y-6">
+          <NarrativeBlock>
+            Months have passed since the Central Record Hall opened its doors. The system you proposed —
+            "Tablets That Speak with One Voice," they call it now — has transformed how the kingdom tracks its grain.
+          </NarrativeBlock>
+
+          <NarrativeBlock>
+            Every evening, scribes from each department bring their tablets to the great hall.
+            Every transaction is verified: what leaves one account must enter another.
+            The counts must agree. They always do.
+          </NarrativeBlock>
+
+          <NarrativeBlock>
+            Master Nabu-rimanni visits less often now. "You have outgrown my teaching," he said,
+            with something like pride. The Central Record Hall is your domain.
+          </NarrativeBlock>
+
+          <DialogueBlock speaker="A messenger arrives">
+            Ili-ippalsam, Manager of the Royal Granary, requests your presence. There is... a discrepancy.
+          </DialogueBlock>
+
+          <NarrativeBlock>
+            A discrepancy? The word feels wrong. In all these months, not once have the evening
+            reconciliations found the two sides of a transaction in disagreement. The system works.
+            It always works.
+          </NarrativeBlock>
+
+          <p className="text-center" style={{ color: colors.earthDark }}>
+            You gather your writing tools and head for the Granary.
+          </p>
+
+          <div className="p-4 rounded-lg border-2" style={{ backgroundColor: colors.clayLight, borderColor: colors.accent }}>
+            <p className="font-bold mb-2" style={{ color: colors.primary }}>In This Tutorial</p>
+            <ul className="space-y-1 text-sm" style={{ color: colors.earthDark }}>
+              <li>• You'll investigate a discrepancy between records and physical reality</li>
+              <li>• You'll discover why "just adjusting the numbers" feels wrong</li>
+              <li>• You'll learn the Discipline of Balance — a choice that transforms mysteries into information</li>
+            </ul>
+            <p className="text-sm mt-3 italic" style={{ color: colors.earth }}>~10 minutes</p>
+          </div>
+
+          <button
+            className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+            style={{ backgroundColor: colors.primary }}
+            onClick={() => { playContinueClick(); setPhase('report'); }}
+          >
+            Go to the Granary <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      );
+
+      const renderReport = () => (
+        <div className="space-y-6">
+          {reportStep === 0 && (
+            <>
+              <NarrativeBlock>
+                Ili-ippalsam meets you at the granary entrance. He looks troubled — not panicked,
+                but genuinely puzzled. This is not the face of a man who has found an error between departments.
+              </NarrativeBlock>
+
+              <DialogueBlock speaker="Ili-ippalsam">
+                Thank you for coming. I... I'm not sure how to explain this. The records are perfect.
+                Both sides of every transaction agree. The Central Record Hall confirmed it this morning.
+                But something is wrong.
+              </DialogueBlock>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setReportStep(1); }}
+              >
+                Show Me <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {reportStep === 1 && (
+            <>
+              <DialogueBlock speaker="Ili-ippalsam">
+                Yesterday evening, we verified 55 buru 10 garu in storage. The count was witnessed and sealed.
+              </DialogueBlock>
+
+              <TAccountTablet
+                title="GRANARY — Day 14, Month of Nisannu"
+                received={[
+                  { label: 'Carried forward', value: '55 buru 10 garu', amount: 5510, unit: 'garu' }
+                ]}
+                distributed={[]}
+                showBalance={false}
+                note="✓ Verified by physical count"
+              />
+
+              <DialogueBlock speaker="Ili-ippalsam">
+                Today, we received 45 garu from the Tax Assessor — properly verified at both ends.
+                We disbursed 50 garu to the Construction Projects — again, both tablets agree.
+              </DialogueBlock>
+
+              <TAccountTablet
+                title="GRANARY — Day 15, Month of Nisannu"
+                received={[
+                  { label: 'Carried forward', value: '55 buru 10 garu', amount: 5510, unit: 'garu' },
+                  { label: 'From Tax Assessor', value: '45 garu', amount: 45, unit: 'garu' }
+                ]}
+                distributed={[
+                  { label: 'To Construction', value: '50 garu', amount: 50, unit: 'garu' }
+                ]}
+                showBalance={true}
+                note="✓ All transactions verified by Central Record Hall"
+              />
+
+              <DialogueBlock speaker="Ili-ippalsam">
+                By our calculations, we should have 55 buru 5 garu remaining. But when we counted this evening...
+              </DialogueBlock>
+
+              <div
+                className="p-4 rounded-lg border-2 mb-4"
+                style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}
+              >
+                <p className="font-bold text-center mb-3" style={{ color: '#92400e' }}>THIS EVENING'S COUNT</p>
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div>
+                    <p className="text-sm" style={{ color: colors.earthDark }}>Expected</p>
+                    <p className="font-mono font-bold text-lg" style={{ color: colors.primary }}>55 buru 5 garu</p>
+                  </div>
+                  <div>
+                    <p className="text-sm" style={{ color: colors.earthDark }}>Actual Count</p>
+                    <p className="font-mono font-bold text-lg" style={{ color: colors.error }}>55 buru 4 garu 8 sila</p>
+                  </div>
+                </div>
+              </div>
+
+              <WarningPanel title="The Discrepancy">
+                <p>This wasn't an error between departments — all the transactions were recorded correctly.
+                The Tablets That Speak with One Voice confirmed it. The Tax Assessor's records agree with ours.
+                The Construction Projects received exactly what we sent.</p>
+                <p className="mt-2 font-bold">The grain itself is missing.</p>
+              </WarningPanel>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setPhase('calculation'); }}
+              >
+                Calculate the Missing Amount <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </div>
+      );
+
+      const renderCalculation = () => (
+        <div className="space-y-6">
+          <NarrativeBlock>
+            You study the tablets carefully. The expected amount was 55 buru 5 garu.
+            The actual count shows 55 buru 4 garu 8 sila.
+          </NarrativeBlock>
+
+          <div className="p-4 rounded-lg border-2" style={{ backgroundColor: colors.clay, borderColor: colors.clayDark }}>
+            <p className="font-bold mb-2" style={{ color: colors.earthDark }}>Remember:</p>
+            <ul className="text-sm space-y-1" style={{ color: colors.earthDark }}>
+              <li>• 1 garu = 10 sila</li>
+              <li>• Expected: 5 garu = 50 sila</li>
+              <li>• Actual: 4 garu 8 sila = 48 sila</li>
+            </ul>
+          </div>
+
+          <div className="p-4 rounded-lg border-2" style={{ backgroundColor: colors.clayLight, borderColor: colors.earthLight }}>
+            <label className="block font-bold mb-2" style={{ color: colors.primary }}>
+              How many sila are missing?
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={missingAnswer}
+                onChange={(e) => setMissingAnswer(e.target.value)}
+                disabled={missingSubmitted}
+                placeholder="Enter your answer..."
+                className="flex-1 p-2 border rounded"
+                style={{ borderColor: colors.earthLight }}
+              />
+              {!missingSubmitted && (
+                <button
+                  onClick={handleMissingSubmit}
+                  className="px-4 py-2 rounded font-bold text-white"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Check
+                </button>
+              )}
+            </div>
+
+            {missingAttempts > 0 && !missingSubmitted && (
+              <p className="text-sm mt-2" style={{ color: colors.warning }}>
+                {missingAttempts === 1 && "Hint: Calculate 50 sila minus 48 sila."}
+                {missingAttempts === 2 && "Hint: The difference between 50 and 48 is..."}
+              </p>
+            )}
+
+            {missingSubmitted && (
+              <div
+                className="mt-3 p-3 rounded-lg border-l-4"
+                style={{
+                  backgroundColor: missingAttempts < 3 ? colors.successBg : colors.warningBg,
+                  borderColor: missingAttempts < 3 ? colors.success : colors.warning
+                }}
+              >
+                <p className="font-bold" style={{ color: missingAttempts < 3 ? '#166534' : '#92400e' }}>
+                  {missingAttempts < 3 ? '✓ Correct!' : 'The answer is 2 sila.'}
+                </p>
+                <p className="text-sm mt-1" style={{ color: missingAttempts < 3 ? '#166534' : '#92400e' }}>
+                  Expected 50 sila, found 48 sila. Two sila of grain — about three liters — have vanished.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {missingSubmitted && (
+            <>
+              <InsightPanel>
+                <p>Two sila isn't much — barely enough to fill a jug. But that's not what troubles you.
+                The Tablets That Speak with One Voice caught errors between departments. This is something different.
+                The transactions all agree. The grain simply... isn't there.</p>
+              </InsightPanel>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setPhase('investigation'); }}
+              >
+                Investigate the Granary <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </div>
+      );
+
+      const renderInvestigation = () => (
+        <div className="space-y-6">
+          {investigationStep === 0 && (
+            <>
+              <NarrativeBlock>
+                You walk through the granary, torch in hand. The vast storage chambers stretch into shadow.
+                Somewhere in here, two sila of grain have gone missing. But where? And how?
+              </NarrativeBlock>
+
+              <p className="font-bold" style={{ color: colors.primary }}>
+                Click on areas to investigate. Look for anything unusual.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <GranaryArea
+                  name="Main Storage"
+                  icon={Building}
+                  description="Rows of grain containers, neatly organized."
+                  isClickable={true}
+                  isInvestigated={investigatedAreas.includes('main')}
+                  hasClue={false}
+                  onClick={() => handleInvestigateArea('main')}
+                />
+                <GranaryArea
+                  name="Northwest Corner"
+                  icon={Search}
+                  description="A shadowed corner near the outer wall."
+                  isClickable={true}
+                  isInvestigated={investigatedAreas.includes('northwest')}
+                  hasClue={investigatedAreas.includes('northwest')}
+                  onClick={() => handleInvestigateArea('northwest')}
+                />
+                <GranaryArea
+                  name="Loading Bay"
+                  icon={Package}
+                  description="Where grain is received and disbursed."
+                  isClickable={true}
+                  isInvestigated={investigatedAreas.includes('loading')}
+                  hasClue={false}
+                  onClick={() => handleInvestigateArea('loading')}
+                />
+                <GranaryArea
+                  name="Scribe's Station"
+                  icon={BookOpen}
+                  description="Recording tablets and measuring tools."
+                  isClickable={true}
+                  isInvestigated={investigatedAreas.includes('scribe')}
+                  hasClue={false}
+                  onClick={() => handleInvestigateArea('scribe')}
+                />
+              </div>
+
+              {foundClue && (
+                <>
+                  <WarningPanel title="Discovery in the Northwest Corner">
+                    <p>Your torch illuminates a small hole in the wall — no larger than a fist —
+                    where the mortar has crumbled between two bricks. Around it, you find tiny grain
+                    hulls and unmistakable droppings.</p>
+                    <p className="mt-2 font-bold">Rats. They've found a way into the storehouse.</p>
+                  </WarningPanel>
+
+                  <button
+                    className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                    style={{ backgroundColor: colors.primary }}
+                    onClick={() => { playContinueClick(); setInvestigationStep(1); }}
+                  >
+                    Continue <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+
+              {investigatedAreas.length >= 3 && !foundClue && (
+                <p className="text-center italic" style={{ color: colors.earth }}>
+                  Keep looking. Check areas you haven't investigated yet.
+                </p>
+              )}
+            </>
+          )}
+
+          {investigationStep === 1 && (
+            <>
+              <NarrativeBlock>
+                Relief washes over you. It's not theft. It's not a calculation error. It's not a conspiracy
+                between departments. Just rats — a maintenance problem that can be fixed.
+              </NarrativeBlock>
+
+              <DialogueBlock speaker="Ili-ippalsam">
+                So we found the cause. I'll have workers seal the hole tomorrow. But what about the
+                records? Should I just... adjust the count? Reset it to match what we actually have?
+              </DialogueBlock>
+
+              <NarrativeBlock>
+                His suggestion seems reasonable. The count says 55 buru 5 garu. You only have 55 buru
+                4 garu 8 sila. Just change the number. Problem solved.
+              </NarrativeBlock>
+
+              <NarrativeBlock>
+                But something about this makes you uneasy. You can't quite say why.
+              </NarrativeBlock>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setInvestigationStep(2); }}
+              >
+                Consider This Carefully <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {investigationStep === 2 && (
+            <>
+              <NarrativeBlock>
+                You walk back to the Central Record Hall, turning the problem over in your mind.
+                Ili-ippalsam's suggestion echoes: "Just adjust the count."
+              </NarrativeBlock>
+
+              <NarrativeBlock>
+                Until now, every entry on every tablet corresponded to something you witnessed —
+                grain arriving, grain being disbursed. Real movements of real grain, observed by
+                real scribes, verified at both ends.
+              </NarrativeBlock>
+
+              <WarningPanel title="The Source of Your Unease">
+                <p>Adjusting based on a count that doesn't match... that feels different.
+                It would be changing the tablet based on an absence, not an observed flow.
+                No one saw 2 sila leave. You're being asked to erase it from existence.</p>
+              </WarningPanel>
+
+              <NarrativeBlock>
+                But what alternative is there? The grain is gone. The tablets must reflect reality.
+                Mustn't they?
+              </NarrativeBlock>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setPhase('discipline'); }}
+              >
+                Ponder the Problem <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </div>
+      );
+
+      const renderDiscipline = () => (
+        <div className="space-y-6">
+          {/* Step 0: The discomfort articulated */}
+          {disciplineStep === 0 && !choseWrongPath && (
+            <>
+              <NarrativeBlock>
+                Late that night, alone in your chamber with the afternoon shadows stretching long,
+                you finally understand what troubles you.
+              </NarrativeBlock>
+
+              <InsightPanel title="The Heart of the Matter">
+                <p>Every entry in your system represents a named flow — a specific, witnessed
+                event. "Received from Tax Assessor: 45 garu." "Disbursed to Construction: 50 garu."
+                Grain came from somewhere. Grain went to somewhere.</p>
+                <p className="mt-2">If you simply adjust the count to match physical reality, you're
+                creating an entry that represents... what? "Changed the number because it was wrong"?</p>
+                <p className="mt-2 font-bold">That's not a flow. That's erasing a mystery
+                instead of solving it.</p>
+              </InsightPanel>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setDisciplineStep(1); }}
+              >
+                Continue <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {/* Step 1: The choice */}
+          {disciplineStep === 1 && !choseWrongPath && (
+            <>
+              <NarrativeBlock>
+                You face a choice. Ili-ippalsam awaits your decision on how to handle the discrepancy.
+              </NarrativeBlock>
+
+              <div
+                className="p-4 rounded-lg border-2 mb-4"
+                style={{ backgroundColor: colors.clayLight, borderColor: colors.primary }}
+              >
+                <p className="font-bold mb-4" style={{ color: colors.primary }}>
+                  What will you do?
+                </p>
+
+                <div className="space-y-3">
+                  <button
+                    className="w-full p-4 rounded-lg border-2 text-left hover:shadow-lg transition-all"
+                    style={{ backgroundColor: colors.clay, borderColor: colors.earthLight }}
+                    onClick={() => {
+                      playContinueClick();
+                      setChoseWrongPath(true);
+                      setWrongPathStep(0);
+                    }}
+                  >
+                    <p className="font-bold" style={{ color: colors.earthDark }}>
+                      "Adjust the record and move on"
+                    </p>
+                    <p className="text-sm mt-1" style={{ color: colors.earth }}>
+                      Change the count to match reality. The grain is gone — the tablets should reflect that.
+                    </p>
+                  </button>
+
+                  <button
+                    className="w-full p-4 rounded-lg border-2 text-left hover:shadow-lg transition-all"
+                    style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+                    onClick={() => { playContinueClick(); setDisciplineStep(2); }}
+                  >
+                    <p className="font-bold" style={{ color: colors.primary }}>
+                      "Wait — there must be another way"
+                    </p>
+                    <p className="text-sm mt-1" style={{ color: colors.earthDark }}>
+                      Something about simply adjusting feels wrong. There should be a way to record
+                      what happened while preserving the information.
+                    </p>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Wrong path sequence */}
+          {choseWrongPath && wrongPathStep === 0 && (
+            <>
+              <NarrativeBlock>
+                You tell Ili-ippalsam to adjust the count. He nods, makes the change.
+                The tablets now show 55 buru 4 garu 8 sila. Numbers match reality. Done.
+              </NarrativeBlock>
+
+              <TAccountTablet
+                title="GRANARY — Adjusted"
+                received={[
+                  { label: 'Balance (corrected)', value: '55 buru 4 garu 8 sila', amount: 5548, unit: 'sila' }
+                ]}
+                distributed={[]}
+                showBalance={false}
+                note="Note: Count correction"
+              />
+
+              <p className="text-center italic" style={{ color: colors.earth }}>
+                One month passes...
+              </p>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setWrongPathStep(1); }}
+              >
+                Continue <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {choseWrongPath && wrongPathStep === 1 && (
+            <>
+              <DialogueBlock speaker="Ili-ippalsam returns">
+                Another discrepancy. Three sila this time. Same situation — all transactions verified,
+                but the count is short.
+              </DialogueBlock>
+
+              <NarrativeBlock>
+                You tell him to adjust again. He does.
+              </NarrativeBlock>
+
+              <p className="text-center italic" style={{ color: colors.earth }}>
+                Three months pass...
+              </p>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setWrongPathStep(2); }}
+              >
+                Continue <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {choseWrongPath && wrongPathStep === 2 && (
+            <>
+              <DialogueBlock speaker="Ili-ippalsam, looking worried">
+                The losses seem frequent. Almost every week now. The King is asking questions about
+                our efficiency.
+              </DialogueBlock>
+
+              <NarrativeBlock>
+                You ask: How much total? Which storage areas? Is it getting worse?
+              </NarrativeBlock>
+
+              <DialogueBlock speaker="Ili-ippalsam">
+                I... I don't know. The tablets only show current balances. Each time we adjusted,
+                we just changed the number. There's no record of how much we've lost, or when,
+                or where.
+              </DialogueBlock>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setWrongPathStep(3); }}
+              >
+                Continue <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {choseWrongPath && wrongPathStep === 3 && (
+            <>
+              <WarningPanel title="The Consequence of Erasing">
+                <p>By adjusting without recording, you've been erasing the very information
+                that could reveal patterns. Each "correction" wiped away a data point.</p>
+                <p className="mt-2">Are the losses from one area? Are they getting worse?
+                Is someone stealing? Is there structural damage?</p>
+                <p className="mt-2 font-bold">You'll never know. The mysteries were erased
+                instead of solved.</p>
+              </WarningPanel>
+
+              <NarrativeBlock>
+                There must have been a better way...
+              </NarrativeBlock>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.warning, color: '#92400e' }}
+                onClick={() => {
+                  playContinueClick();
+                  setChoseWrongPath(false);
+                  setWrongPathStep(0);
+                  setDisciplineStep(1);
+                }}
+              >
+                <RotateCcw className="w-5 h-5" /> Return and Reconsider
+              </button>
+            </>
+          )}
+
+          {/* Right path: Step 2 - The Aha Moment */}
+          {disciplineStep === 2 && !choseWrongPath && (
+            <>
+              <NarrativeBlock>
+                You pace the chamber, thinking. The grain is gone — that's reality. But simply
+                adjusting the number means losing information about what happened.
+              </NarrativeBlock>
+
+              <NarrativeBlock>
+                Then it strikes you.
+              </NarrativeBlock>
+
+              <InsightPanel title="The Breakthrough">
+                <p className="font-bold">The grain did leave. The rats took it.</p>
+                <p className="mt-2">That's a real physical flow — just like grain going to
+                construction workers or tax collectors. The grain moved from the granary to...
+                the rats. You didn't observe it, but it happened.</p>
+                <p className="mt-2">What if you recorded it that way? Not as an adjustment,
+                but as an outflow — to a destination called "Losses"?</p>
+              </InsightPanel>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setDisciplineStep(3); }}
+              >
+                Develop This Idea <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {/* Step 3: The Losses Tablets */}
+          {disciplineStep === 3 && !choseWrongPath && (
+            <>
+              <NarrativeBlock>
+                The next morning, you present your solution to Ili-ippalsam.
+              </NarrativeBlock>
+
+              <DialogueBlock speaker="You">
+                We will create a new set of tablets. Call them "Losses." When we discover a
+                discrepancy, we record it as an outflow — grain that left the granary and went
+                to Losses. Two sila, gone to the rats.
+              </DialogueBlock>
+
+              <DialogueBlock speaker="Ili-ippalsam, raising an eyebrow">
+                Another set of tablets? For... rats?
+              </DialogueBlock>
+
+              <DialogueBlock speaker="You">
+                For anything that takes grain without being witnessed. Rats. Spillage. Rot.
+                Even theft. The grain went somewhere — we give that somewhere a name.
+              </DialogueBlock>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <TAccountTablet
+                  title="GRANARY TABLETS"
+                  received={[
+                    { label: 'Previous balance', value: '55 buru 5 garu', amount: 5550, unit: 'sila' }
+                  ]}
+                  distributed={[
+                    { label: 'To Losses', value: '2 sila', amount: 2, unit: 'sila' }
+                  ]}
+                  showBalance={true}
+                />
+                <TAccountTablet
+                  title="LOSSES TABLETS"
+                  received={[
+                    { label: 'From Granary', value: '2 sila', amount: 2, unit: 'sila' }
+                  ]}
+                  distributed={[]}
+                  showBalance={true}
+                  note="Cause: Rats, northwest wall"
+                />
+              </div>
+
+              <DialogueBlock speaker="Ili-ippalsam, eyes widening">
+                The counts balance! The Granary shows 2 sila leaving, Losses shows 2 sila arriving.
+                And we've recorded where it went and why.
+              </DialogueBlock>
+
+              <DialogueBlock speaker="You">
+                The Tablets That Speak with One Voice — extended to cover even the flows we
+                don't witness.
+              </DialogueBlock>
+
+              <NarrativeBlock>
+                You think of the Central Record Hall, where all the tablets are gathered.
+                The reports that flow upward to the King.
+              </NarrativeBlock>
+
+              <DialogueBlock speaker="You">
+                And when these tablets go to the Central Record Hall — when the King receives
+                his report — he won't just see a smaller number. He'll see where it went.
+              </DialogueBlock>
+
+              <DialogueBlock speaker="Ili-ippalsam">
+                The Losses tablets become part of the record. The King sees everything.
+              </DialogueBlock>
+
+              <DialogueBlock speaker="You">
+                Not just "we have less grain." But "we have less grain, and here is why."
+                Information, not mystery.
+              </DialogueBlock>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setDisciplineStep(4); }}
+              >
+                Continue <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          {/* Step 4: The Principle */}
+          {disciplineStep === 4 && !choseWrongPath && (
+            <>
+              <NarrativeBlock>
+                You realize you've discovered something important — not just a technique,
+                but a principle.
+              </NarrativeBlock>
+
+              <InsightPanel title="The Discipline of Balance">
+                <p className="font-bold text-lg mb-2">
+                  "We choose to refuse unexplained adjustments."
+                </p>
+                <p>By demanding that every change be recorded as a named flow — with a source,
+                a destination, and a reason — we transform mysteries into information.</p>
+                <p className="mt-2">The grain didn't vanish — it flowed to Losses.
+                Now we know it happened. Now we can track it. Now we can look for patterns.</p>
+              </InsightPanel>
+
+              <DialogueBlock speaker="You">
+                From now on, no adjustment without a record. If grain is missing, it went
+                somewhere. We may not know exactly where — but "Losses" is still a destination
+                we can name and track.
+              </DialogueBlock>
+
+              <DialogueBlock speaker="Ili-ippalsam">
+                And if losses accumulate in one area... or happen on certain days...
+                we'd see it in the tablets.
+              </DialogueBlock>
+
+              <DialogueBlock speaker="You">
+                Exactly. What was once a mystery becomes data. What might have been silently
+                erased is now preserved.
+              </DialogueBlock>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setPhase('patterns'); }}
+              >
+                See the Power of Patterns <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </div>
+      );
+
+      const renderPatterns = () => (
+        <div className="space-y-6">
+          <NarrativeBlock>
+            Months later, the Losses tablets have accumulated records. You study them and
+            begin to see patterns emerging — patterns that would have been invisible if you'd
+            simply adjusted the counts in silence.
+          </NarrativeBlock>
+
+          <div
+            className="p-4 rounded-lg border-2"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.primary }}
+          >
+            <p className="font-bold mb-4" style={{ color: colors.primary }}>
+              Match each pattern to its most likely cause. Drag causes to patterns.
+            </p>
+
+            {/* Causes to drag */}
+            <div className="mb-4">
+              <p className="text-sm font-bold mb-2" style={{ color: colors.earthDark }}>Available Causes:</p>
+              <div className="flex flex-wrap gap-2">
+                {causes.map(cause => {
+                  const isUsed = Object.values(patternAssignments).includes(cause.id);
+                  const Icon = cause.icon;
+                  return (
+                    <div
+                      key={cause.id}
+                      draggable={!isUsed && !patternSubmitted}
+                      onDragStart={() => setDraggedCause(cause.id)}
+                      onDragEnd={() => setDraggedCause(null)}
+                      className={`px-3 py-2 rounded-lg border-2 flex items-center gap-2
+                        ${!isUsed && !patternSubmitted ? 'cursor-grab active:cursor-grabbing' : 'opacity-50'}`}
+                      style={{
+                        backgroundColor: isUsed ? colors.earthLight : colors.clay,
+                        borderColor: draggedCause === cause.id ? colors.accent : colors.clayDark
+                      }}
+                    >
+                      <Icon className="w-4 h-4" style={{ color: colors.earthDark }} />
+                      <span className="text-sm" style={{ color: colors.earthDark }}>{cause.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Patterns to receive drops */}
+            <div className="space-y-3">
+              {patterns.map(pattern => {
+                const assignedCause = patternAssignments[pattern.id];
+                const causeData = causes.find(c => c.id === assignedCause);
+                const Icon = causeData?.icon;
+                const isCorrect = patternResults?.[pattern.id];
+
+                return (
+                  <div
+                    key={pattern.id}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => handlePatternDrop(pattern.id)}
+                    className="p-3 rounded-lg border-2"
+                    style={{
+                      backgroundColor: patternSubmitted
+                        ? (isCorrect ? colors.successBg : colors.errorBg)
+                        : colors.sand,
+                      borderColor: patternSubmitted
+                        ? (isCorrect ? colors.success : colors.error)
+                        : (draggedCause ? colors.accent : colors.earthLight)
+                    }}
+                  >
+                    <p className="text-sm mb-2" style={{ color: colors.earthDark }}>
+                      "{pattern.text}"
+                    </p>
+                    <div
+                      className="p-2 rounded border-2 border-dashed min-h-[40px] flex items-center"
+                      style={{
+                        borderColor: assignedCause ? colors.clayDark : colors.earthLight,
+                        backgroundColor: assignedCause ? colors.clayLight : 'transparent'
+                      }}
+                    >
+                      {assignedCause ? (
+                        <div className="flex items-center gap-2">
+                          {Icon && <Icon className="w-4 h-4" style={{ color: colors.earthDark }} />}
+                          <span className="text-sm" style={{ color: colors.earthDark }}>
+                            {causeData?.label}
+                          </span>
+                          {!patternSubmitted && (
+                            <button
+                              onClick={() => {
+                                const newAssignments = { ...patternAssignments };
+                                delete newAssignments[pattern.id];
+                                setPatternAssignments(newAssignments);
+                              }}
+                              className="ml-auto"
+                            >
+                              <X className="w-4 h-4" style={{ color: colors.earth }} />
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-sm italic" style={{ color: colors.earth }}>
+                          Drop a cause here...
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {patternAttempts > 0 && !patternSubmitted && (
+              <p className="text-sm mt-3" style={{ color: colors.warning }}>
+                {patternAttempts === 1 && "Some matches are incorrect. Think about what each pattern reveals about the cause."}
+                {patternAttempts === 2 && "Hint: Location-specific patterns suggest location-specific causes. Time-based patterns suggest time-based causes."}
+              </p>
+            )}
+
+            {Object.keys(patternAssignments).length === 4 && !patternSubmitted && (
+              <button
+                className="w-full mt-4 py-3 rounded-lg font-bold text-white"
+                style={{ backgroundColor: colors.primary }}
+                onClick={handlePatternSubmit}
+              >
+                Check Matches
+              </button>
+            )}
+
+            {patternSubmitted && (
+              <div
+                className="mt-4 p-3 rounded-lg border-l-4"
+                style={{
+                  backgroundColor: patternAttempts < 3 ? colors.successBg : colors.warningBg,
+                  borderColor: patternAttempts < 3 ? colors.success : colors.warning
+                }}
+              >
+                <p className="font-bold" style={{ color: patternAttempts < 3 ? '#166534' : '#92400e' }}>
+                  {patternAttempts < 3 ? '✓ All patterns matched correctly!' : 'Here are the correct matches.'}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {patternSubmitted && (
+            <>
+              <InsightPanel title="The Power of Recorded Losses">
+                <p>By refusing to simply "adjust and forget," you've created tablets that reveal:</p>
+                <ul className="mt-2 space-y-1 text-sm">
+                  <li>• <strong>Where</strong> problems occur (structural vs. everywhere)</li>
+                  <li>• <strong>When</strong> problems occur (seasonal vs. continuous)</li>
+                  <li>• <strong>Who</strong> might be involved (personnel patterns)</li>
+                  <li>• <strong>How</strong> losses happen (during handling vs. in storage)</li>
+                </ul>
+                <p className="mt-2">None of this would exist if you'd simply erased each discrepancy.</p>
+              </InsightPanel>
+
+              <button
+                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setPhase('reflection'); }}
+              >
+                Continue to Reflection <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </div>
+      );
+
+      const renderReflection = () => (
+        <div className="space-y-6">
+          <NarrativeBlock>
+            Before you complete this lesson, reflect on what you've discovered.
+          </NarrativeBlock>
+
+          <div
+            className="p-4 rounded-lg border-2"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.primary }}
+          >
+            <label className="block font-bold mb-2" style={{ color: colors.primary }}>
+              Why does the Discipline of Balance demand that every change be recorded as a named
+              flow, rather than simply adjusting the numbers?
+            </label>
+
+            <textarea
+              value={reflectionAnswer}
+              onChange={(e) => setReflectionAnswer(e.target.value)}
+              disabled={reflectionSubmitted}
+              placeholder="Write your reflection here (at least 20 characters)..."
+              className="w-full p-3 border rounded-lg min-h-[100px]"
+              style={{ borderColor: colors.earthLight }}
+            />
+
+            {reflectionAttempts > 0 && !reflectionSubmitted && (
+              <p className="text-sm mt-2" style={{ color: colors.warning }}>
+                {reflectionAttempts === 1 && "Think about what happens to information when we simply adjust vs. when we record."}
+                {reflectionAttempts === 2 && "Consider: What did the Losses tablets reveal that silent adjustments would have hidden?"}
+              </p>
+            )}
+
+            {!reflectionSubmitted && (
+              <button
+                onClick={handleReflectionSubmit}
+                className="mt-3 px-6 py-2 rounded-lg font-bold text-white"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Submit Reflection
+              </button>
+            )}
+
+            {reflectionSubmitted && (
+              <div
+                className="mt-3 p-4 rounded-lg border-l-4"
+                style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+              >
+                <p className="font-bold mb-2" style={{ color: '#166534' }}>✓ Thank you for your reflection.</p>
+                <p className="text-sm" style={{ color: '#166534' }}>
+                  The Discipline of Balance transforms mysteries into information. When we refuse
+                  unexplained adjustments and instead record every change as a named flow — with
+                  source, destination, and cause — we preserve data that reveals patterns, identifies
+                  problems, and guides solutions. Silent adjustments erase; named flows illuminate.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {reflectionSubmitted && (
+            <button
+              className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+              style={{ backgroundColor: colors.primary }}
+              onClick={() => { playContinueClick(); setPhase('complete'); }}
+            >
+              Complete Tutorial <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      );
+
+      const renderComplete = () => (
+        <div className="space-y-6">
+          <div className="text-center py-6">
+            <Trophy className="w-16 h-16 mx-auto mb-4" style={{ color: colors.accent }} />
+            <h2 className="text-2xl font-bold mb-2" style={{ color: colors.primary }}>
+              Tutorial Complete!
+            </h2>
+            <p style={{ color: colors.earthDark }}>
+              You've discovered the Discipline of Balance.
+            </p>
+          </div>
+
+          <div
+            className="p-4 rounded-lg border-2"
+            style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+          >
+            <p className="font-bold mb-3" style={{ color: colors.primary }}>What You Learned:</p>
+            <ul className="space-y-2" style={{ color: colors.earthDark }}>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                <span>The Tablets That Speak with One Voice catch discrepancies between records, but discrepancies between records and reality require a different solution</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                <span>Simply adjusting numbers erases information; recording flows to named destinations preserves it</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                <span>The Losses tablets transform mysterious disappearances into trackable data — grain went somewhere, even if that somewhere is "rats"</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                <span>Patterns in recorded losses reveal causes that silent adjustments would hide forever</span>
+              </li>
+            </ul>
+          </div>
+
+          <InsightPanel title="Core Insight: The Discipline of Balance">
+            <p className="font-bold text-lg mb-2">
+              "We choose to refuse unexplained adjustments."
+            </p>
+            <p>
+              By demanding that every change be recorded as a named flow — with source, destination,
+              and cause — we transform mysteries into information. The discipline of balance isn't
+              a physical necessity — it's a choice we make to force explanation, preserve data,
+              and illuminate patterns that would otherwise remain hidden.
+            </p>
+          </InsightPanel>
+
+          <div
+            className="p-4 rounded-lg border-2"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.accent }}
+          >
+            <p className="font-bold mb-2" style={{ color: colors.primary }}>Coming Next: Tutorial 2.6</p>
+            <p style={{ color: colors.earthDark }}>
+              The discipline of balance ensures our records agree perfectly. Every flow is named.
+              Every loss is tracked.
+            </p>
+            <p className="mt-2 italic" style={{ color: colors.earth }}>
+              But what happens when the records are perfect... yet something is still wrong?
+            </p>
+            <p className="mt-2" style={{ color: colors.earthDark }}>
+              A new challenge awaits in the throne room.
+            </p>
+          </div>
+
+          <button
+            className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+            style={{ backgroundColor: colors.earth, color: 'white' }}
+            onClick={handleRestart}
+          >
+            <RefreshCw className="w-5 h-5" /> Restart Tutorial
+          </button>
+        </div>
+      );
+
+      // ============================================
+      // MAIN RENDER
+      // ============================================
+
+      return (
+        <div className="min-h-screen p-4 pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="max-w-2xl mx-auto pb-16">
+            {/* Header */}
+            <div
+              className="rounded-lg p-4 mb-6"
+              style={{ backgroundColor: colors.primary }}
+            >
+              <div
+                className="flex justify-between items-start cursor-pointer"
+                onClick={handleHeaderClick}
+              >
+                <div>
+                  <h1 className="text-xl font-bold text-white">
+                    Tutorial 2.5: The Discipline of Balance
+                  </h1>
+                  <p className="text-sm" style={{ color: colors.earthLight }}>
+                    Babylon, ~1794 BCE • ~10 min
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowGlossary(true); }}
+                  className="p-2 rounded-lg hover:bg-white/10"
+                >
+                  <BookOpen className="w-5 h-5 text-white" />
+                </button>
+              </div>
+
+              {/* Progress bar */}
+              <div className="mt-4">
+                <div className="flex justify-between text-xs text-white/70 mb-1">
+                  <span>Progress</span>
+                  <span>{progress}%</span>
+                </div>
+                <div className="h-2 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ width: `${progress}%`, backgroundColor: colors.accent }}
+                  />
+                </div>
+              </div>
+
+              {/* Dev mode & restart */}
+              {devMode && (
+                <div className="mt-3 pt-3 border-t border-white/20">
+                  <p className="text-xs text-white/70 mb-2">Dev Mode: Skip to phase</p>
+                  <div className="flex flex-wrap gap-2">
+                    {phaseOrder.map(p => (
+                      <button
+                        key={p}
+                        onClick={() => setPhase(p)}
+                        className={`px-2 py-1 rounded text-xs ${phase === p ? 'bg-white text-blue-900' : 'bg-white/20 text-white'}`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Restart button */}
+            {phase !== 'welcome' && phase !== 'complete' && (
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={handleRestart}
+                  className="flex items-center gap-1 text-sm px-3 py-1 rounded"
+                  style={{ color: colors.earth }}
+                >
+                  <RefreshCw className="w-4 h-4" /> Restart
+                </button>
+              </div>
+            )}
+
+            {/* Phase content */}
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-16">
+              {phase === 'welcome' && renderWelcome()}
+              {phase === 'report' && renderReport()}
+              {phase === 'calculation' && renderCalculation()}
+              {phase === 'investigation' && renderInvestigation()}
+              {phase === 'discipline' && renderDiscipline()}
+              {phase === 'patterns' && renderPatterns()}
+              {phase === 'reflection' && renderReflection()}
+              {phase === 'complete' && renderComplete()}
+            </div>
+
+            {/* Glossary Modal */}
+            {showGlossary && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-hidden">
+                  <div
+                    className="p-4 flex justify-between items-center"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    <h2 className="text-lg font-bold text-white">Glossary</h2>
+                    <button onClick={() => setShowGlossary(false)}>
+                      <X className="w-6 h-6 text-white" />
+                    </button>
+                  </div>
+                  <div className="p-4 overflow-y-auto max-h-[60vh]">
+                    <div className="space-y-4">
+                      {glossaryTerms.map((item, i) => (
+                        <div key={i} className="border-b pb-3" style={{ borderColor: colors.earthLight }}>
+                          <p className="font-bold" style={{ color: colors.primary }}>{item.term}</p>
+                          <p className="text-sm mt-1" style={{ color: colors.earthDark }}>{item.definition}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Tutorial25DisciplineOfBalance />);
+  </script>
+</body>
+</html>

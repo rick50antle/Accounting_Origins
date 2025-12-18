@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 2.1: The Scribe's Craft</title>
+
+  <!-- React 18, ReactDOM 18, Babel Standalone -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    /* Navigation Footer Styles */
+    .nav-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 2px solid #e5e7eb;
+      padding: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+    }
+
+    .nav-footer a {
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      font-size: 0.875rem;
+    }
+
+    .nav-footer .nav-prev {
+      background-color: #f3f4f6;
+      color: #374151;
+    }
+
+    .nav-footer .nav-prev:hover {
+      background-color: #e5e7eb;
+    }
+
+    .nav-footer .nav-hub {
+      background-color: #00356b;
+      color: white;
+    }
+
+    .nav-footer .nav-hub:hover {
+      opacity: 0.9;
+    }
+
+    .nav-footer .nav-next {
+      background-color: #00356b;
+      color: white;
+    }
+
+    .nav-footer .nav-next:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Navigation Footer -->
+  <div class="nav-footer">
+    <a href="act-2-welcome.html" class="nav-prev">← Previous</a>
+    <a href="../index.html" class="nav-hub">Hub</a>
+    <a href="tutorial-2-2.html" class="nav-next">Next →</a>
+  </div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // Inline SVG Icons as functional components
+    const ChevronRight = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    );
+
+    const Clock = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6l4 2" />
+      </svg>
+    );
+
+    const Book = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    );
+
+    const ScrollText = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    );
+
+    const CheckCircle = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+
+    const AlertCircle = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+        <line x1="12" y1="16" x2="12.01" y2="16" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+      </svg>
+    );
+
+    const Trophy = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+      </svg>
+    );
+
+    const HelpCircle = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+        <line x1="12" y1="17" x2="12.01" y2="17" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+      </svg>
+    );
+
+    const Eye = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      </svg>
+    );
+
+    const RefreshCw = ({ className }) => (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+    );
+
+    const Tutorial21 = () => {
+      // Core state
+      const [phase, setPhase] = useState('welcome'); // welcome, tablet-intro, recording, tallying, verification, new-tablet, reflection, complete
+      const [showGlossary, setShowGlossary] = useState(false);
+      const [devMode, setDevMode] = useState(false);
+
+      // Phase 1: Tablet intro
+      const [introStep, setIntroStep] = useState(0);
+      const [introAnswer, setIntroAnswer] = useState('');
+      const [introSubmitted, setIntroSubmitted] = useState(false);
+
+      // Phase 2: Recording
+      const [currentTransactionIndex, setCurrentTransactionIndex] = useState(0);
+      const [placedEntries, setPlacedEntries] = useState({ left: [], right: [] });
+      const [draggedOver, setDraggedOver] = useState(null);
+      const [lastPlacementCorrect, setLastPlacementCorrect] = useState(null);
+      const [showRecordingHint, setShowRecordingHint] = useState(false);
+      const [errorCount, setErrorCount] = useState(0);
+
+      // Phase 3: Tallying
+      const [tallyAnswer, setTallyAnswer] = useState('');
+      const [tallySubmitted, setTallySubmitted] = useState(false);
+
+      // Phase 4: Verification
+      const [verificationStep, setVerificationStep] = useState(0);
+      const [errorAnswer, setErrorAnswer] = useState('');
+      const [errorSubmitted, setErrorSubmitted] = useState(false);
+      const [showErrorHint, setShowErrorHint] = useState(false);
+
+      // Phase 5: New tablet
+      const [newTabletStep, setNewTabletStep] = useState(0);
+      const [balanceSideAnswer, setBalanceSideAnswer] = useState('');
+      const [balanceSideSubmitted, setBalanceSideSubmitted] = useState(false);
+      const [newTabletEntries, setNewTabletEntries] = useState({ left: [{ text: 'Brought forward from previous tablet', amount: 15, isCarried: true }], right: [] });
+      const [newTransactionIndex, setNewTransactionIndex] = useState(0);
+      const [newDraggedOver, setNewDraggedOver] = useState(null);
+      const [newLastPlacementCorrect, setNewLastPlacementCorrect] = useState(null);
+
+      // Phase 6: Reflection
+      const [reflectionStep, setReflectionStep] = useState(0);
+      const [reflectionAnswers, setReflectionAnswers] = useState(['', '', '']);
+      const [reflectionSubmitted, setReflectionSubmitted] = useState([false, false, false]);
+      const [showReflectionHint, setShowReflectionHint] = useState([false, false, false]);
+
+      // Restart handler - resets all state
+      const handleRestart = () => {
+        setPhase('welcome');
+        setIntroStep(0);
+        setIntroAnswer('');
+        setIntroSubmitted(false);
+        setCurrentTransactionIndex(0);
+        setPlacedEntries({ left: [], right: [] });
+        setDraggedOver(null);
+        setLastPlacementCorrect(null);
+        setShowRecordingHint(false);
+        setErrorCount(0);
+        setTallyAnswer('');
+        setTallySubmitted(false);
+        setVerificationStep(0);
+        setErrorAnswer('');
+        setErrorSubmitted(false);
+        setShowErrorHint(false);
+        setNewTabletStep(0);
+        setBalanceSideAnswer('');
+        setBalanceSideSubmitted(false);
+        setNewTabletEntries({ left: [{ text: 'Brought forward from previous tablet', amount: 15, isCarried: true }], right: [] });
+        setNewTransactionIndex(0);
+        setNewDraggedOver(null);
+        setNewLastPlacementCorrect(null);
+        setReflectionStep(0);
+        setReflectionAnswers(['', '', '']);
+        setReflectionSubmitted([false, false, false]);
+        setShowReflectionHint([false, false, false]);
+      };
+
+      const colors = {
+        primary: '#00356b',
+        sand: '#f5f1e8',
+        earth: '#8b7355',
+        earthLight: '#d4c4a8',
+        earthDark: '#5c4d3d',
+        accent: '#c9a227',
+        success: '#22c55e',
+        successBg: '#f0fdf4',
+        warning: '#f59e0b',
+        warningBg: '#fffbeb',
+        clay: '#c4a574',
+        clayLight: '#e8dcc8',
+        clayDark: '#a08050'
+      };
+
+      // Transaction data for Phase 2
+      const transactions = [
+        { text: 'Received from the city granary', amount: 20, side: 'left', hint: "Read the first word—'Received' means it came IN to us." },
+        { text: 'Distributed to the morning students', amount: 6, side: 'right', hint: "'Distributed' means it went OUT from us." },
+        { text: 'Received from a merchant\'s gift', amount: 5, side: 'left', hint: "'Received' means it came IN." },
+        { text: 'Distributed to the evening students', amount: 7, side: 'right', hint: "'Distributed' means it went OUT." },
+        { text: 'Returned from a student who left early', amount: 2, side: 'left', hint: "The student gave barley BACK to us. It's coming IN." },
+        { text: 'Distributed for the scribes\' midday meal', amount: 4, side: 'right', hint: "'Distributed' means it went OUT." },
+        { text: 'Received from the temple (Tablet House allowance)', amount: 15, side: 'left', hint: "The temple delivered our allowance—it came IN." },
+        { text: 'Given to a visiting scholar', amount: 3, side: 'right', hint: "'Given to' someone means it went OUT." },
+        { text: 'Received from the potter (trade for reed mats)', amount: 3, side: 'left', hint: "The potter gave us barley—it came IN." },
+        { text: 'Distributed to purchase lamp oil', amount: 5, side: 'right', hint: "'Distributed' means it went OUT." },
+        { text: 'Received back: excess from the oil merchant', amount: 1, side: 'left', hint: "'Received back' means it came IN to us." },
+        { text: 'Disbursed for tablet clay supplies', amount: 6, side: 'right', hint: "'Disbursed' means paid out—it went OUT." }
+      ];
+
+      // New tablet transactions for Phase 5
+      const newTransactions = [
+        { text: 'Received from the morning delivery', amount: 10, side: 'left', hint: "'Received' means it came IN." },
+        { text: 'Distributed to the junior apprentices', amount: 8, side: 'right', hint: "'Distributed' means it went OUT." },
+        { text: 'Given as payment to the clay supplier', amount: 5, side: 'right', hint: "'Given as payment' means it went OUT." }
+      ];
+
+      // Reflection questions
+      const reflectionQuestions = [
+        {
+          question: 'What is a record?',
+          hints: ['Think about the relationship between marks on clay and what actually happened.', 'A record represents something...'],
+          explanation: '"A record is marks on clay—but marks that mean something. They represent what happened: barley received, barley distributed. The record is information about reality, and like any information, it can be right or wrong."'
+        },
+        {
+          question: 'Why did we verify the record of barley flows with a physical count?',
+          hints: ['What did Shamash-kin\'s experience teach us?', 'Records can have errors that aren\'t obvious until...'],
+          explanation: '"Because records can be wrong. A slip of the stylus, a misheard number, a rushed entry on the wrong side. The record may look complete and correct, but only verification against reality reveals the truth."\n\n"Errors hide until you check."'
+        },
+        {
+          question: 'When we carry the balance forward to a new tablet, does barley move?',
+          hints: ['Think about what physically happens versus what happens on the tablets.', 'The barley stays in the jar, but something does flow...'],
+          explanation: '"No. The barley stays in the jar. What moves is information—from the old tablet to the new one. The new tablet receives information about the past: how much barley accumulated from all prior flows."\n\n"Keeping records across time means carrying information across time. Stocks are accumulated flows, and the record carries that knowledge forward."'
+        }
+      ];
+
+      // Glossary terms
+      const glossaryTerms = [
+        { term: 'Sila', definition: 'A Babylonian unit of volume, approximately 1.5 liters—about a day\'s grain ration for one person.' },
+        { term: 'Tablet House', definition: 'The school where scribes are trained in reading, writing, and record-keeping.' },
+        { term: 'Inflow', definition: 'Barley (or other goods) received; recorded on the left side of a tablet.' },
+        { term: 'Outflow', definition: 'Barley (or other goods) distributed or given out; recorded on the right side of a tablet.' },
+        { term: 'Balance', definition: 'The difference between total received and total distributed; what should remain.' },
+        { term: 'Tally', definition: 'To sum up entries; to count the total of a column.' },
+        { term: 'Verification', definition: 'Comparing a record to physical reality to check for accuracy.' },
+        { term: 'Carrying Forward', definition: 'Recording the ending balance of one tablet as the beginning entry of the next—an information flow from one record to another.' }
+      ];
+
+      // Calculate totals
+      const leftTotal = placedEntries.left.reduce((sum, e) => sum + e.amount, 0);
+      const rightTotal = placedEntries.right.reduce((sum, e) => sum + e.amount, 0);
+      const balance = leftTotal - rightTotal;
+
+      const newLeftTotal = newTabletEntries.left.reduce((sum, e) => sum + e.amount, 0);
+      const newRightTotal = newTabletEntries.right.reduce((sum, e) => sum + e.amount, 0);
+      const newBalance = newLeftTotal - newRightTotal;
+
+      // Header component
+      const Header = () => (
+        <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+          <div className="flex items-center gap-2">
+            <ScrollText className="w-5 h-5" />
+            <div>
+              <span className="font-bold">Tutorial 2.1: The Scribe's Craft</span>
+              <span className="text-blue-200 text-xs ml-2">Babylon ~1800 BCE</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowGlossary(true)}
+              className="flex items-center gap-1 text-xs hover:text-blue-200"
+            >
+              <Book className="w-4 h-4" />
+              <span>Glossary</span>
+            </button>
+            <div className="flex items-center gap-1 text-xs">
+              <Clock className="w-4 h-4" />
+              <span>~12 min</span>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Glossary Modal
+      const GlossaryModal = () => (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[80vh] overflow-hidden">
+            <div className="p-4 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+              <div className="flex items-center gap-2">
+                <Book className="w-5 h-5" />
+                <span className="font-bold">Glossary: Record-Keeping Terms</span>
+              </div>
+              <button onClick={() => setShowGlossary(false)} className="text-white hover:text-blue-200">×</button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              {glossaryTerms.map((item, i) => (
+                <div key={i} className="mb-4 last:mb-0">
+                  <p className="font-bold text-sm" style={{ color: colors.primary }}>{item.term}</p>
+                  <p className="text-sm text-gray-700">{item.definition}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+
+      // Progress indicator
+      const phaseOrder = ['welcome', 'tablet-intro', 'recording', 'tallying', 'verification', 'new-tablet', 'reflection', 'complete'];
+      const currentPhaseIndex = phaseOrder.indexOf(phase);
+
+      const ProgressBar = () => (
+        <div className="flex gap-1">
+          {phaseOrder.slice(0, -1).map((p, i) => (
+            <div
+              key={p}
+              className="h-1.5 rounded flex-1 transition-all"
+              style={{
+                backgroundColor: i < currentPhaseIndex ? colors.success : i === currentPhaseIndex ? colors.primary : colors.earthLight
+              }}
+            />
+          ))}
+        </div>
+      );
+
+      // Dev mode controls
+      const DevControls = () => devMode && (
+        <div className="mb-3 p-2 bg-purple-100 rounded-lg flex gap-2 flex-wrap items-center">
+          <span className="text-xs text-purple-700 font-medium">DEV:</span>
+          {phaseOrder.slice(0, -1).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPhase(p)}
+              className={`text-xs px-2 py-1 rounded ${p === phase ? 'bg-purple-600 text-white' : 'bg-purple-200 text-purple-700'}`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      );
+
+      // Narrative block component
+      const NarrativeBlock = ({ children }) => (
+        <div className="p-4 rounded-lg border-l-4 italic text-gray-700 text-sm whitespace-pre-line mb-4"
+             style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+          {children}
+        </div>
+      );
+
+      // Insight panel component
+      const InsightPanel = ({ title, children }) => (
+        <div className="p-4 rounded-lg border mb-4" style={{ backgroundColor: colors.successBg, borderColor: colors.success }}>
+          <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>{title}</h3>
+          <div className="text-sm text-gray-700">{children}</div>
+        </div>
+      );
+
+      // Flow diagram component
+      const FlowDiagram = () => (
+        <div className="mb-4">
+          {/* Labels above */}
+          <div className="flex justify-between text-xs font-medium px-8 mb-2" style={{ color: colors.earthDark }}>
+            <span>RECEIVED from</span>
+            <span>DISTRIBUTED to</span>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 p-4 rounded-lg" style={{ backgroundColor: '#fef3c7' }}>
+            {/* Sources with arrows */}
+            <div className="text-sm space-y-1 min-w-[100px]">
+              <div className="flex items-center justify-end gap-2">
+                <span className="text-gray-600">Granary</span>
+                <span className="text-amber-600">→</span>
+              </div>
+              <div className="flex items-center justify-end gap-2">
+                <span className="text-gray-600">Temple</span>
+                <span className="text-amber-600">→</span>
+              </div>
+              <div className="flex items-center justify-end gap-2">
+                <span className="text-gray-600">Merchants</span>
+                <span className="text-amber-600">→</span>
+              </div>
+            </div>
+
+            {/* Tablet House */}
+            <div className="px-8 py-4 bg-amber-100 border-2 rounded-lg text-center mx-4" style={{ borderColor: '#b45309' }}>
+              <div className="font-bold text-sm" style={{ color: '#78350f' }}>TABLET HOUSE</div>
+              <div className="text-3xl my-1">🏺</div>
+              <div className="text-xs" style={{ color: '#92400e' }}>Barley Jar</div>
+            </div>
+
+            {/* Destinations with arrows */}
+            <div className="text-sm space-y-1 min-w-[100px]">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-600">→</span>
+                <span className="text-gray-600">Students</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-amber-600">→</span>
+                <span className="text-gray-600">Kitchen</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-amber-600">→</span>
+                <span className="text-gray-600">Suppliers</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Clay tablet component (no arrows in headers)
+      const ClayTablet = ({ leftEntries, rightEntries, showTotals, leftTotal: lt, rightTotal: rt, title }) => (
+        <div
+          className="rounded-lg border-2 overflow-hidden mb-4"
+          style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark }}
+        >
+          {title && (
+            <div className="text-center py-2 font-bold text-sm" style={{ backgroundColor: colors.clay, color: colors.earthDark }}>
+              {title}
+            </div>
+          )}
+          <div className="grid grid-cols-2 divide-x-2" style={{ divideColor: colors.clayDark }}>
+            <div className="p-2 text-center font-bold text-sm"
+                 style={{ backgroundColor: colors.clay, color: colors.earthDark }}>
+              RECEIVED
+            </div>
+            <div className="p-2 text-center font-bold text-sm"
+                 style={{ backgroundColor: colors.clay, color: colors.earthDark }}>
+              DISTRIBUTED
+            </div>
+          </div>
+          <div className="grid grid-cols-2 divide-x-2 min-h-[120px]" style={{ divideColor: colors.clayDark }}>
+            {/* Left entries - explanation on LEFT, amount on RIGHT */}
+            <div className="p-2 space-y-1">
+              {leftEntries.map((entry, i) => (
+                <div
+                  key={i}
+                  className={`text-xs p-1.5 rounded flex justify-between items-center gap-2 ${entry.isCarried ? 'font-medium' : ''}`}
+                  style={{ backgroundColor: entry.isCarried ? colors.sand : 'transparent' }}
+                >
+                  <span className="text-gray-600 text-left flex-1">{entry.text}</span>
+                  <span className="font-medium whitespace-nowrap">{entry.amount} sila</span>
+                </div>
+              ))}
+            </div>
+            {/* Right entries - amount on LEFT, explanation on RIGHT */}
+            <div className="p-2 space-y-1">
+              {rightEntries.map((entry, i) => (
+                <div key={i} className="text-xs p-1.5 rounded flex items-center gap-2">
+                  <span className="font-medium whitespace-nowrap">{entry.amount} sila</span>
+                  <span className="text-gray-600 text-right flex-1">{entry.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {showTotals && (
+            <div className="grid grid-cols-2 divide-x-2 border-t-2" style={{ divideColor: colors.clayDark, borderColor: colors.clayDark }}>
+              <div className="p-2 text-center font-bold text-sm" style={{ backgroundColor: colors.clay }}>
+                Total: {lt} sila
+              </div>
+              <div className="p-2 text-center font-bold text-sm" style={{ backgroundColor: colors.clay }}>
+                Total: {rt} sila
+              </div>
+            </div>
+          )}
+        </div>
+      );
+
+      // Interactive tablet for recording phase (no arrows)
+      const InteractiveTablet = ({ entries, dragOver, onDrop, isNewTablet }) => {
+        const handleDragOver = (e, side) => {
+          e.preventDefault();
+          if (isNewTablet) {
+            setNewDraggedOver(side);
+          } else {
+            setDraggedOver(side);
+          }
+        };
+
+        const handleDragLeave = () => {
+          if (isNewTablet) {
+            setNewDraggedOver(null);
+          } else {
+            setDraggedOver(null);
+          }
+        };
+
+        const handleDropEvent = (e, side) => {
+          e.preventDefault();
+          if (isNewTablet) {
+            setNewDraggedOver(null);
+          } else {
+            setDraggedOver(null);
+          }
+          onDrop(side);
+        };
+
+        return (
+          <div
+            className="rounded-lg border-2 overflow-hidden mb-4"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark }}
+          >
+            <div className="text-center py-2 font-bold text-sm" style={{ backgroundColor: colors.clay, color: colors.earthDark }}>
+              BARLEY COUNT
+            </div>
+            <div className="grid grid-cols-2 divide-x-2" style={{ divideColor: colors.clayDark }}>
+              <div className="p-2 text-center font-bold text-sm"
+                   style={{ backgroundColor: colors.clay, color: colors.earthDark }}>
+                RECEIVED
+              </div>
+              <div className="p-2 text-center font-bold text-sm"
+                   style={{ backgroundColor: colors.clay, color: colors.earthDark }}>
+                DISTRIBUTED
+              </div>
+            </div>
+            <div className="grid grid-cols-2 divide-x-2" style={{ divideColor: colors.clayDark }}>
+              {/* Left drop zone */}
+              <div
+                className={`p-3 min-h-[200px] transition-all ${dragOver === 'left' ? 'bg-blue-100' : ''}`}
+                onDragOver={(e) => handleDragOver(e, 'left')}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDropEvent(e, 'left')}
+              >
+                {entries.left.length === 0 && !dragOver && (
+                  <p className="text-xs text-gray-400 italic text-center mt-4">Drop receipts here</p>
+                )}
+                {dragOver === 'left' && (
+                  <div className="border-2 border-dashed border-blue-400 rounded-lg p-4 text-center text-blue-600 text-sm">
+                    Drop here for RECEIVED
+                  </div>
+                )}
+                <div className="space-y-1 mt-2">
+                  {entries.left.map((entry, i) => (
+                    <div key={i} className="text-xs p-2 rounded flex justify-between items-center gap-2"
+                         style={{ backgroundColor: entry.isCarried ? colors.sand : 'rgba(255,255,255,0.5)' }}>
+                      <span className="text-gray-600 text-left flex-1">{entry.text}</span>
+                      <span className="font-medium whitespace-nowrap">{entry.amount} sila</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Right drop zone */}
+              <div
+                className={`p-3 min-h-[200px] transition-all ${dragOver === 'right' ? 'bg-blue-100' : ''}`}
+                onDragOver={(e) => handleDragOver(e, 'right')}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDropEvent(e, 'right')}
+              >
+                {entries.right.length === 0 && !dragOver && (
+                  <p className="text-xs text-gray-400 italic text-center mt-4">Drop distributions here</p>
+                )}
+                {dragOver === 'right' && (
+                  <div className="border-2 border-dashed border-blue-400 rounded-lg p-4 text-center text-blue-600 text-sm">
+                    Drop here for DISTRIBUTED
+                  </div>
+                )}
+                <div className="space-y-1 mt-2">
+                  {entries.right.map((entry, i) => (
+                    <div key={i} className="text-xs p-2 rounded flex items-center gap-2"
+                         style={{ backgroundColor: 'rgba(255,255,255,0.5)' }}>
+                      <span className="font-medium whitespace-nowrap">{entry.amount} sila</span>
+                      <span className="text-gray-600 text-right flex-1">{entry.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // Transaction card component
+      const TransactionCard = ({ transaction, onDragStart, onDragEnd, disabled }) => (
+        <div
+          draggable={!disabled}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          className={`p-3 rounded-lg border-2 shadow-md ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing hover:shadow-lg'}`}
+          style={{
+            backgroundColor: 'white',
+            borderColor: colors.earthLight,
+            transition: 'transform 0.1s, box-shadow 0.1s'
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: colors.earthDark }}>{transaction.text}</p>
+          <p className="text-lg font-bold mt-1" style={{ color: colors.primary }}>{transaction.amount} sila</p>
+        </div>
+      );
+
+      // Handle transaction drop
+      const handleTransactionDrop = (side) => {
+        const transaction = transactions[currentTransactionIndex];
+        const isCorrect = side === transaction.side;
+
+        if (isCorrect) {
+          const newEntry = { text: transaction.text, amount: transaction.amount };
+          setPlacedEntries(prev => ({
+            ...prev,
+            [side]: [...prev[side], newEntry]
+          }));
+          setLastPlacementCorrect(true);
+          setShowRecordingHint(false);
+
+          setTimeout(() => {
+            setLastPlacementCorrect(null);
+            setCurrentTransactionIndex(prev => prev + 1);
+          }, 500);
+        } else {
+          setLastPlacementCorrect(false);
+          setShowRecordingHint(true);
+          setErrorCount(prev => prev + 1);
+        }
+      };
+
+      // Handle new tablet transaction drop
+      const handleNewTransactionDrop = (side) => {
+        const transaction = newTransactions[newTransactionIndex];
+        const isCorrect = side === transaction.side;
+
+        if (isCorrect) {
+          const newEntry = { text: transaction.text, amount: transaction.amount };
+          setNewTabletEntries(prev => ({
+            ...prev,
+            [side]: [...prev[side], newEntry]
+          }));
+          setNewLastPlacementCorrect(true);
+
+          setTimeout(() => {
+            setNewLastPlacementCorrect(null);
+            setNewTransactionIndex(prev => prev + 1);
+          }, 500);
+        } else {
+          setNewLastPlacementCorrect(false);
+        }
+      };
+
+      // WELCOME SCREEN
+      if (phase === 'welcome') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="fixed top-0 left-0 w-4 h-4 z-50" onDoubleClick={() => setDevMode(!devMode)} />
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-4 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                  <h1 className="text-xl font-bold mb-1">The Scribe's Craft</h1>
+                  <p className="text-blue-200 text-sm">Learning to keep records on clay</p>
+                </div>
+
+                <div className="p-5">
+                  <DevControls />
+
+                  <NarrativeBlock>
+                    The Tablet House is quiet in the early morning. Rows of apprentices sit cross-legged on reed mats, practicing their wedge marks on small clay tablets. The air smells of damp clay and lamp oil.
+
+                    You are three weeks into your apprenticeship. You can form the basic signs now—numbers, common words, the symbols for barley and oil and wool. But you haven't yet learned to keep <em>records of barley flows</em>.
+
+                    Today, the senior scribe Bel-kashid has pulled you aside.
+
+                    "You're ready," he says, placing a fresh tablet and stylus before you. "Today you learn to track what comes in and what goes out. This is the foundation of everything we do."
+                  </NarrativeBlock>
+
+                  <div className="p-4 rounded-lg border mb-4" style={{ borderColor: colors.earthLight, backgroundColor: '#f8fafc' }}>
+                    <h3 className="font-bold text-sm mb-3" style={{ color: colors.primary }}>What You'll Learn</h3>
+                    <ul className="space-y-2 text-sm text-gray-700">
+                      <li className="flex gap-2 items-start">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                        <span>How a two-column structure could track physical flows of barley</span>
+                      </li>
+                      <li className="flex gap-2 items-start">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                        <span>What a record is—and why it can be wrong</span>
+                      </li>
+                      <li className="flex gap-2 items-start">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                        <span>Why verification against physical reality matters</span>
+                      </li>
+                      <li className="flex gap-2 items-start">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                        <span>How records carry information through time</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <button
+                    onClick={() => setPhase('tablet-intro')}
+                    className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Begin Lesson <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // PHASE 1: TABLET INTRO
+      if (phase === 'tablet-intro') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="fixed top-0 left-0 w-4 h-4 z-50" onDoubleClick={() => setDevMode(!devMode)} />
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-3 border-b" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-600">Phase 1: The Tablet</span>
+                    <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Restart</span>
+                    </button>
+                  </div>
+                  <ProgressBar />
+                </div>
+
+                <div className="p-5">
+                  <DevControls />
+
+                  {introStep === 0 && (
+                    <>
+                      <NarrativeBlock>
+                        Bel-kashid gestures around the room.
+
+                        "The Tablet House receives barley from many sources—the city granary, the temple, merchants who trade with us. And we distribute barley to many destinations—students, the kitchen, suppliers we must pay."
+
+                        He sketches in the air with his stylus.
+
+                        "Barley flows in. Barley flows out. Your job is to track every movement."
+                      </NarrativeBlock>
+
+                      <FlowDiagram />
+
+                      <button
+                        onClick={() => setIntroStep(1)}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {introStep === 1 && (
+                    <>
+                      <NarrativeBlock>
+                        Bel-kashid holds up a clay tablet, freshly smoothed. With his stylus, he draws a vertical line down the center.
+
+                        "Here is how we will organize our records. The left side for what comes in—barley received. The right side for what goes out—barley distributed."
+
+                        He taps the left side. "Received." Then the right. "Distributed."
+
+                        "The difference tells us what should remain in the jar."
+                      </NarrativeBlock>
+
+                      {/* Empty tablet structure */}
+                      <div
+                        className="rounded-lg border-2 overflow-hidden mb-4"
+                        style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark }}
+                      >
+                        <div className="text-center py-2 font-bold text-sm" style={{ backgroundColor: colors.clay, color: colors.earthDark }}>
+                          BARLEY COUNT
+                        </div>
+                        <div className="grid grid-cols-2 divide-x-2" style={{ divideColor: colors.clayDark }}>
+                          <div className="p-3 text-center">
+                            <p className="font-bold text-sm" style={{ color: colors.earthDark }}>RECEIVED</p>
+                            <p className="text-xs text-gray-600">(barley coming in)</p>
+                            <div className="mt-4 text-xs text-gray-400 italic">entries appear here</div>
+                          </div>
+                          <div className="p-3 text-center">
+                            <p className="font-bold text-sm" style={{ color: colors.earthDark }}>DISTRIBUTED</p>
+                            <p className="text-xs text-gray-600">(barley going out)</p>
+                            <div className="mt-4 text-xs text-gray-400 italic">entries appear here</div>
+                          </div>
+                        </div>
+                        <div className="text-center py-2 border-t-2 text-sm" style={{ borderColor: colors.clayDark, backgroundColor: colors.clay }}>
+                          <strong>What should remain</strong> = Received − Distributed
+                        </div>
+                      </div>
+
+                      <NarrativeBlock>
+                        "Speed matters," Bel-kashid adds. "Record each transaction promptly, while the details are fresh. A scribe who waits until evening to record the day's movements will forget something—or confuse one transaction with another."
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => setIntroStep(2)}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {introStep === 2 && (
+                    <>
+                      {/* Question */}
+                      <div className="p-4 rounded-lg border mb-4" style={{ borderColor: colors.earthLight }}>
+                        <p className="font-medium text-sm mb-3" style={{ color: colors.earthDark }}>
+                          Before we practice, let me check your understanding: If you receive 20 sila and distribute 8 sila, how much barley should be in the jar?
+                        </p>
+
+                        {!introSubmitted ? (
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              value={introAnswer}
+                              onChange={(e) => setIntroAnswer(e.target.value)}
+                              className="flex-1 p-2 border rounded-lg text-sm"
+                              style={{ borderColor: colors.earthLight }}
+                              placeholder="Enter the amount..."
+                            />
+                            <button
+                              onClick={() => setIntroSubmitted(true)}
+                              disabled={!introAnswer}
+                              className="px-4 py-2 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Check
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="p-3 rounded-lg" style={{ backgroundColor: parseInt(introAnswer) === 12 ? colors.successBg : colors.warningBg }}>
+                            {parseInt(introAnswer) === 12 ? (
+                              <p className="text-sm text-green-800">
+                                <strong>✓ Correct!</strong> Twenty in, eight out, twelve should remain.
+                              </p>
+                            ) : (
+                              <p className="text-sm text-amber-800">
+                                <strong>Not quite.</strong> 20 received minus 8 distributed = 12 sila should remain. Try thinking: received minus distributed.
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {introSubmitted && (
+                        <>
+                          <NarrativeBlock>
+                            "Correct," Bel-kashid nods. "Simple enough when the numbers are few. But when a tablet fills with dozens of entries across many days, the structure keeps everything clear."
+
+                            He slides a fresh tablet toward you.
+
+                            "Now. Let's practice."
+                          </NarrativeBlock>
+
+                          <button
+                            onClick={() => setPhase('recording')}
+                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Start Recording Practice <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // PHASE 2: RECORDING PRACTICE
+      if (phase === 'recording') {
+        const recordingComplete = currentTransactionIndex >= transactions.length;
+        const currentTransaction = transactions[currentTransactionIndex];
+
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="fixed top-0 left-0 w-4 h-4 z-50" onDoubleClick={() => setDevMode(!devMode)} />
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-3 border-b" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-600">Phase 2: Recording Practice</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-500">{currentTransactionIndex} of {transactions.length} recorded</span>
+                      <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Restart</span>
+                      </button>
+                    </div>
+                  </div>
+                  <ProgressBar />
+                </div>
+
+                <div className="p-5">
+                  <DevControls />
+
+                  {!recordingComplete ? (
+                    <>
+                      <NarrativeBlock>
+                        "We'll track the Tablet House's own provisions," Bel-kashid says. "A small count—nothing like the Royal Granary—but the principles are identical."
+
+                        "I'll tell you what happened today. You record each transaction on the correct side of the Barley Count. Drag each entry to the left for barley received, to the right for barley distributed."
+                      </NarrativeBlock>
+
+                      {/* Current transaction to place */}
+                      <div className="mb-4">
+                        <p className="text-xs font-medium text-gray-500 mb-2">TRANSACTION {currentTransactionIndex + 1} OF {transactions.length}</p>
+                        <TransactionCard
+                          transaction={currentTransaction}
+                          onDragStart={() => {}}
+                          onDragEnd={() => setDraggedOver(null)}
+                          disabled={false}
+                        />
+                      </div>
+
+                      {/* Feedback */}
+                      {lastPlacementCorrect === true && (
+                        <div className="mb-3 p-2 rounded-lg text-sm text-center" style={{ backgroundColor: colors.successBg }}>
+                          <CheckCircle className="w-4 h-4 inline mr-1 text-green-600" />
+                          <span className="text-green-800">Correct!</span>
+                        </div>
+                      )}
+                      {lastPlacementCorrect === false && (
+                        <div className="mb-3 p-2 rounded-lg text-sm" style={{ backgroundColor: colors.warningBg }}>
+                          <AlertCircle className="w-4 h-4 inline mr-1 text-amber-600" />
+                          <span className="text-amber-800">Not quite. Think about the direction—is barley coming IN or going OUT?</span>
+                          {showRecordingHint && (
+                            <p className="mt-1 text-xs text-amber-700 italic">💡 {currentTransaction.hint}</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Interactive tablet */}
+                      <InteractiveTablet
+                        entries={placedEntries}
+                        dragOver={draggedOver}
+                        onDrop={handleTransactionDrop}
+                        isNewTablet={false}
+                      />
+
+                      {/* Stats */}
+                      <div className="flex justify-center gap-4 text-xs py-2 px-3 rounded" style={{ backgroundColor: '#f0f7ff' }}>
+                        <span style={{ color: colors.primary }}>📥 {placedEntries.left.length} received</span>
+                        <span style={{ color: colors.earth }}>📤 {placedEntries.right.length} distributed</span>
+                        {errorCount > 0 && <span className="text-amber-600">⚠️ {errorCount} corrections</span>}
+                      </div>
+
+                      {devMode && (
+                        <button
+                          onClick={() => {
+                            const left = transactions.filter(t => t.side === 'left').map(t => ({ text: t.text, amount: t.amount }));
+                            const right = transactions.filter(t => t.side === 'right').map(t => ({ text: t.text, amount: t.amount }));
+                            setPlacedEntries({ left, right });
+                            setCurrentTransactionIndex(transactions.length);
+                          }}
+                          className="mt-3 w-full py-2 bg-purple-600 text-white rounded-lg text-sm"
+                        >
+                          [DEV] Complete All
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <NarrativeBlock>
+                        Bel-kashid reviews your tablet, running his finger down each column.
+
+                        "Good. You understood that 'returned' and 'received back' are receipts—barley coming to us, not going away. Many apprentices stumble on those."
+
+                        He sets the tablet aside.
+
+                        "Now let's see where we stand."
+                      </NarrativeBlock>
+
+                      <ClayTablet
+                        title="BARLEY COUNT"
+                        leftEntries={placedEntries.left}
+                        rightEntries={placedEntries.right}
+                        showTotals={false}
+                        leftTotal={leftTotal}
+                        rightTotal={rightTotal}
+                      />
+
+                      <button
+                        onClick={() => setPhase('tallying')}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Proceed to Tallying <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // PHASE 3: TALLYING
+      if (phase === 'tallying') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="fixed top-0 left-0 w-4 h-4 z-50" onDoubleClick={() => setDevMode(!devMode)} />
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-3 border-b" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-600">Phase 3: Tallying</span>
+                    <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Restart</span>
+                    </button>
+                  </div>
+                  <ProgressBar />
+                </div>
+
+                <div className="p-5">
+                  <DevControls />
+
+                  <NarrativeBlock>
+                    "Every entry is a fact," Bel-kashid says. "But the <em>tally</em> is what matters. Sum each column."
+                  </NarrativeBlock>
+
+                  <ClayTablet
+                    title="BARLEY COUNT"
+                    leftEntries={placedEntries.left}
+                    rightEntries={placedEntries.right}
+                    showTotals={true}
+                    leftTotal={leftTotal}
+                    rightTotal={rightTotal}
+                  />
+
+                  {/* Calculation display */}
+                  <div className="p-4 rounded-lg border mb-4" style={{ borderColor: colors.earthLight, backgroundColor: '#f8fafc' }}>
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">RECEIVED</p>
+                        <p className="text-xl font-bold" style={{ color: colors.primary }}>{leftTotal}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">−</p>
+                        <p className="text-xl font-bold text-gray-400">−</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">DISTRIBUTED</p>
+                        <p className="text-xl font-bold" style={{ color: colors.earth }}>{rightTotal}</p>
+                      </div>
+                    </div>
+                    <div className="text-center mt-3 pt-3 border-t">
+                      <p className="text-xs text-gray-500 mb-1">SHOULD REMAIN</p>
+                      <p className="text-2xl font-bold" style={{ color: colors.accent }}>{balance} sila</p>
+                    </div>
+                  </div>
+
+                  {/* Question */}
+                  <div className="p-4 rounded-lg border mb-4" style={{ borderColor: colors.earthLight }}>
+                    <p className="font-medium text-sm mb-3" style={{ color: colors.earthDark }}>
+                      According to your counts, how much barley should be in the jar?
+                    </p>
+
+                    {!tallySubmitted ? (
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          value={tallyAnswer}
+                          onChange={(e) => setTallyAnswer(e.target.value)}
+                          className="flex-1 p-2 border rounded-lg text-sm"
+                          style={{ borderColor: colors.earthLight }}
+                          placeholder="Enter the amount..."
+                        />
+                        <button
+                          onClick={() => setTallySubmitted(true)}
+                          disabled={!tallyAnswer}
+                          className="px-4 py-2 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Check
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-lg" style={{ backgroundColor: parseInt(tallyAnswer) === 15 ? colors.successBg : colors.warningBg }}>
+                        {parseInt(tallyAnswer) === 15 ? (
+                          <p className="text-sm text-green-800">
+                            <strong>✓ Correct!</strong> Forty-six sila received, thirty-one distributed. Fifteen sila should remain.
+                          </p>
+                        ) : (
+                          <p className="text-sm text-amber-800">
+                            <strong>Check again.</strong> 46 received − 31 distributed = 15 sila should remain.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {tallySubmitted && (
+                    <>
+                      <NarrativeBlock>
+                        Bel-kashid stands.
+
+                        "But <em>should</em> and <em>is</em> are different things. Let's check."
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => setPhase('verification')}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Verify Against Reality <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // PHASE 4: VERIFICATION
+      if (phase === 'verification') {
+        // Shamash-kin's tablet data
+        const shamashLeft = [
+          { text: 'From the granary', amount: 25 },
+          { text: 'From a trader', amount: 8 },
+          { text: 'From the temple', amount: 3 }
+        ];
+        const shamashRight = [
+          { text: 'To the students', amount: 5 },
+          { text: 'To the kitchen', amount: 6 },
+          { text: 'From the baker', amount: 5, isError: true }
+        ];
+
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="fixed top-0 left-0 w-4 h-4 z-50" onDoubleClick={() => setDevMode(!devMode)} />
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-3 border-b" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-600">Phase 4: Verification</span>
+                    <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Restart</span>
+                    </button>
+                  </div>
+                  <ProgressBar />
+                </div>
+
+                <div className="p-5">
+                  <DevControls />
+
+                  {verificationStep === 0 && (
+                    <>
+                      <NarrativeBlock>
+                        Bel-kashid walks to the storage jar. He peers inside, checking the barley level against marks inscribed on the inner wall.
+
+                        "The barley reaches the fifteen-sila mark."
+
+                        He looks up at you.
+
+                        "Your record matches reality."
+                      </NarrativeBlock>
+
+                      <div className="p-4 rounded-lg border mb-4 text-center" style={{ borderColor: colors.success, backgroundColor: colors.successBg }}>
+                        <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                        <p className="font-bold text-green-800">Record Verified</p>
+                        <p className="text-sm text-green-700">Record shows: 15 sila | Jar contains: 15 sila</p>
+                      </div>
+
+                      <button
+                        onClick={() => setVerificationStep(1)}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {verificationStep === 1 && (
+                    <>
+                      <InsightPanel title="Why Verification Matters">
+                        <p className="mb-2">
+                          A record of barley flows is information about reality—marks on clay that represent what happened in the world. But marks can be wrong. Hands can slip. Ears can mishear. A transaction can be forgotten.
+                        </p>
+                        <p className="mb-2">
+                          Verification is how we know the information is accurate. We compare what the record <em>says</em> should be there to what <em>is</em> actually there.
+                        </p>
+                        <p className="font-medium">
+                          When they match: the record is trustworthy.<br />
+                          When they don't match: something is wrong—either in the record or in the world.
+                        </p>
+                      </InsightPanel>
+
+                      <button
+                        onClick={() => setVerificationStep(2)}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {verificationStep === 2 && (
+                    <>
+                      <NarrativeBlock>
+                        As you absorb this, you hear a groan from across the room.
+
+                        Another apprentice, Shamash-kin, is staring at his tablet in dismay. Bel-kashid walks over.
+
+                        "My count doesn't match," Shamash-kin says. "The jar has eighteen sila, but my tablet says twenty."
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => setVerificationStep(3)}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Examine Shamash-kin's Tablet <Eye className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {verificationStep === 3 && (
+                    <>
+                      <p className="text-sm font-medium mb-3" style={{ color: colors.earthDark }}>SHAMASH-KIN'S TABLET</p>
+
+                      <div
+                        className="rounded-lg border-2 overflow-hidden mb-4"
+                        style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark }}
+                      >
+                        <div className="text-center py-2 font-bold text-sm" style={{ backgroundColor: colors.clay, color: colors.earthDark }}>
+                          BARLEY COUNT
+                        </div>
+                        <div className="grid grid-cols-2 divide-x-2" style={{ divideColor: colors.clayDark }}>
+                          <div className="p-2 text-center font-bold text-sm" style={{ backgroundColor: colors.clay, color: colors.earthDark }}>
+                            RECEIVED
+                          </div>
+                          <div className="p-2 text-center font-bold text-sm" style={{ backgroundColor: colors.clay, color: colors.earthDark }}>
+                            DISTRIBUTED
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 divide-x-2" style={{ divideColor: colors.clayDark }}>
+                          {/* Left entries */}
+                          <div className="p-2 space-y-1">
+                            {shamashLeft.map((entry, i) => (
+                              <div key={i} className="text-xs p-1.5 flex justify-between items-center gap-2">
+                                <span className="text-gray-600">{entry.text}</span>
+                                <span className="font-medium whitespace-nowrap">{entry.amount} sila</span>
+                              </div>
+                            ))}
+                          </div>
+                          {/* Right entries - no highlighting until student identifies error */}
+                          <div className="p-2 space-y-1">
+                            {shamashRight.map((entry, i) => (
+                              <div
+                                key={i}
+                                className={`text-xs p-1.5 rounded flex items-center gap-2 ${errorSubmitted && entry.isError ? 'bg-amber-100 border border-amber-300' : ''}`}
+                              >
+                                <span className="font-medium whitespace-nowrap">{entry.amount} sila</span>
+                                <span className={`text-right flex-1 ${errorSubmitted && entry.isError ? 'text-amber-700' : 'text-gray-600'}`}>{entry.text}</span>
+                                {errorSubmitted && entry.isError && <span className="text-amber-600">⚠️</span>}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 divide-x-2 border-t-2" style={{ divideColor: colors.clayDark, borderColor: colors.clayDark }}>
+                          <div className="p-2 text-center font-bold text-sm" style={{ backgroundColor: colors.clay }}>
+                            Total: 36 sila
+                          </div>
+                          <div className="p-2 text-center font-bold text-sm" style={{ backgroundColor: colors.clay }}>
+                            Total: 16 sila
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-lg mb-4 text-center" style={{ backgroundColor: colors.warningBg }}>
+                        <p className="text-sm font-medium text-amber-800">
+                          Record shows: <strong>20 sila</strong> (36 − 16) | Jar contains: <strong>18 sila</strong>
+                        </p>
+                        <p className="text-xs text-amber-700 mt-1">Discrepancy: 2 sila</p>
+                      </div>
+
+                      <div className="p-4 rounded-lg border mb-4" style={{ borderColor: colors.earthLight }}>
+                        <p className="font-medium text-sm mb-3" style={{ color: colors.earthDark }}>
+                          Look at Shamash-kin's tablet. He has 18 sila in the jar but his record shows 20. Can you spot an error?
+                        </p>
+                        <p className="text-xs text-gray-500 mb-3">(Hint: Look at the explanation for each entry. Does one seem out of place?)</p>
+
+                        {!errorSubmitted ? (
+                          <>
+                            <textarea
+                              value={errorAnswer}
+                              onChange={(e) => setErrorAnswer(e.target.value)}
+                              className="w-full p-2 border rounded-lg text-sm mb-2"
+                              style={{ borderColor: colors.earthLight }}
+                              rows={2}
+                              placeholder="Describe the error you see..."
+                            />
+                            {showErrorHint && (
+                              <p className="text-xs text-amber-700 italic mb-2">
+                                💡 Look at the DISTRIBUTED column. Read each explanation. Does "From the baker" sound like something that went OUT?
+                              </p>
+                            )}
+                            <div className="flex gap-2">
+                              {!showErrorHint && (
+                                <button
+                                  onClick={() => setShowErrorHint(true)}
+                                  className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1"
+                                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                >
+                                  <HelpCircle className="w-4 h-4" /> Hint
+                                </button>
+                              )}
+                              <button
+                                onClick={() => setErrorSubmitted(true)}
+                                disabled={!errorAnswer.trim()}
+                                className="flex-1 px-4 py-2 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+                                style={{ backgroundColor: colors.primary }}
+                              >
+                                Submit
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="p-3 rounded-lg" style={{ backgroundColor: colors.successBg }}>
+                            <p className="text-sm text-green-800">
+                              <strong>✓ Correct!</strong> The entry "5 sila — From the baker" is on the wrong side. Barley <em>from</em> the baker is a receipt—it should be on the left, not the right.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {errorSubmitted && (
+                        <button
+                          onClick={() => setVerificationStep(4)}
+                          className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Continue <ChevronRight className="w-4 h-4" />
+                        </button>
+                      )}
+                    </>
+                  )}
+
+                  {verificationStep === 4 && (
+                    <>
+                      <NarrativeBlock>
+                        Bel-kashid examines the tablet. "Here. 'Five sila from the baker.' You recorded it as a distribution, but barley <em>from</em> someone is a receipt."
+
+                        Shamash-kin's face reddens. "I was rushing. The baker came while I was tallying the morning count, and I just... marked the wrong side."
+
+                        "If it were on the left," Bel-kashid continues, "your received total would be forty-one, not thirty-six. And forty-one minus eleven would be thirty. Still not eighteen."
+
+                        He frowns. "There is at least one more error. You'll need to review your tablet carefully."
+
+                        He turns back to you.
+
+                        "Do you see why verification matters? Shamash-kin's record looked complete. Every transaction was written down. But the count revealed the truth: his information had drifted from reality."
+
+                        <strong>"Errors hide," he says. "Until you check."</strong>
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => setPhase('new-tablet')}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue to New Tablet <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // PHASE 5: NEW TABLET
+      if (phase === 'new-tablet') {
+        const newTabletPracticeComplete = newTransactionIndex >= newTransactions.length;
+
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="fixed top-0 left-0 w-4 h-4 z-50" onDoubleClick={() => setDevMode(!devMode)} />
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-3 border-b" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-600">Phase 5: Starting a New Tablet</span>
+                    <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Restart</span>
+                    </button>
+                  </div>
+                  <ProgressBar />
+                </div>
+
+                <div className="p-5">
+                  <DevControls />
+
+                  {newTabletStep === 0 && (
+                    <>
+                      <NarrativeBlock>
+                        Bel-kashid returns to your workstation.
+
+                        "Your tablet is nearly full. In practice, you'd continue until the clay had no more room. But let me show you something important: how to start a new tablet."
+
+                        He takes your completed tablet and sets a fresh one beside it.
+
+                        "The old tablet ends with a balance of fifteen sila. The new tablet must begin there. But here's the question—"
+                      </NarrativeBlock>
+
+                      <div className="p-4 rounded-lg border mb-4" style={{ borderColor: colors.earthLight }}>
+                        <p className="font-medium text-sm mb-3" style={{ color: colors.earthDark }}>
+                          When you start a new tablet, the balance from the old tablet (15 sila) must appear on the new one. Which side should it go on?
+                        </p>
+
+                        {!balanceSideSubmitted ? (
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => { setBalanceSideAnswer('left'); setBalanceSideSubmitted(true); }}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium border-2 hover:opacity-90"
+                              style={{ borderColor: colors.primary, color: colors.primary }}
+                            >
+                              Left (Received)
+                            </button>
+                            <button
+                              onClick={() => { setBalanceSideAnswer('right'); setBalanceSideSubmitted(true); }}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium border-2 hover:opacity-90"
+                              style={{ borderColor: colors.earth, color: colors.earth }}
+                            >
+                              Right (Distributed)
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="p-3 rounded-lg" style={{ backgroundColor: balanceSideAnswer === 'left' ? colors.successBg : colors.warningBg }}>
+                            {balanceSideAnswer === 'left' ? (
+                              <p className="text-sm text-green-800">
+                                <strong>✓ Correct!</strong> The beginning balance goes on the left side.
+                              </p>
+                            ) : (
+                              <p className="text-sm text-amber-800">
+                                <strong>Think again.</strong> The balance represents barley that <em>exists</em> and is available. It's arriving on the new tablet from the old one—so it goes on the left, with the other receipts.
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {balanceSideSubmitted && (
+                        <button
+                          onClick={() => setNewTabletStep(1)}
+                          className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Continue <ChevronRight className="w-4 h-4" />
+                        </button>
+                      )}
+                    </>
+                  )}
+
+                  {newTabletStep === 1 && (
+                    <>
+                      <NarrativeBlock>
+                        "The left side," Bel-kashid confirms. "And here's why."
+
+                        He draws on the new tablet as he speaks.
+
+                        "Think of it this way: the old tablet is <em>finished</em>. The new tablet needs to know what the old tablet knew—how much barley accumulated from all that came before."
+
+                        He writes on the left side of the new tablet: <strong>"15 sila — brought forward from previous tablet"</strong>
+
+                        "Notice: no barley moved. The grain is still in the jar. What moved is <em>information</em>—from one record to the next."
+                      </NarrativeBlock>
+
+                      <InsightPanel title="Carrying Information Through Time">
+                        <p className="mb-2">
+                          A stock—what you have right now—is the accumulation of all past flows. Everything that came in, minus everything that went out.
+                        </p>
+                        <p className="mb-2">
+                          When you carry the balance forward, you don't move barley. You move <em>information about</em> barley. The new tablet inherits everything the old one knew, compressed into a single number.
+                        </p>
+                        <p className="font-medium">
+                          Keeping records across time means carrying information across time. Stocks are accumulated flows, and the record carries that knowledge forward.
+                        </p>
+                      </InsightPanel>
+
+                      <button
+                        onClick={() => setNewTabletStep(2)}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Practice with New Tablet <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+
+                  {newTabletStep === 2 && !newTabletPracticeComplete && (
+                    <>
+                      <NarrativeBlock>
+                        "Now," Bel-kashid says, "a few more transactions for the new tablet."
+                      </NarrativeBlock>
+
+                      {/* Current transaction */}
+                      <div className="mb-4">
+                        <p className="text-xs font-medium text-gray-500 mb-2">TRANSACTION {newTransactionIndex + 1} OF {newTransactions.length}</p>
+                        <TransactionCard
+                          transaction={newTransactions[newTransactionIndex]}
+                          onDragStart={() => {}}
+                          onDragEnd={() => setNewDraggedOver(null)}
+                          disabled={false}
+                        />
+                      </div>
+
+                      {/* Feedback */}
+                      {newLastPlacementCorrect === true && (
+                        <div className="mb-3 p-2 rounded-lg text-sm text-center" style={{ backgroundColor: colors.successBg }}>
+                          <CheckCircle className="w-4 h-4 inline mr-1 text-green-600" />
+                          <span className="text-green-800">Correct!</span>
+                        </div>
+                      )}
+                      {newLastPlacementCorrect === false && (
+                        <div className="mb-3 p-2 rounded-lg text-sm" style={{ backgroundColor: colors.warningBg }}>
+                          <AlertCircle className="w-4 h-4 inline mr-1 text-amber-600" />
+                          <span className="text-amber-800">Not quite. Is this coming IN or going OUT?</span>
+                        </div>
+                      )}
+
+                      <InteractiveTablet
+                        entries={newTabletEntries}
+                        dragOver={newDraggedOver}
+                        onDrop={handleNewTransactionDrop}
+                        isNewTablet={true}
+                      />
+                    </>
+                  )}
+
+                  {newTabletStep === 2 && newTabletPracticeComplete && (
+                    <>
+                      <ClayTablet
+                        title="BARLEY COUNT (New Tablet)"
+                        leftEntries={newTabletEntries.left}
+                        rightEntries={newTabletEntries.right}
+                        showTotals={true}
+                        leftTotal={newLeftTotal}
+                        rightTotal={newRightTotal}
+                      />
+
+                      <div className="p-4 rounded-lg border mb-4 text-center" style={{ borderColor: colors.success, backgroundColor: colors.successBg }}>
+                        <p className="font-bold text-green-800">Should remain: {newBalance} sila</p>
+                        <p className="text-sm text-green-700">15 carried + 10 received − 8 distributed − 5 given = 12 sila</p>
+                      </div>
+
+                      <NarrativeBlock>
+                        Bel-kashid checks the jar—the barley reaches the twelve-sila mark.
+
+                        "Your new tablet is accurate. The information carried forward correctly."
+                      </NarrativeBlock>
+
+                      <button
+                        onClick={() => setPhase('reflection')}
+                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue to Reflection <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // PHASE 6: REFLECTION
+      if (phase === 'reflection') {
+        const currentQ = reflectionQuestions[reflectionStep];
+
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="fixed top-0 left-0 w-4 h-4 z-50" onDoubleClick={() => setDevMode(!devMode)} />
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-3 border-b" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-600">Phase 6: Reflection</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-500">Question {reflectionStep + 1} of 3</span>
+                      <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Restart</span>
+                      </button>
+                    </div>
+                  </div>
+                  <ProgressBar />
+                </div>
+
+                <div className="p-5">
+                  <DevControls />
+
+                  {reflectionStep === 0 && (
+                    <NarrativeBlock>
+                      The morning light has shifted. Other apprentices are beginning to stir, preparing for their lessons. Bel-kashid gathers your tablets—the full one and the new one—and stacks them carefully.
+
+                      "Before I send you back to your regular studies," he says, "tell me what you've learned."
+                    </NarrativeBlock>
+                  )}
+
+                  <div className="p-4 rounded-lg border mb-4" style={{ borderColor: colors.earthLight }}>
+                    <p className="font-medium text-sm mb-3" style={{ color: colors.earthDark }}>
+                      {currentQ.question}
+                    </p>
+
+                    {!reflectionSubmitted[reflectionStep] ? (
+                      <>
+                        <textarea
+                          value={reflectionAnswers[reflectionStep]}
+                          onChange={(e) => {
+                            const newAnswers = [...reflectionAnswers];
+                            newAnswers[reflectionStep] = e.target.value;
+                            setReflectionAnswers(newAnswers);
+                          }}
+                          className="w-full p-2 border rounded-lg text-sm mb-2"
+                          style={{ borderColor: colors.earthLight }}
+                          rows={2}
+                          placeholder="Your answer..."
+                        />
+                        {showReflectionHint[reflectionStep] && (
+                          <div className="mb-2 p-2 rounded text-xs" style={{ backgroundColor: colors.warningBg }}>
+                            {currentQ.hints.map((hint, i) => (
+                              <p key={i} className="text-amber-700">💡 {hint}</p>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex gap-2">
+                          {!showReflectionHint[reflectionStep] && (
+                            <button
+                              onClick={() => {
+                                const newHints = [...showReflectionHint];
+                                newHints[reflectionStep] = true;
+                                setShowReflectionHint(newHints);
+                              }}
+                              className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              <HelpCircle className="w-4 h-4" /> Hint
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              const newSubmitted = [...reflectionSubmitted];
+                              newSubmitted[reflectionStep] = true;
+                              setReflectionSubmitted(newSubmitted);
+                            }}
+                            disabled={!reflectionAnswers[reflectionStep].trim()}
+                            className="flex-1 px-4 py-2 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Submit
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="p-3 rounded-lg" style={{ backgroundColor: colors.successBg }}>
+                        <p className="text-sm text-green-800 whitespace-pre-line">
+                          {currentQ.explanation}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {reflectionSubmitted[reflectionStep] && (
+                    <button
+                      onClick={() => {
+                        if (reflectionStep < 2) {
+                          setReflectionStep(reflectionStep + 1);
+                        } else {
+                          setPhase('complete');
+                        }
+                      }}
+                      className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      {reflectionStep < 2 ? 'Next Question' : 'Complete Tutorial'} <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      // COMPLETE SCREEN
+      if (phase === 'complete') {
+        return (
+          <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <Header />
+            <div className="p-4 max-w-2xl mx-auto">
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+                <div className="p-6 text-white text-center" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                  <Trophy className="w-12 h-12 mx-auto mb-3 text-yellow-300" />
+                  <h1 className="text-2xl font-bold mb-1">Tutorial Complete!</h1>
+                  <p className="text-blue-200">You've learned the scribe's fundamental craft</p>
+                </div>
+
+                <div className="p-5">
+                  <div className="mb-6">
+                    <h2 className="font-bold text-sm mb-3" style={{ color: colors.primary }}>What You Learned</h2>
+                    <div className="space-y-3">
+                      {[
+                        { title: 'Two-Column Structure', desc: 'We recorded inflows of barley on the left, outflows on the right. The difference tells us what should remain in the jar.' },
+                        { title: 'Records Are Information', desc: 'A record is information about reality—marks on clay that represent barley flows. The record can be right or wrong.' },
+                        { title: 'Verification Reveals Errors', desc: 'When a record doesn\'t match physical reality, something is wrong—either in the record or in the world. Errors hide until you check.' },
+                        { title: 'Information Flows Through Time', desc: 'When we carry a balance forward, no barley moves. Information moves—from one tablet to the next. Stocks are accumulated flows, tracked through records.' }
+                      ].map((item, i) => (
+                        <div key={i} className="flex gap-3 items-start">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-green-600 flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-sm" style={{ color: colors.earthDark }}>{item.title}</p>
+                            <p className="text-xs text-gray-600">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <InsightPanel title="The Deeper Insight">
+                    <p className="mb-2">
+                      <strong>A record is information about reality.</strong>
+                    </p>
+                    <p className="mb-2">
+                      Marks on clay represent what happened in the world. When you verify, you're checking whether your information matches reality.
+                    </p>
+                    <p className="mb-2">
+                      And when you carry a balance forward, you're not moving barley—you're moving <em>information</em> through time.
+                    </p>
+                    <p className="font-medium">
+                      This is the foundation of all record-keeping: creating, verifying, and transmitting information about the world.
+                    </p>
+                  </InsightPanel>
+
+                  <div className="p-4 rounded-lg border mb-4" style={{ borderColor: colors.accent, backgroundColor: '#fffbeb' }}>
+                    <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>Coming Next: Tutorial 2.2</h3>
+                    <p className="text-sm text-gray-700 mb-2">
+                      You've learned to keep records for a single count—one jar, one tablet, one scribe.
+                    </p>
+                    <p className="text-sm text-gray-700 mb-2">
+                      But Babylon is vast. The Royal Granary. The Tax Collector. The Manager of Fields. The Head of Construction. Each keeps their own records, their own tablets, their own counts.
+                    </p>
+                    <p className="text-sm text-gray-700 font-medium">
+                      What happens when their records must agree—and don't?
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-lg text-center mb-4" style={{ backgroundColor: colors.sand }}>
+                    <p className="text-sm font-medium" style={{ color: colors.earthDark }}>
+                      Next: Tutorial 2.2 — Inconsistent Reports
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      When the counts don't agree, someone is wrong. But who?
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={handleRestart}
+                    className="w-full py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    Restart Tutorial
+                  </button>
+                </div>
+              </div>
+            </div>
+            {showGlossary && <GlossaryModal />}
+          </div>
+        );
+      }
+
+      return null;
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Tutorial21 />);
+  </script>
+</body>
+</html>

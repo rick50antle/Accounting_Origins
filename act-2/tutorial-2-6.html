@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 2.6: Promises and Payments - Accounting Origins</title>
+
+  <!-- React 18 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .nav-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #00356b;
+      border-top: 2px solid #c9a227;
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .nav-footer a {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background-color 0.2s;
+    }
+
+    .nav-footer a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-footer a.disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Navigation Footer -->
+  <div class="nav-footer">
+    <a href="tutorial-2-5.html">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Previous
+    </a>
+    <a href="../index.html">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      Hub
+    </a>
+    <a href="act-2-review.html">
+      Next
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </a>
+  </div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Inline SVG Icon Components
+    const ChevronRight = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    );
+
+    const ChevronDown = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    );
+
+    const ChevronUp = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    );
+
+    const Book = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+    );
+
+    const RefreshCw = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+    );
+
+    const MapPin = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+        <circle cx="12" cy="10" r="3"></circle>
+      </svg>
+    );
+
+    const Info = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+    );
+
+    const CheckCircle = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    );
+
+    const Lightbulb = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="9" y1="18" x2="15" y2="18"></line>
+        <line x1="10" y1="22" x2="14" y2="22"></line>
+        <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+      </svg>
+    );
+
+    const AlertCircle = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    );
+
+    const Trophy = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+        <path d="M4 22h16"></path>
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path>
+      </svg>
+    );
+
+    const Clock = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+    );
+
+    const ArrowRight = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    );
+
+    const ArrowLeft = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+    );
+
+    const Scroll = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"></path>
+        <path d="M19 17V5a2 2 0 0 0-2-2H4"></path>
+      </svg>
+    );
+
+    // ============================================
+    // SOUND FEEDBACK UTILITIES
+    // ============================================
+    const createAudioContext = () => {
+      return new (window.AudioContext || window.webkitAudioContext)();
+    };
+
+    const playSuccessTone = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [523.25, 659.25, 783.99];
+        const startTime = ctx.currentTime;
+
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+
+          const noteStart = startTime + (i * 0.1);
+          const noteEnd = noteStart + 0.15;
+
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.3, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.1);
+        });
+
+        setTimeout(() => ctx.close(), 600);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playSoftNope = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [400, 300];
+        const startTime = ctx.currentTime;
+
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+
+          const noteStart = startTime + (i * 0.12);
+          const noteEnd = noteStart + 0.12;
+
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.2, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.05);
+        });
+
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playBuzzer = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.value = 150;
+        oscillator.type = 'sawtooth';
+
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0.25, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.35);
+
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playContinueClick = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.value = 600;
+        oscillator.type = 'sine';
+
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.1);
+
+        setTimeout(() => ctx.close(), 150);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    // ============================================
+    // COLOR PALETTE
+    // ============================================
+    const colors = {
+      primary: '#00356b',
+      sand: '#f5f1e8',
+      earth: '#8b7355',
+      earthLight: '#d4c4a8',
+      earthDark: '#5c4d3d',
+      accent: '#c9a227',
+      clay: '#c4a574',
+      clayLight: '#e8dcc8',
+      clayDark: '#a08050',
+      success: '#22c55e',
+      successBg: '#f0fdf4',
+      warning: '#f59e0b',
+      warningBg: '#fffbeb',
+      error: '#dc2626',
+      errorBg: '#fef2f2',
+      highlight: '#fef3c7'
+    };
+
+    // ============================================
+    // GLOSSARY DATA
+    // ============================================
+    const glossaryTerms = [
+      { term: 'Promise', definition: 'A commitment to a future flow—either to deliver something (receivable) or to pay something (payable)' },
+      { term: 'Receivable', definition: 'A future inflow owed to you; something others have promised to deliver' },
+      { term: 'Payable', definition: 'A future outflow you owe; something you have promised to deliver or pay' },
+      { term: 'Fulfillment', definition: 'When a promise is kept—the promised flow actually happens' },
+      { term: 'Outstanding', definition: 'A promise not yet fulfilled; still owed' },
+      { term: 'Cross-tablet entry', definition: 'When a single event (like fulfilling a promise) requires entries on multiple tablets' },
+      { term: 'Garu', definition: 'A Babylonian measure of volume equal to 10 sila' },
+      { term: 'Central Record Hall', definition: 'The location where all departments\' records are housed together, enabling reconciliation' }
+    ];
+
+    // ============================================
+    // PHASE ORDER FOR PROGRESS
+    // ============================================
+    const phaseOrder = [
+      'welcome', 'planning', 'receivables', 'payables',
+      'cross-collection', 'cross-payment', 'pattern',
+      'answer-king', 'reflection', 'complete'
+    ];
+
+    // ============================================
+    // HELPER COMPONENTS
+    // ============================================
+
+    const NarrativeBlock = ({ children }) => (
+      <div
+        className="p-4 rounded-lg mb-4 border-l-4"
+        style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+      >
+        <div className="italic" style={{ color: colors.earthDark }}>{children}</div>
+      </div>
+    );
+
+    const DialogueBlock = ({ speaker, children }) => (
+      <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: colors.clayLight }}>
+        <p className="font-bold mb-2" style={{ color: colors.primary }}>{speaker}:</p>
+        <div className="italic" style={{ color: colors.earthDark }}>{children}</div>
+      </div>
+    );
+
+    const InsightPanel = ({ title, children }) => (
+      <div
+        className="p-4 rounded-lg border-2 mb-4"
+        style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+      >
+        <div className="flex items-start gap-2">
+          <Lightbulb className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+          <div>
+            {title && <p className="font-bold mb-2" style={{ color: colors.success }}>{title}</p>}
+            <div style={{ color: '#166534' }}>{children}</div>
+          </div>
+        </div>
+      </div>
+    );
+
+    const WarningPanel = ({ title, children }) => (
+      <div
+        className="p-4 rounded-lg border-2 mb-4"
+        style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}
+      >
+        <div className="flex items-start gap-2">
+          <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.warning }} />
+          <div>
+            {title && <p className="font-bold mb-2" style={{ color: '#92400e' }}>{title}</p>}
+            <div style={{ color: '#92400e' }}>{children}</div>
+          </div>
+        </div>
+      </div>
+    );
+
+    // T-Account Tablet with two-column format
+    const TAccountTablet = ({
+      title,
+      subtitle,
+      leftHeader,
+      rightHeader,
+      leftEntries = [],
+      rightEntries = [],
+      leftTotal,
+      rightTotal,
+      highlightLeft = false,
+      highlightRight = false,
+      showBalance = false,
+      balanceLabel = "BALANCE"
+    }) => {
+      const leftSum = leftTotal !== undefined ? leftTotal : leftEntries.reduce((sum, e) => sum + (e.amount || 0), 0);
+      const rightSum = rightTotal !== undefined ? rightTotal : rightEntries.reduce((sum, e) => sum + (e.amount || 0), 0);
+
+      return (
+        <div
+          className="rounded-lg border-2 overflow-hidden mb-4"
+          style={{ backgroundColor: colors.clay, borderColor: colors.clayDark }}
+        >
+          {/* Title bar */}
+          <div
+            className="py-2 text-center border-b-2"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark }}
+          >
+            <p className="font-bold text-sm" style={{ color: colors.earthDark }}>{title}</p>
+            {subtitle && <p className="text-xs" style={{ color: colors.earth }}>{subtitle}</p>}
+          </div>
+
+          {/* Two-column header */}
+          <div className="grid grid-cols-2 border-b-2" style={{ borderColor: colors.clayDark }}>
+            <div
+              className="py-2 text-center font-bold text-xs border-r transition-all duration-500"
+              style={{
+                borderColor: colors.earthLight,
+                color: colors.earthDark,
+                backgroundColor: highlightLeft ? colors.highlight : 'transparent'
+              }}
+            >
+              {leftHeader}
+            </div>
+            <div
+              className="py-2 text-center font-bold text-xs transition-all duration-500"
+              style={{
+                color: colors.earthDark,
+                backgroundColor: highlightRight ? colors.highlight : 'transparent'
+              }}
+            >
+              {rightHeader}
+            </div>
+          </div>
+
+          {/* Entry rows */}
+          <div className="grid grid-cols-2">
+            {/* Left column */}
+            <div
+              className="border-r p-2 min-h-[80px] transition-all duration-500"
+              style={{
+                borderColor: colors.earthLight,
+                backgroundColor: highlightLeft ? colors.highlight : 'transparent'
+              }}
+            >
+              {leftEntries.map((entry, i) => (
+                <div
+                  key={i}
+                  className={`text-xs py-1 transition-all duration-500 ${entry.highlight ? 'rounded px-1' : ''}`}
+                  style={{ backgroundColor: entry.highlight ? colors.highlight : 'transparent' }}
+                >
+                  <span style={{ color: colors.earthDark }}>{entry.label}</span>
+                  {entry.value && (
+                    <span className="font-mono float-right" style={{ color: colors.primary }}>{entry.value}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Right column */}
+            <div
+              className="p-2 min-h-[80px] transition-all duration-500"
+              style={{ backgroundColor: highlightRight ? colors.highlight : 'transparent' }}
+            >
+              {rightEntries.map((entry, i) => (
+                <div
+                  key={i}
+                  className={`text-xs py-1 transition-all duration-500 ${entry.highlight ? 'rounded px-1' : ''}`}
+                  style={{ backgroundColor: entry.highlight ? colors.highlight : 'transparent' }}
+                >
+                  <span style={{ color: colors.earthDark }}>{entry.label}</span>
+                  {entry.value && (
+                    <span className="font-mono float-right" style={{ color: colors.primary }}>{entry.value}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Totals row */}
+          <div className="grid grid-cols-2 border-t-2" style={{ borderColor: colors.clayDark }}>
+            <div className="py-2 px-2 border-r text-xs" style={{ borderColor: colors.earthLight, backgroundColor: colors.clayLight }}>
+              <span className="font-bold" style={{ color: colors.earthDark }}>Total:</span>
+              <span className="font-mono font-bold float-right" style={{ color: colors.primary }}>{leftSum} garu</span>
+            </div>
+            <div className="py-2 px-2 text-xs" style={{ backgroundColor: colors.clayLight }}>
+              <span className="font-bold" style={{ color: colors.earthDark }}>Total:</span>
+              <span className="font-mono font-bold float-right" style={{ color: colors.primary }}>{rightSum} garu</span>
+            </div>
+          </div>
+
+          {/* Balance section */}
+          {showBalance && (
+            <div className="border-t-2 p-2 text-center" style={{ borderColor: colors.clayDark, backgroundColor: colors.clayLight }}>
+              <p className="text-xs font-bold" style={{ color: colors.earthDark }}>{balanceLabel}</p>
+              <p className="font-mono text-lg font-bold" style={{ color: colors.primary }}>
+                {Math.abs(leftSum - rightSum)} garu
+              </p>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const ContinueButton = ({ onClick, children = "Continue", disabled = false }) => (
+      <button
+        onClick={() => { if (!disabled) { playContinueClick(); onClick(); } }}
+        disabled={disabled}
+        className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50"
+        style={{ backgroundColor: colors.primary }}
+      >
+        {children} <ChevronRight className="w-5 h-5" />
+      </button>
+    );
+
+    // ============================================
+    // MAIN COMPONENT
+    // ============================================
+    const Tutorial26PromisesAndPayments = () => {
+      // Phase and step control
+      const [phase, setPhase] = useState('welcome');
+      const [step, setStep] = useState(0);
+
+      // Question states
+      // Q1: Planning calculation
+      const [q1Answer, setQ1Answer] = useState('');
+      const [q1Attempts, setQ1Attempts] = useState(0);
+      const [q1Submitted, setQ1Submitted] = useState(false);
+
+      // Q2: Where do received things go
+      const [q2Answer, setQ2Answer] = useState('');
+      const [q2Attempts, setQ2Attempts] = useState(0);
+      const [q2Submitted, setQ2Submitted] = useState(false);
+
+      // Q3: Making vs receiving promises
+      const [q3Answer, setQ3Answer] = useState('');
+      const [q3Attempts, setQ3Attempts] = useState(0);
+      const [q3Submitted, setQ3Submitted] = useState(false);
+
+      // Q4: Cross-collection (two parts)
+      const [q4aAnswer, setQ4aAnswer] = useState('');
+      const [q4aSubmitted, setQ4aSubmitted] = useState(false);
+      const [q4bAnswer, setQ4bAnswer] = useState('');
+      const [q4bSubmitted, setQ4bSubmitted] = useState(false);
+      const [q4Attempts, setQ4Attempts] = useState(0);
+
+      // Q5: Cross-payment (two parts)
+      const [q5aAnswer, setQ5aAnswer] = useState('');
+      const [q5aSubmitted, setQ5aSubmitted] = useState(false);
+      const [q5bAnswer, setQ5bAnswer] = useState('');
+      const [q5bSubmitted, setQ5bSubmitted] = useState(false);
+      const [q5Attempts, setQ5Attempts] = useState(0);
+
+      // Q6: Why opposite sides
+      const [q6Answer, setQ6Answer] = useState('');
+      const [q6Attempts, setQ6Attempts] = useState(0);
+      const [q6Submitted, setQ6Submitted] = useState(false);
+
+      // Reflections
+      const [r1Answer, setR1Answer] = useState('');
+      const [r1Submitted, setR1Submitted] = useState(false);
+      const [r2Answer, setR2Answer] = useState('');
+      const [r2Submitted, setR2Submitted] = useState(false);
+
+      // Animation states
+      const [showSipparGranaryEntry, setShowSipparGranaryEntry] = useState(false);
+      const [showSipparPromiseEntry, setShowSipparPromiseEntry] = useState(false);
+      const [showNorthernGranaryEntry, setShowNorthernGranaryEntry] = useState(false);
+      const [showNorthernPromiseEntry, setShowNorthernPromiseEntry] = useState(false);
+
+      // UI state
+      const [showGlossary, setShowGlossary] = useState(false);
+      const [showHistoricalNote, setShowHistoricalNote] = useState(false);
+      const [devMode, setDevMode] = useState(false);
+      const [headerClickCount, setHeaderClickCount] = useState(0);
+
+      // ============================================
+      // PROGRESS CALCULATION
+      // ============================================
+      const currentPhaseIndex = phaseOrder.indexOf(phase);
+      const progress = Math.round((currentPhaseIndex / (phaseOrder.length - 1)) * 100);
+
+      // ============================================
+      // HANDLERS
+      // ============================================
+
+      const handleHeaderClick = () => {
+        const newCount = headerClickCount + 1;
+        setHeaderClickCount(newCount);
+        if (newCount >= 3) {
+          setDevMode(!devMode);
+          setHeaderClickCount(0);
+        }
+      };
+
+      const handleRestart = () => {
+        setPhase('welcome');
+        setStep(0);
+        setQ1Answer(''); setQ1Attempts(0); setQ1Submitted(false);
+        setQ2Answer(''); setQ2Attempts(0); setQ2Submitted(false);
+        setQ3Answer(''); setQ3Attempts(0); setQ3Submitted(false);
+        setQ4aAnswer(''); setQ4aSubmitted(false);
+        setQ4bAnswer(''); setQ4bSubmitted(false); setQ4Attempts(0);
+        setQ5aAnswer(''); setQ5aSubmitted(false);
+        setQ5bAnswer(''); setQ5bSubmitted(false); setQ5Attempts(0);
+        setQ6Answer(''); setQ6Attempts(0); setQ6Submitted(false);
+        setR1Answer(''); setR1Submitted(false);
+        setR2Answer(''); setR2Submitted(false);
+        setShowSipparGranaryEntry(false); setShowSipparPromiseEntry(false);
+        setShowNorthernGranaryEntry(false); setShowNorthernPromiseEntry(false);
+        setShowHistoricalNote(false);
+      };
+
+      // Q1: Planning calculation (3330)
+      const handleQ1Submit = () => {
+        const normalized = q1Answer.replace(/,/g, '').replace(/\s*garu\s*/gi, '').trim();
+        const isCorrect = normalized === '3330';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ1Submitted(true);
+        } else {
+          const newAttempts = q1Attempts + 1;
+          setQ1Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ1Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Q2: Left side for received things
+      const handleQ2Submit = () => {
+        const normalized = q2Answer.toLowerCase().trim();
+        const isCorrect = normalized.includes('left') || normalized === 'received';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ2Submitted(true);
+        } else {
+          const newAttempts = q2Attempts + 1;
+          setQ2Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ2Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Q3: Making a promise
+      const handleQ3Submit = () => {
+        const normalized = q3Answer.toLowerCase().trim();
+        const isCorrect = normalized.includes('mak') || normalized.includes('made');
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ3Submitted(true);
+        } else {
+          const newAttempts = q3Attempts + 1;
+          setQ3Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ3Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Q4a: Granary tablet for collection (left)
+      const handleQ4aSubmit = () => {
+        const normalized = q4aAnswer.toLowerCase().trim();
+        const isCorrect = normalized.includes('left') || normalized === 'received';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ4aSubmitted(true);
+        } else {
+          const newAttempts = q4Attempts + 1;
+          setQ4Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ4aSubmitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Q4b: Taxes Promised tablet for collection (right)
+      const handleQ4bSubmit = () => {
+        const normalized = q4bAnswer.toLowerCase().trim();
+        const isCorrect = normalized.includes('right') || normalized === 'settled';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ4bSubmitted(true);
+          // Start animation sequence
+          setTimeout(() => setShowSipparGranaryEntry(true), 300);
+          setTimeout(() => {
+            playContinueClick();
+            setShowSipparPromiseEntry(true);
+          }, 1200);
+        } else {
+          const newAttempts = q4Attempts + 1;
+          setQ4Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ4bSubmitted(true);
+            setTimeout(() => setShowSipparGranaryEntry(true), 300);
+            setTimeout(() => setShowSipparPromiseEntry(true), 1200);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Q5a: Granary tablet for payment (right)
+      const handleQ5aSubmit = () => {
+        const normalized = q5aAnswer.toLowerCase().trim();
+        const isCorrect = normalized.includes('right') || normalized === 'distributed';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ5aSubmitted(true);
+        } else {
+          const newAttempts = q5Attempts + 1;
+          setQ5Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ5aSubmitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Q5b: Wages Promised tablet for payment (left)
+      const handleQ5bSubmit = () => {
+        const normalized = q5bAnswer.toLowerCase().trim();
+        const isCorrect = normalized.includes('left') || normalized === 'paid' || normalized === 'fulfilled';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ5bSubmitted(true);
+          // Start animation sequence
+          setTimeout(() => setShowNorthernGranaryEntry(true), 300);
+          setTimeout(() => {
+            playContinueClick();
+            setShowNorthernPromiseEntry(true);
+          }, 1200);
+        } else {
+          const newAttempts = q5Attempts + 1;
+          setQ5Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ5bSubmitted(true);
+            setTimeout(() => setShowNorthernGranaryEntry(true), 300);
+            setTimeout(() => setShowNorthernPromiseEntry(true), 1200);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Q6: Why opposite sides
+      const handleQ6Submit = () => {
+        const normalized = q6Answer.toLowerCase();
+        const keywords = ['balance', 'offset', 'in', 'out', 'receiv', 'settl', 'mirror',
+                          'complement', 'perspective', 'same event', 'two', 'both', 'check',
+                          'verify', 'opposite', 'flow'];
+        const matchCount = keywords.filter(kw => normalized.includes(kw)).length;
+        const isCorrect = matchCount >= 2 || q6Answer.length >= 50;
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ6Submitted(true);
+        } else {
+          const newAttempts = q6Attempts + 1;
+          setQ6Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ6Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Reflection handlers
+      const handleR1Submit = () => {
+        if (r1Answer.trim().length >= 30) {
+          playSuccessTone();
+          setR1Submitted(true);
+        } else {
+          playSoftNope();
+        }
+      };
+
+      const handleR2Submit = () => {
+        if (r2Answer.trim().length >= 30) {
+          playSuccessTone();
+          setR2Submitted(true);
+        } else {
+          playSoftNope();
+        }
+      };
+
+      // ============================================
+      // HEADER COMPONENT
+      // ============================================
+      const HeaderWithControls = () => (
+        <div
+          className="rounded-lg p-4 mb-4"
+          style={{ backgroundColor: colors.primary }}
+        >
+          <div className="flex justify-between items-start">
+            <div onClick={handleHeaderClick} style={{ cursor: 'pointer' }}>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-white" />
+                <h1 className="text-lg font-bold text-white">Tutorial 2.6: Promises and Payments</h1>
+              </div>
+              <p className="text-sm mt-1" style={{ color: colors.earthLight }}>
+                Babylon, ~1800 BCE • ~15 min
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowGlossary(true)}
+                className="p-2 rounded-lg hover:bg-white/10"
+                title="Glossary"
+              >
+                <Book className="w-5 h-5 text-white" />
+              </button>
+              <button
+                onClick={handleRestart}
+                className="p-2 rounded-lg hover:bg-white/10"
+                title="Restart tutorial"
+              >
+                <RefreshCw className="w-5 h-5 text-white" />
+              </button>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="mt-4">
+            <div className="flex justify-between text-xs text-white/70 mb-1">
+              <span>Progress</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="h-2 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${progress}%`, backgroundColor: colors.accent }}
+              />
+            </div>
+          </div>
+
+          {/* Dev mode controls */}
+          {devMode && (
+            <div className="mt-3 pt-3 border-t border-white/20">
+              <p className="text-xs text-white/70 mb-2">Dev Mode: Skip to phase</p>
+              <div className="flex flex-wrap gap-1">
+                {phaseOrder.map(p => (
+                  <button
+                    key={p}
+                    onClick={() => { setStep(0); setPhase(p); }}
+                    className={`px-2 py-1 rounded text-xs ${phase === p ? 'bg-white text-blue-900' : 'bg-white/20 text-white'}`}
+                  >
+                    {p.split('-')[0]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+
+      // ============================================
+      // GLOSSARY MODAL
+      // ============================================
+      const GlossaryModal = () => (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-4 border-b sticky top-0 bg-white flex justify-between items-center">
+              <h3 className="font-bold" style={{ color: colors.primary }}>Glossary</h3>
+              <button
+                onClick={() => setShowGlossary(false)}
+                className="text-gray-500 hover:text-gray-700 text-xl"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4 space-y-3 text-sm">
+              {glossaryTerms.map((item, i) => (
+                <div key={i}>
+                  <p className="font-medium" style={{ color: colors.primary }}>{item.term}</p>
+                  <p className="text-gray-600 text-xs">{item.definition}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // HISTORICAL NOTE COMPONENT
+      // ============================================
+      const HistoricalNote = () => (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowHistoricalNote(!showHistoricalNote)}
+            className="w-full flex items-center justify-between p-3 rounded-lg text-sm"
+            style={{ backgroundColor: colors.clayLight, color: colors.earthDark }}
+          >
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              <span className="font-medium">A Note on Historical Liberties</span>
+            </div>
+            {showHistoricalNote ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+
+          {showHistoricalNote && (
+            <div
+              className="mt-2 p-4 rounded-lg text-sm border"
+              style={{ backgroundColor: 'white', borderColor: colors.earthLight, color: colors.earthDark }}
+            >
+              <p className="mb-3">
+                Babylonian scribes did track debts and obligations on clay tablets. Loan contracts, tax assessments, and delivery promises are well-documented in the archaeological record. However, the specific two-column format shown here is a pedagogical simplification.
+              </p>
+              <p className="mb-3">
+                We use this familiar structure to maintain continuity with earlier tutorials and to highlight the conceptual parallel between tracking physical flows and tracking promised flows.
+              </p>
+              <p className="italic">
+                This is historical fiction in service of teaching accounting concepts.
+              </p>
+            </div>
+          )}
+        </div>
+      );
+
+      // ============================================
+      // RENDER: WELCOME PHASE
+      // ============================================
+      const renderWelcome = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <HeaderWithControls />
+
+            <NarrativeBlock>
+              <p className="mb-3">
+                Months have passed since the Central Record Hall opened its doors. The system works. Every evening, the departments reconcile. Every discrepancy is caught, investigated, explained.
+              </p>
+              <p>
+                You have earned a new responsibility. Master Nabu-rimanni has asked you to assist with the palace's planning—not just recording what happened, but anticipating what will happen.
+              </p>
+            </NarrativeBlock>
+
+            <DialogueBlock speaker="Master Nabu-rimanni">
+              <p className="mb-3">
+                "The king asks me each month: How much grain will we have? Not how much we have <em>now</em>—he can count the granaries himself. He wants to know what we will have <em>after</em> the taxes arrive and <em>after</em> the soldiers are paid."
+              </p>
+              <p>
+                "Our tablets tell us the past. But the king needs to see the future."
+              </p>
+            </DialogueBlock>
+
+            {/* In This Tutorial box */}
+            <div
+              className="p-4 rounded-lg border-2 mb-4"
+              style={{ backgroundColor: 'white', borderColor: colors.primary }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Clock className="w-5 h-5" style={{ color: colors.primary }} />
+                <h3 className="font-bold" style={{ color: colors.primary }}>In This Tutorial</h3>
+              </div>
+              <ul className="space-y-2 text-sm" style={{ color: colors.earthDark }}>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>How promises differ from physical flows</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Tracking what is owed TO the palace (receivables)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Tracking what the palace OWES (payables)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Why fulfilling a promise updates two tablets on <em>opposite sides</em></span>
+                </li>
+              </ul>
+            </div>
+
+            <HistoricalNote />
+
+            <ContinueButton onClick={() => { setStep(0); setPhase('planning'); }}>
+              Begin Tutorial
+            </ContinueButton>
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // RENDER: PLANNING PHASE
+      // ============================================
+      const renderPlanning = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <HeaderWithControls />
+
+            {step === 0 && (
+              <>
+                <NarrativeBlock>
+                  Master Nabu-rimanni spreads several tablets across the table.
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="Master Nabu-rimanni">
+                  <p className="mb-3">
+                    "Here is what we know. The granary holds 3,000 garu today. Next month, three districts owe their harvest taxes—Sippar, Larsa, and Nippur. And we owe wages to two garrisons."
+                  </p>
+                  <p>
+                    "The king wants to know: after all promises are kept, how much grain will remain?"
+                  </p>
+                </DialogueBlock>
+
+                {/* Current Information Table */}
+                <div
+                  className="rounded-lg border-2 overflow-hidden mb-4"
+                  style={{ backgroundColor: 'white', borderColor: colors.earthLight }}
+                >
+                  <div className="p-3 border-b" style={{ backgroundColor: colors.clayLight, borderColor: colors.earthLight }}>
+                    <p className="font-bold text-sm" style={{ color: colors.earthDark }}>Current Information</p>
+                  </div>
+                  <div className="p-3 space-y-2 text-sm">
+                    <div className="flex justify-between py-1 border-b" style={{ borderColor: colors.earthLight }}>
+                      <span style={{ color: colors.earthDark }}>Current granary balance</span>
+                      <span className="font-mono font-bold" style={{ color: colors.primary }}>3,000 garu</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b" style={{ borderColor: colors.earthLight }}>
+                      <span style={{ color: colors.earthDark }}>Taxes promised (Sippar)</span>
+                      <span className="font-mono" style={{ color: colors.success }}>+200 garu</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b" style={{ borderColor: colors.earthLight }}>
+                      <span style={{ color: colors.earthDark }}>Taxes promised (Larsa)</span>
+                      <span className="font-mono" style={{ color: colors.success }}>+150 garu</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b" style={{ borderColor: colors.earthLight }}>
+                      <span style={{ color: colors.earthDark }}>Taxes promised (Nippur)</span>
+                      <span className="font-mono" style={{ color: colors.success }}>+180 garu</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b" style={{ borderColor: colors.earthLight }}>
+                      <span style={{ color: colors.earthDark }}>Wages owed (Northern garrison)</span>
+                      <span className="font-mono" style={{ color: colors.error }}>−120 garu</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span style={{ color: colors.earthDark }}>Wages owed (Palace guard)</span>
+                      <span className="font-mono" style={{ color: colors.error }}>−80 garu</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Q1: Calculation */}
+                <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                  <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                    <strong>Question:</strong> If all promises are kept, how much grain will remain in the granary?
+                  </p>
+
+                  <div className="flex gap-2 items-center mb-3">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={q1Answer}
+                      onChange={(e) => setQ1Answer(e.target.value)}
+                      disabled={q1Submitted}
+                      placeholder="?"
+                      className="w-28 p-3 border rounded text-center font-mono text-lg"
+                      style={{ borderColor: colors.earthLight }}
+                    />
+                    <span className="text-sm" style={{ color: colors.earth }}>garu</span>
+                    {!q1Submitted && (
+                      <button
+                        onClick={handleQ1Submit}
+                        disabled={!q1Answer.trim()}
+                        className="px-4 py-2 rounded font-bold text-white disabled:opacity-50"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Check
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Hints */}
+                  {q1Attempts > 0 && q1Attempts < 3 && !q1Submitted && (
+                    <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.warningBg }}>
+                      <strong>Hint {q1Attempts}/2:</strong>{' '}
+                      {q1Attempts === 1 && "Add up all the taxes that will come in (200 + 150 + 180)..."}
+                      {q1Attempts === 2 && "Start with 3,000, add 530 (total taxes), subtract 200 (total wages)"}
+                    </div>
+                  )}
+
+                  {/* Result */}
+                  {q1Submitted && (
+                    <div
+                      className="p-3 rounded-lg text-sm"
+                      style={{ backgroundColor: q1Attempts < 3 ? colors.successBg : colors.warningBg }}
+                    >
+                      {q1Attempts < 3 ? (
+                        <p style={{ color: '#166534' }}>
+                          <strong>Correct!</strong> 3,000 + 530 − 200 = 3,330 garu
+                        </p>
+                      ) : (
+                        <p style={{ color: '#92400e' }}>
+                          The answer is <strong>3,330 garu</strong>. (3,000 + 530 − 200)
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {q1Submitted && (
+                  <ContinueButton onClick={() => setStep(1)}>
+                    Continue
+                  </ContinueButton>
+                )}
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="Master Nabu-rimanni">
+                  <p className="mb-3">
+                    "Good. You can calculate. But calculation is not enough."
+                  </p>
+                  <p className="mb-3">
+                    "The king doesn't just want a number—he wants to <em>see</em> the promises. Which districts have paid? Which still owe? Which soldiers have been paid? Which are waiting?"
+                  </p>
+                  <p>
+                    "Our granary tablets track grain. We need tablets that track <em>promises</em>."
+                  </p>
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('receivables'); }}>
+                  Continue
+                </ContinueButton>
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // RENDER: RECEIVABLES PHASE
+      // ============================================
+      const renderReceivables = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <HeaderWithControls />
+
+            {step === 0 && (
+              <>
+                <NarrativeBlock>
+                  You consider the problem. A tax promise is a commitment by the district to deliver grain. From the palace's perspective, you have <em>received</em> a promise.
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="You (thinking aloud)">
+                  "When Sippar promises to pay their taxes, the palace receives that promise. It's like receiving something—but the grain hasn't arrived yet. Just the commitment."
+                </DialogueBlock>
+
+                <DialogueBlock speaker="Master Nabu-rimanni">
+                  "Yes. The promise comes to us—we receive it. And when we receive something, where does it go on our tablets?"
+                </DialogueBlock>
+
+                {/* Q2: Where do received things go */}
+                <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                  <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                    <strong>Question:</strong> On our granary tablets, where do things we RECEIVE appear—left side or right side?
+                  </p>
+
+                  <div className="flex gap-2 items-center mb-3">
+                    <input
+                      type="text"
+                      value={q2Answer}
+                      onChange={(e) => setQ2Answer(e.target.value)}
+                      disabled={q2Submitted}
+                      placeholder="Left or Right?"
+                      className="flex-1 p-3 border rounded text-center"
+                      style={{ borderColor: colors.earthLight }}
+                    />
+                    {!q2Submitted && (
+                      <button
+                        onClick={handleQ2Submit}
+                        disabled={!q2Answer.trim()}
+                        className="px-4 py-2 rounded font-bold text-white disabled:opacity-50"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Check
+                      </button>
+                    )}
+                  </div>
+
+                  {q2Attempts > 0 && q2Attempts < 3 && !q2Submitted && (
+                    <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.warningBg }}>
+                      <strong>Hint:</strong> Think about the granary tablet—which column is labeled "RECEIVED"?
+                    </div>
+                  )}
+
+                  {q2Submitted && (
+                    <div
+                      className="p-3 rounded-lg text-sm"
+                      style={{ backgroundColor: q2Attempts < 3 ? colors.successBg : colors.warningBg }}
+                    >
+                      {q2Attempts < 3 ? (
+                        <p style={{ color: '#166534' }}><strong>Correct!</strong> Things we receive go on the left.</p>
+                      ) : (
+                        <p style={{ color: '#92400e' }}>The answer is <strong>Left</strong>—the RECEIVED column.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {q2Submitted && (
+                  <ContinueButton onClick={() => setStep(1)}>
+                    Continue
+                  </ContinueButton>
+                )}
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="Master Nabu-rimanni">
+                  "So if we create a tablet for tax promises, the promises we receive should go on the left. When a district actually delivers the grain, the promise is settled—it moves to the right."
+                </DialogueBlock>
+
+                {/* Taxes Promised Tablet */}
+                <TAccountTablet
+                  title="TAXES PROMISED"
+                  subtitle="Promises received by the palace"
+                  leftHeader="RECEIVED"
+                  rightHeader="SETTLED"
+                  leftEntries={[
+                    { label: 'Sippar:', value: '200 garu', amount: 200 },
+                    { label: 'Larsa:', value: '150 garu', amount: 150 },
+                    { label: 'Nippur:', value: '180 garu', amount: 180 }
+                  ]}
+                  rightEntries={[]}
+                  leftTotal={530}
+                  rightTotal={0}
+                  showBalance={true}
+                  balanceLabel="STILL OWED TO PALACE"
+                />
+
+                <InsightPanel title="Receivables">
+                  <p>
+                    A <strong>receivable</strong> is a promise received—a commitment by others to deliver something to you.
+                    Record promises received on the <strong>LEFT</strong> (like any receipt).
+                    When fulfilled, record on the <strong>RIGHT</strong> (settled).
+                    The balance shows what's still outstanding.
+                  </p>
+                </InsightPanel>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('payables'); }}>
+                  Continue
+                </ContinueButton>
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // RENDER: PAYABLES PHASE
+      // ============================================
+      const renderPayables = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <HeaderWithControls />
+
+            {step === 0 && (
+              <>
+                <NarrativeBlock>
+                  The taxes are one side. But what about the wages?
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="Master Nabu-rimanni">
+                  "The soldiers don't have their grain yet. But we have promised it. From the palace's perspective, we <em>made</em> a promise—we sent a commitment out into the world. How should we track it?"
+                </DialogueBlock>
+
+                {/* Q3: Making vs receiving */}
+                <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                  <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                    <strong>Question:</strong> When the palace promises to pay soldiers, is the palace receiving a promise or making a promise?
+                  </p>
+
+                  <div className="flex gap-2 items-center mb-3">
+                    <input
+                      type="text"
+                      value={q3Answer}
+                      onChange={(e) => setQ3Answer(e.target.value)}
+                      disabled={q3Submitted}
+                      placeholder="Receiving or Making?"
+                      className="flex-1 p-3 border rounded text-center"
+                      style={{ borderColor: colors.earthLight }}
+                    />
+                    {!q3Submitted && (
+                      <button
+                        onClick={handleQ3Submit}
+                        disabled={!q3Answer.trim()}
+                        className="px-4 py-2 rounded font-bold text-white disabled:opacity-50"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Check
+                      </button>
+                    )}
+                  </div>
+
+                  {q3Attempts > 0 && q3Attempts < 3 && !q3Submitted && (
+                    <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.warningBg }}>
+                      <strong>Hint:</strong> Who is making the commitment? The palace or the soldiers?
+                    </div>
+                  )}
+
+                  {q3Submitted && (
+                    <div
+                      className="p-3 rounded-lg text-sm"
+                      style={{ backgroundColor: q3Attempts < 3 ? colors.successBg : colors.warningBg }}
+                    >
+                      {q3Attempts < 3 ? (
+                        <p style={{ color: '#166534' }}><strong>Correct!</strong> The palace is making a promise.</p>
+                      ) : (
+                        <p style={{ color: '#92400e' }}>The answer is <strong>Making</strong>—the palace makes the promise to pay.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {q3Submitted && (
+                  <ContinueButton onClick={() => setStep(1)}>
+                    Continue
+                  </ContinueButton>
+                )}
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="You (realizing)">
+                  "We made a promise—we sent it out. So it's like an outflow? The promise goes on the right... and when we actually pay, we've fulfilled it, so that goes on the left?"
+                </DialogueBlock>
+
+                <DialogueBlock speaker="Master Nabu-rimanni">
+                  "Exactly. When we make a promise, it goes on the right—a commitment we've sent out, an obligation outstanding. When we pay, it goes on the left—fulfilled."
+                </DialogueBlock>
+
+                {/* Wages Promised Tablet */}
+                <TAccountTablet
+                  title="WAGES PROMISED"
+                  subtitle="Promises made by the palace"
+                  leftHeader="PAID"
+                  rightHeader="OWED"
+                  leftEntries={[]}
+                  rightEntries={[
+                    { label: 'Northern garrison:', value: '120 garu', amount: 120 },
+                    { label: 'Palace guard:', value: '80 garu', amount: 80 }
+                  ]}
+                  leftTotal={0}
+                  rightTotal={200}
+                  showBalance={true}
+                  balanceLabel="STILL OWED BY PALACE"
+                />
+
+                <InsightPanel title="Payables">
+                  <p>
+                    A <strong>payable</strong> is a promise made—a commitment you've made to deliver something to others.
+                    Record promises made on the <strong>RIGHT</strong> (like any disbursement).
+                    When fulfilled, record on the <strong>LEFT</strong>.
+                    The balance shows what's still outstanding.
+                  </p>
+                </InsightPanel>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('cross-collection'); }}>
+                  Continue
+                </ContinueButton>
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // RENDER: CROSS-COLLECTION PHASE
+      // ============================================
+      const renderCrossCollection = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <HeaderWithControls />
+
+            {step === 0 && (
+              <>
+                <NarrativeBlock>
+                  A messenger arrives. "The Sippar caravan has arrived with the tax grain!"
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="Master Nabu-rimanni">
+                  "Good. Now watch carefully. When Sippar delivers, what happens to our tablets?"
+                </DialogueBlock>
+
+                {/* Two tablets side by side (stacked on mobile) */}
+                <div className="space-y-4">
+                  <TAccountTablet
+                    title="GRANARY"
+                    leftHeader="RECEIVED"
+                    rightHeader="DISTRIBUTED"
+                    leftEntries={[
+                      { label: 'Previous balance:', value: '3,000 garu', amount: 3000 },
+                      ...(showSipparGranaryEntry ? [{ label: 'From Sippar:', value: '200 garu', amount: 200, highlight: true }] : [])
+                    ]}
+                    rightEntries={[]}
+                    highlightLeft={showSipparGranaryEntry && !showSipparPromiseEntry}
+                  />
+
+                  <TAccountTablet
+                    title="TAXES PROMISED"
+                    subtitle="Promises received by the palace"
+                    leftHeader="RECEIVED"
+                    rightHeader="SETTLED"
+                    leftEntries={[
+                      { label: 'Sippar:', value: '200 garu', amount: 200 },
+                      { label: 'Larsa:', value: '150 garu', amount: 150 },
+                      { label: 'Nippur:', value: '180 garu', amount: 180 }
+                    ]}
+                    rightEntries={showSipparPromiseEntry ? [
+                      { label: 'Sippar:', value: '200 garu', amount: 200, highlight: true }
+                    ] : []}
+                    highlightRight={showSipparPromiseEntry}
+                  />
+                </div>
+
+                {/* Q4a: Granary side */}
+                {!q4aSubmitted && (
+                  <div className="bg-white rounded-lg p-4 my-4 shadow-sm">
+                    <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                      <strong>Question:</strong> When Sippar delivers 200 garu, which side of the GRANARY tablet gets an entry?
+                    </p>
+
+                    <div className="flex gap-2 items-center mb-3">
+                      <input
+                        type="text"
+                        value={q4aAnswer}
+                        onChange={(e) => setQ4aAnswer(e.target.value)}
+                        placeholder="Left or Right?"
+                        className="flex-1 p-3 border rounded text-center"
+                        style={{ borderColor: colors.earthLight }}
+                      />
+                      <button
+                        onClick={handleQ4aSubmit}
+                        disabled={!q4aAnswer.trim()}
+                        className="px-4 py-2 rounded font-bold text-white disabled:opacity-50"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Check
+                      </button>
+                    </div>
+
+                    {q4Attempts > 0 && q4Attempts < 3 && (
+                      <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.warningBg }}>
+                        <strong>Hint:</strong> Is grain coming IN to the granary or going OUT?
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Q4b: Taxes Promised side */}
+                {q4aSubmitted && !q4bSubmitted && (
+                  <div className="bg-white rounded-lg p-4 my-4 shadow-sm">
+                    <div className="p-3 rounded-lg mb-3" style={{ backgroundColor: colors.successBg }}>
+                      <p className="text-sm" style={{ color: '#166534' }}>
+                        <strong>Correct!</strong> Grain flows IN to the granary—left side (RECEIVED).
+                      </p>
+                    </div>
+
+                    <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                      <strong>Follow-up:</strong> And which side of the TAXES PROMISED tablet?
+                    </p>
+
+                    <div className="flex gap-2 items-center mb-3">
+                      <input
+                        type="text"
+                        value={q4bAnswer}
+                        onChange={(e) => setQ4bAnswer(e.target.value)}
+                        placeholder="Left or Right?"
+                        className="flex-1 p-3 border rounded text-center"
+                        style={{ borderColor: colors.earthLight }}
+                      />
+                      <button
+                        onClick={handleQ4bSubmit}
+                        disabled={!q4bAnswer.trim()}
+                        className="px-4 py-2 rounded font-bold text-white disabled:opacity-50"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Check
+                      </button>
+                    </div>
+
+                    {q4Attempts > 2 && (
+                      <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.warningBg }}>
+                        <strong>Hint:</strong> The promise was "received" (left). Now it's being "settled" (fulfilled)...
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* After animation completes */}
+                {q4bSubmitted && showSipparPromiseEntry && (
+                  <>
+                    <div className="bg-white rounded-lg p-4 my-4 shadow-sm">
+                      <div className="p-3 rounded-lg" style={{ backgroundColor: colors.successBg }}>
+                        <p className="text-sm" style={{ color: '#166534' }}>
+                          <strong>{q4Attempts < 3 ? 'Correct!' : 'The answer:'}</strong> The promise is settled—right side of TAXES PROMISED.
+                        </p>
+                      </div>
+                    </div>
+
+                    <InsightPanel title="Opposite Sides">
+                      <p className="mb-2">
+                        When a receivable is collected, <strong>two tablets update on opposite sides</strong>:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        <li>The goods tablet records the physical inflow (<strong>LEFT</strong>—grain received)</li>
+                        <li>The promises tablet records the fulfillment (<strong>RIGHT</strong>—promise settled)</li>
+                      </ul>
+                      <p className="mt-2">
+                        Grain comes IN. The promise is DONE. Left and right—opposite sides, but they're recording the same event from different perspectives.
+                      </p>
+                    </InsightPanel>
+
+                    <ContinueButton onClick={() => { setStep(0); setPhase('cross-payment'); }}>
+                      Continue
+                    </ContinueButton>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // RENDER: CROSS-PAYMENT PHASE
+      // ============================================
+      const renderCrossPayment = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <HeaderWithControls />
+
+            {step === 0 && (
+              <>
+                <NarrativeBlock>
+                  Later that day, the Northern garrison arrives to collect their wages.
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="Master Nabu-rimanni">
+                  "Now the opposite case. We made them a promise. When we pay, what happens?"
+                </DialogueBlock>
+
+                {/* Two tablets */}
+                <div className="space-y-4">
+                  <TAccountTablet
+                    title="GRANARY"
+                    leftHeader="RECEIVED"
+                    rightHeader="DISTRIBUTED"
+                    leftEntries={[
+                      { label: 'Balance:', value: '3,200 garu', amount: 3200 }
+                    ]}
+                    rightEntries={showNorthernGranaryEntry ? [
+                      { label: 'To Northern garrison:', value: '120 garu', amount: 120, highlight: true }
+                    ] : []}
+                    highlightRight={showNorthernGranaryEntry && !showNorthernPromiseEntry}
+                  />
+
+                  <TAccountTablet
+                    title="WAGES PROMISED"
+                    subtitle="Promises made by the palace"
+                    leftHeader="PAID"
+                    rightHeader="OWED"
+                    leftEntries={showNorthernPromiseEntry ? [
+                      { label: 'Northern garrison:', value: '120 garu', amount: 120, highlight: true }
+                    ] : []}
+                    rightEntries={[
+                      { label: 'Northern garrison:', value: '120 garu', amount: 120 },
+                      { label: 'Palace guard:', value: '80 garu', amount: 80 }
+                    ]}
+                    highlightLeft={showNorthernPromiseEntry}
+                  />
+                </div>
+
+                {/* Q5a: Granary side */}
+                {!q5aSubmitted && (
+                  <div className="bg-white rounded-lg p-4 my-4 shadow-sm">
+                    <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                      <strong>Question:</strong> When we pay the Northern garrison 120 garu, which side of the GRANARY tablet gets an entry?
+                    </p>
+
+                    <div className="flex gap-2 items-center mb-3">
+                      <input
+                        type="text"
+                        value={q5aAnswer}
+                        onChange={(e) => setQ5aAnswer(e.target.value)}
+                        placeholder="Left or Right?"
+                        className="flex-1 p-3 border rounded text-center"
+                        style={{ borderColor: colors.earthLight }}
+                      />
+                      <button
+                        onClick={handleQ5aSubmit}
+                        disabled={!q5aAnswer.trim()}
+                        className="px-4 py-2 rounded font-bold text-white disabled:opacity-50"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Check
+                      </button>
+                    </div>
+
+                    {q5Attempts > 0 && q5Attempts < 3 && (
+                      <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.warningBg }}>
+                        <strong>Hint:</strong> Is grain coming IN to the granary or going OUT?
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Q5b: Wages Promised side */}
+                {q5aSubmitted && !q5bSubmitted && (
+                  <div className="bg-white rounded-lg p-4 my-4 shadow-sm">
+                    <div className="p-3 rounded-lg mb-3" style={{ backgroundColor: colors.successBg }}>
+                      <p className="text-sm" style={{ color: '#166534' }}>
+                        <strong>Correct!</strong> Grain flows OUT of the granary—right side (DISTRIBUTED).
+                      </p>
+                    </div>
+
+                    <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                      <strong>Follow-up:</strong> And which side of the WAGES PROMISED tablet?
+                    </p>
+
+                    <div className="flex gap-2 items-center mb-3">
+                      <input
+                        type="text"
+                        value={q5bAnswer}
+                        onChange={(e) => setQ5bAnswer(e.target.value)}
+                        placeholder="Left or Right?"
+                        className="flex-1 p-3 border rounded text-center"
+                        style={{ borderColor: colors.earthLight }}
+                      />
+                      <button
+                        onClick={handleQ5bSubmit}
+                        disabled={!q5bAnswer.trim()}
+                        className="px-4 py-2 rounded font-bold text-white disabled:opacity-50"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Check
+                      </button>
+                    </div>
+
+                    {q5Attempts > 2 && (
+                      <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.warningBg }}>
+                        <strong>Hint:</strong> The promise was "owed" (right). Now it's being "paid" (fulfilled)...
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* After animation completes */}
+                {q5bSubmitted && showNorthernPromiseEntry && (
+                  <>
+                    <div className="bg-white rounded-lg p-4 my-4 shadow-sm">
+                      <div className="p-3 rounded-lg" style={{ backgroundColor: colors.successBg }}>
+                        <p className="text-sm" style={{ color: '#166534' }}>
+                          <strong>{q5Attempts < 3 ? 'Correct!' : 'The answer:'}</strong> The promise is fulfilled—left side of WAGES PROMISED.
+                        </p>
+                      </div>
+                    </div>
+
+                    <InsightPanel title="The Mirror Pattern">
+                      <p className="mb-2">
+                        When a payable is settled, <strong>two tablets update on opposite sides</strong>:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        <li>The goods tablet records the physical outflow (<strong>RIGHT</strong>—grain distributed)</li>
+                        <li>The promises tablet records the fulfillment (<strong>LEFT</strong>—promise paid)</li>
+                      </ul>
+                      <p className="mt-2">
+                        Grain goes OUT. The promise is DONE. Right and left—again, opposite sides recording the same event.
+                      </p>
+                    </InsightPanel>
+
+                    <ContinueButton onClick={() => { setStep(0); setPhase('pattern'); }}>
+                      Continue
+                    </ContinueButton>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // RENDER: PATTERN PHASE
+      // ============================================
+      const renderPattern = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <HeaderWithControls />
+
+            <DialogueBlock speaker="Master Nabu-rimanni">
+              "Do you see the pattern?"
+            </DialogueBlock>
+
+            {/* Summary Table */}
+            <div
+              className="rounded-lg border-2 overflow-hidden mb-4"
+              style={{ backgroundColor: 'white', borderColor: colors.earthLight }}
+            >
+              <div className="p-3 border-b" style={{ backgroundColor: colors.clayLight, borderColor: colors.earthLight }}>
+                <p className="font-bold text-sm text-center" style={{ color: colors.earthDark }}>The Pattern</p>
+              </div>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ backgroundColor: colors.sand }}>
+                    <th className="p-2 text-left border-b" style={{ borderColor: colors.earthLight, color: colors.earthDark }}>Event</th>
+                    <th className="p-2 text-center border-b" style={{ borderColor: colors.earthLight, color: colors.earthDark }}>Goods Tablet</th>
+                    <th className="p-2 text-center border-b" style={{ borderColor: colors.earthLight, color: colors.earthDark }}>Promises Tablet</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="p-2 border-b" style={{ borderColor: colors.earthLight, color: colors.earthDark }}>Tax collected</td>
+                    <td className="p-2 text-center border-b font-bold" style={{ borderColor: colors.earthLight, color: colors.success }}>LEFT (Received)</td>
+                    <td className="p-2 text-center border-b font-bold" style={{ borderColor: colors.earthLight, color: colors.primary }}>RIGHT (Settled)</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2" style={{ color: colors.earthDark }}>Wages paid</td>
+                    <td className="p-2 text-center font-bold" style={{ color: colors.primary }}>RIGHT (Distributed)</td>
+                    <td className="p-2 text-center font-bold" style={{ color: colors.success }}>LEFT (Paid)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Q6: Why opposite sides */}
+            <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+              <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                <strong>Question:</strong> When a promise is fulfilled, the entries appear on opposite sides of the two tablets. Why opposite sides?
+              </p>
+
+              <textarea
+                value={q6Answer}
+                onChange={(e) => setQ6Answer(e.target.value)}
+                disabled={q6Submitted}
+                placeholder="Explain why the entries are on opposite sides..."
+                rows={3}
+                className="w-full p-3 border rounded text-sm resize-none mb-3"
+                style={{ borderColor: colors.earthLight }}
+              />
+
+              {!q6Submitted && (
+                <button
+                  onClick={handleQ6Submit}
+                  disabled={q6Answer.trim().length < 10}
+                  className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Submit
+                </button>
+              )}
+
+              {q6Attempts > 0 && q6Attempts < 3 && !q6Submitted && (
+                <div className="p-3 rounded-lg text-sm mt-3" style={{ backgroundColor: colors.warningBg }}>
+                  <strong>Hint {q6Attempts}/2:</strong>{' '}
+                  {q6Attempts === 1 && "When Sippar delivers grain, what happens to the grain? What happens to the promise?"}
+                  {q6Attempts === 2 && "Think of it as two perspectives on the same event—what enters one record exits another."}
+                </div>
+              )}
+
+              {q6Submitted && (
+                <div
+                  className="p-3 rounded-lg text-sm mt-3"
+                  style={{ backgroundColor: q6Attempts < 3 ? colors.successBg : colors.warningBg }}
+                >
+                  {q6Attempts < 3 ? (
+                    <p style={{ color: '#166534' }}><strong>Good thinking!</strong></p>
+                  ) : (
+                    <p style={{ color: '#92400e' }}>Here's the key insight:</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {q6Submitted && (
+              <>
+                <InsightPanel title="Two Perspectives, One Event">
+                  <p className="mb-2">
+                    Every fulfillment is <strong>one event recorded from two perspectives</strong>:
+                  </p>
+                  <p className="mb-2">
+                    When tax is collected:
+                  </p>
+                  <ul className="list-disc list-inside mb-2 text-sm">
+                    <li>From the Granary's view: grain came IN (left)</li>
+                    <li>From the Promises view: an obligation went OUT—it's settled (right)</li>
+                  </ul>
+                  <p className="mb-2">
+                    When wages are paid:
+                  </p>
+                  <ul className="list-disc list-inside mb-2 text-sm">
+                    <li>From the Granary's view: grain went OUT (right)</li>
+                    <li>From the Promises view: an obligation came IN to the "done" column (left)</li>
+                  </ul>
+                  <p>
+                    Opposite sides because the same event looks like an inflow from one perspective and a completion from another. This <strong>opposite-sides discipline</strong> ensures that nothing can be recorded in one place without being recorded in another.
+                  </p>
+                </InsightPanel>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('answer-king'); }}>
+                  Continue
+                </ContinueButton>
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // RENDER: ANSWER KING PHASE
+      // ============================================
+      const renderAnswerKing = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <HeaderWithControls />
+
+            <NarrativeBlock>
+              Master Nabu-rimanni nods with satisfaction.
+            </NarrativeBlock>
+
+            <DialogueBlock speaker="Master Nabu-rimanni">
+              "Now. The king asks: after all promises are kept, what will remain? Before, you could only calculate. Now, you can <em>show</em> him."
+            </DialogueBlock>
+
+            {/* Complete Picture - All three tablets */}
+            <div className="space-y-4 mb-4">
+              <TAccountTablet
+                title="GRANARY (Current)"
+                leftHeader="RECEIVED"
+                rightHeader="DISTRIBUTED"
+                leftEntries={[
+                  { label: 'Balance:', value: '3,000 garu', amount: 3000 }
+                ]}
+                rightEntries={[]}
+                leftTotal={3000}
+                rightTotal={0}
+              />
+
+              <TAccountTablet
+                title="TAXES PROMISED"
+                subtitle="Promises received by the palace"
+                leftHeader="RECEIVED"
+                rightHeader="SETTLED"
+                leftEntries={[
+                  { label: 'Sippar:', value: '200 garu', amount: 200 },
+                  { label: 'Larsa:', value: '150 garu', amount: 150 },
+                  { label: 'Nippur:', value: '180 garu', amount: 180 }
+                ]}
+                rightEntries={[]}
+                leftTotal={530}
+                rightTotal={0}
+                showBalance={true}
+                balanceLabel="STILL OWED TO PALACE"
+              />
+
+              <TAccountTablet
+                title="WAGES PROMISED"
+                subtitle="Promises made by the palace"
+                leftHeader="PAID"
+                rightHeader="OWED"
+                leftEntries={[]}
+                rightEntries={[
+                  { label: 'Northern garrison:', value: '120 garu', amount: 120 },
+                  { label: 'Palace guard:', value: '80 garu', amount: 80 }
+                ]}
+                leftTotal={0}
+                rightTotal={200}
+                showBalance={true}
+                balanceLabel="STILL OWED BY PALACE"
+              />
+            </div>
+
+            <DialogueBlock speaker="Master Nabu-rimanni">
+              "The king can see at a glance: 3,000 garu now, plus 530 promised to us, minus 200 we've promised to others. And as each promise is kept, the tablets will show it—not as a calculation in someone's head, but as marks on clay that anyone can verify."
+            </DialogueBlock>
+
+            <ContinueButton onClick={() => { setStep(0); setPhase('reflection'); }}>
+              Continue
+            </ContinueButton>
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // RENDER: REFLECTION PHASE
+      // ============================================
+      const renderReflection = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <HeaderWithControls />
+
+            <h2 className="text-xl font-bold mb-4" style={{ color: colors.primary }}>Reflection</h2>
+
+            {/* R1 */}
+            <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+              <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                <strong>Question 1:</strong> Before this system, how did the palace track what was owed? What could go wrong?
+              </p>
+
+              <textarea
+                value={r1Answer}
+                onChange={(e) => setR1Answer(e.target.value)}
+                disabled={r1Submitted}
+                placeholder="Your thoughts... (at least 30 characters)"
+                rows={3}
+                className="w-full p-3 border rounded text-sm resize-none mb-3"
+                style={{ borderColor: colors.earthLight }}
+              />
+
+              {!r1Submitted && (
+                <button
+                  onClick={handleR1Submit}
+                  disabled={r1Answer.trim().length < 30}
+                  className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Submit
+                </button>
+              )}
+
+              {r1Submitted && (
+                <div className="p-3 rounded-lg" style={{ backgroundColor: colors.successBg }}>
+                  <p className="text-sm" style={{ color: '#166534' }}>
+                    <strong>Thank you!</strong> Without records, the palace relied on memory and trust. Promises could be forgotten, disputed, or denied.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* R2 */}
+            {r1Submitted && (
+              <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                  <strong>Question 2:</strong> Why is it important that fulfilling a promise updates two tablets, not just one?
+                </p>
+
+                <textarea
+                  value={r2Answer}
+                  onChange={(e) => setR2Answer(e.target.value)}
+                  disabled={r2Submitted}
+                  placeholder="Your thoughts... (at least 30 characters)"
+                  rows={3}
+                  className="w-full p-3 border rounded text-sm resize-none mb-3"
+                  style={{ borderColor: colors.earthLight }}
+                />
+
+                {!r2Submitted && (
+                  <button
+                    onClick={handleR2Submit}
+                    disabled={r2Answer.trim().length < 30}
+                    className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Submit
+                  </button>
+                )}
+
+                {r2Submitted && (
+                  <div className="p-3 rounded-lg" style={{ backgroundColor: colors.successBg }}>
+                    <p className="text-sm" style={{ color: '#166534' }}>
+                      <strong>Exactly!</strong> Two tablets means two records that must agree. You can't mark a promise as fulfilled without also recording the physical flow—and vice versa. The system checks itself.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* What You Learned */}
+            {r2Submitted && (
+              <>
+                <div
+                  className="p-4 rounded-lg border-2 mb-4"
+                  style={{ backgroundColor: 'white', borderColor: colors.success }}
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <Trophy className="w-5 h-5" style={{ color: colors.success }} />
+                    <h3 className="font-bold" style={{ color: colors.success }}>What You Learned</h3>
+                  </div>
+                  <ul className="space-y-2 text-sm" style={{ color: colors.earthDark }}>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                      <span>Promises are future flows—track them on tablets just like physical flows</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                      <span>Receivables (promises received): outstanding on LEFT, settled on RIGHT</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                      <span>Payables (promises made): outstanding on RIGHT, fulfilled on LEFT</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                      <span>Every fulfillment updates TWO tablets on OPPOSITE sides</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                      <span>This opposite-sides discipline extends the coordinated record-keeping system</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('complete'); }}>
+                  Continue
+                </ContinueButton>
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // RENDER: COMPLETE PHASE
+      // ============================================
+      const renderComplete = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <HeaderWithControls />
+
+            {/* Success Banner */}
+            <div
+              className="text-center p-6 rounded-lg mb-4"
+              style={{ backgroundColor: colors.primary }}
+            >
+              <Trophy className="w-12 h-12 mx-auto mb-3 text-white" />
+              <h2 className="text-2xl font-bold text-white mb-2">Tutorial Complete!</h2>
+              <p style={{ color: colors.earthLight }}>
+                You have extended the record-keeping system beyond physical flows.
+              </p>
+            </div>
+
+            <NarrativeBlock>
+              Now the palace can track not just what <em>has</em> happened, but what <em>should</em> happen—and verify when it does.
+            </NarrativeBlock>
+
+            {/* Core Insight */}
+            <InsightPanel title="Core Insight">
+              <p className="italic">
+                "A promise is information about a future flow. By recording promises on tablets—and updating both the goods tablet and the promise tablet when they're fulfilled—we create a system where nothing is forgotten and nothing can be disputed."
+              </p>
+            </InsightPanel>
+
+            {/* Bridge to 2.7 */}
+            <div
+              className="p-4 rounded-lg border-2 mb-4"
+              style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}
+            >
+              <h3 className="font-bold mb-2" style={{ color: '#92400e' }}>Coming Next...</h3>
+              <p className="text-sm" style={{ color: '#92400e' }}>
+                The promise tablets work perfectly. Every tax collected, every wage paid—the system tracks it all.
+              </p>
+              <p className="text-sm mt-2 italic" style={{ color: '#92400e' }}>
+                But one morning, Captain Rim-Sin arrives at the palace with his soldiers. They've received their promised grain, exactly as recorded. Yet they claim they've been cheated...
+              </p>
+            </div>
+
+            <ContinueButton onClick={() => window.location.href = 'act-2-review.html'}>
+              Continue to Act 2 Review
+            </ContinueButton>
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // MAIN RENDER
+      // ============================================
+      return (
+        <>
+          {showGlossary && <GlossaryModal />}
+
+          {phase === 'welcome' && renderWelcome()}
+          {phase === 'planning' && renderPlanning()}
+          {phase === 'receivables' && renderReceivables()}
+          {phase === 'payables' && renderPayables()}
+          {phase === 'cross-collection' && renderCrossCollection()}
+          {phase === 'cross-payment' && renderCrossPayment()}
+          {phase === 'pattern' && renderPattern()}
+          {phase === 'answer-king' && renderAnswerKing()}
+          {phase === 'reflection' && renderReflection()}
+          {phase === 'complete' && renderComplete()}
+        </>
+      );
+    };
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Tutorial26PromisesAndPayments />);
+  </script>
+</body>
+</html>

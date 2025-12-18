@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 3.1: The Merchant's Craft - Accounting Origins</title>
+
+  <!-- React 18 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+
+    .nav-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #00356b;
+      border-top: 2px solid #c9a227;
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 50;
+    }
+
+    .nav-footer a {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .nav-footer a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-footer a.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Navigation Footer -->
+  <div class="nav-footer">
+    <a href="act-3-welcome.html">&larr; Previous</a>
+    <a href="../index.html">Hub</a>
+    <a href="../index.html" class="disabled">Next &rarr;</a>
+  </div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // ============================================
+    // INLINE SVG ICON COMPONENTS
+    // ============================================
+
+    const ChevronRight = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    );
+
+    const ChevronDown = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    );
+
+    const ChevronUp = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    );
+
+    const Clock = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+    );
+
+    const Book = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+    );
+
+    const CheckCircle = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    );
+
+    const AlertCircle = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    );
+
+    const Trophy = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+        <path d="M4 22h16"></path>
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+      </svg>
+    );
+
+    const RefreshCw = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 2v6h-6"></path>
+        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+        <path d="M3 22v-6h6"></path>
+        <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+      </svg>
+    );
+
+    const MapPin = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+        <circle cx="12" cy="10" r="3"></circle>
+      </svg>
+    );
+
+    const Info = ({ className, style }) => (
+      <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+    );
+
+    // ============================================
+    // SOUND FEEDBACK UTILITIES
+    // ============================================
+
+    const createAudioContext = () => {
+      return new (window.AudioContext || window.webkitAudioContext)();
+    };
+
+    const playSuccessTone = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [523.25, 659.25, 783.99];
+        const startTime = ctx.currentTime;
+
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+
+          const noteStart = startTime + (i * 0.1);
+          const noteEnd = noteStart + 0.15;
+
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.3, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.1);
+        });
+
+        setTimeout(() => ctx.close(), 600);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playSoftNope = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [400, 300];
+        const startTime = ctx.currentTime;
+
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+
+          const noteStart = startTime + (i * 0.12);
+          const noteEnd = noteStart + 0.12;
+
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.2, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.05);
+        });
+
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playBuzzer = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.value = 150;
+        oscillator.type = 'sawtooth';
+
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0.25, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.35);
+
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    const playContinueClick = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.value = 600;
+        oscillator.type = 'sine';
+
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.1);
+
+        setTimeout(() => ctx.close(), 150);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
+
+    // ============================================
+    // CONSTANTS
+    // ============================================
+
+    const colors = {
+      primary: '#00356b',
+      sand: '#f5f1e8',
+      earth: '#8b7355',
+      earthLight: '#d4c4a8',
+      earthDark: '#5c4d3d',
+      accent: '#c9a227',
+      clay: '#c4a574',
+      clayLight: '#e8dcc8',
+      clayDark: '#a08050',
+      success: '#22c55e',
+      successBg: '#f0fdf4',
+      warning: '#f59e0b',
+      warningBg: '#fffbeb',
+      error: '#dc2626',
+      errorBg: '#fef2f2',
+    };
+
+    const glossaryTerms = [
+      { term: 'Stater', definition: 'A Lydian unit of weight, approximately 14.7 grams. Merchants measure barley in staters to express value. Later, the stater became the famous Lydian coin.' },
+      { term: 'Mina', definition: 'A larger unit of weight used throughout the ancient world, equal to about 50-60 shekels (~500 grams). Used for weighing wool, metals, and other trade goods.' },
+      { term: 'Promise Made', definition: 'A commitment you make to deliver goods or payment in the future—an obligation you owe to someone else.' },
+      { term: 'Promise Received', definition: 'A commitment from someone else to deliver goods or payment to you—what others owe you.' },
+      { term: 'Honored', definition: 'When you have kept a promise you made—you delivered the goods or payment as agreed.' },
+      { term: 'Collected', definition: 'When a promise made to you has been completed—you have received what was owed.' },
+      { term: 'Sardis', definition: 'Capital of the kingdom of Lydia in western Anatolia. A major trading center where Greek, Persian, and Mesopotamian merchants meet.' },
+    ];
+
+    // ============================================
+    // COMPONENT
+    // ============================================
+
+    const Tutorial31 = () => {
+      // Phase control
+      const [phase, setPhase] = useState('welcome');
+      const [step, setStep] = useState(0);
+
+      // Question state - Q1: Where does Kolos's promise go?
+      const [q1Answer, setQ1Answer] = useState('');
+      const [q1Attempts, setQ1Attempts] = useState(0);
+      const [q1Submitted, setQ1Submitted] = useState(false);
+
+      // Q2: Where does honoring the promise go?
+      const [q2Answer, setQ2Answer] = useState('');
+      const [q2Attempts, setQ2Attempts] = useState(0);
+      const [q2Submitted, setQ2Submitted] = useState(false);
+
+      // Q3: Where does Xanthes's promise go?
+      const [q3Answer, setQ3Answer] = useState('');
+      const [q3Attempts, setQ3Attempts] = useState(0);
+      const [q3Submitted, setQ3Submitted] = useState(false);
+
+      // Q4: Where does collecting go?
+      const [q4Answer, setQ4Answer] = useState('');
+      const [q4Attempts, setQ4Attempts] = useState(0);
+      const [q4Submitted, setQ4Submitted] = useState(false);
+
+      const [reflectionAnswer, setReflectionAnswer] = useState('');
+      const [reflectionSubmitted, setReflectionSubmitted] = useState(false);
+
+      // UI state
+      const [showGlossary, setShowGlossary] = useState(false);
+      const [showHistoricalNote, setShowHistoricalNote] = useState(false);
+      const [devMode, setDevMode] = useState(false);
+      const [headerClickCount, setHeaderClickCount] = useState(0);
+
+      // ============================================
+      // HANDLERS
+      // ============================================
+
+      const handleHeaderClick = () => {
+        const newCount = headerClickCount + 1;
+        setHeaderClickCount(newCount);
+        if (newCount >= 3) {
+          setDevMode(!devMode);
+          setHeaderClickCount(0);
+        }
+      };
+
+      const handleRestart = () => {
+        setPhase('welcome');
+        setStep(0);
+        setQ1Answer(''); setQ1Attempts(0); setQ1Submitted(false);
+        setQ2Answer(''); setQ2Attempts(0); setQ2Submitted(false);
+        setQ3Answer(''); setQ3Attempts(0); setQ3Submitted(false);
+        setQ4Answer(''); setQ4Attempts(0); setQ4Submitted(false);
+        setReflectionAnswer(''); setReflectionSubmitted(false);
+      };
+
+      // Q1: Where does Kolos's promise go? Answer: PROMISES MADE (right)
+      const handleQ1Submit = (answer) => {
+        const isCorrect = answer === 'promises-made';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ1Answer(answer);
+          setQ1Submitted(true);
+        } else {
+          const newAttempts = q1Attempts + 1;
+          setQ1Attempts(newAttempts);
+          setQ1Answer(answer);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ1Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Q2: Where does honoring go? Answer: HONORED (left)
+      const handleQ2Submit = (answer) => {
+        const isCorrect = answer === 'honored';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ2Answer(answer);
+          setQ2Submitted(true);
+        } else {
+          const newAttempts = q2Attempts + 1;
+          setQ2Attempts(newAttempts);
+          setQ2Answer(answer);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ2Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Q3: Where does Xanthes's promise go? Answer: PROMISES RECEIVED (left)
+      const handleQ3Submit = (answer) => {
+        const isCorrect = answer === 'promises-received';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ3Answer(answer);
+          setQ3Submitted(true);
+        } else {
+          const newAttempts = q3Attempts + 1;
+          setQ3Attempts(newAttempts);
+          setQ3Answer(answer);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ3Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      // Q4: Where does collecting go? Answer: COLLECTED (right)
+      const handleQ4Submit = (answer) => {
+        const isCorrect = answer === 'collected';
+
+        if (isCorrect) {
+          playSuccessTone();
+          setQ4Answer(answer);
+          setQ4Submitted(true);
+        } else {
+          const newAttempts = q4Attempts + 1;
+          setQ4Attempts(newAttempts);
+          setQ4Answer(answer);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ4Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
+
+      const handleReflectionSubmit = () => {
+        if (reflectionAnswer.trim().length >= 30) {
+          playSuccessTone();
+          setReflectionSubmitted(true);
+        }
+      };
+
+      // ============================================
+      // PROGRESS CALCULATION
+      // ============================================
+
+      const phaseOrder = ['welcome', 'familiar', 'promises-intro', 'kolos-scenario', 'kolos-fulfillment', 'pairing-1', 'xanthes-scenario', 'xanthes-payment', 'pairing-2', 'coordination', 'reflection', 'complete'];
+      const currentPhaseIndex = phaseOrder.indexOf(phase);
+      const progress = Math.round((currentPhaseIndex / (phaseOrder.length - 1)) * 100);
+
+      // ============================================
+      // SUB-COMPONENTS
+      // ============================================
+
+      const HeaderWithControls = () => (
+        <div
+          className="rounded-lg p-4 mb-4"
+          style={{ backgroundColor: colors.primary }}
+        >
+          <div className="flex justify-between items-start">
+            <div onClick={handleHeaderClick} style={{ cursor: 'pointer' }}>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-white" />
+                <h1 className="text-lg font-bold text-white">Tutorial 3.1: The Merchant's Craft</h1>
+              </div>
+              <p className="text-sm mt-1" style={{ color: colors.earthLight }}>
+                Sardis, ~550 BCE • ~15 min
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowGlossary(true)}
+                className="p-2 rounded-lg hover:bg-white/10"
+                title="Glossary"
+              >
+                <Book className="w-5 h-5 text-white" />
+              </button>
+              <button
+                onClick={handleRestart}
+                className="p-2 rounded-lg hover:bg-white/10"
+                title="Restart tutorial"
+              >
+                <RefreshCw className="w-5 h-5 text-white" />
+              </button>
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          <div className="mt-4">
+            <div className="flex justify-between text-xs text-white/70 mb-1">
+              <span>Progress</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="h-2 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${progress}%`, backgroundColor: colors.accent }}
+              />
+            </div>
+          </div>
+
+          {/* Dev mode controls */}
+          {devMode && (
+            <div className="mt-3 pt-3 border-t border-white/20">
+              <p className="text-xs text-white/70 mb-2">Dev Mode: Skip to phase</p>
+              <div className="flex flex-wrap gap-1">
+                {phaseOrder.map(p => (
+                  <button
+                    key={p}
+                    onClick={() => { setStep(0); setPhase(p); }}
+                    className={`px-2 py-1 rounded text-xs ${phase === p ? 'bg-white text-blue-900' : 'bg-white/20 text-white'}`}
+                  >
+                    {p.split('-')[0]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+
+      const GlossaryModal = () => (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-4 border-b sticky top-0 bg-white flex justify-between items-center">
+              <h3 className="font-bold" style={{ color: colors.primary }}>Glossary</h3>
+              <button
+                onClick={() => setShowGlossary(false)}
+                className="text-gray-500 hover:text-gray-700 text-xl"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4 space-y-3 text-sm">
+              {glossaryTerms.map((item, i) => (
+                <div key={i}>
+                  <p className="font-medium" style={{ color: colors.primary }}>{item.term}</p>
+                  <p className="text-gray-600 text-xs">{item.definition}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+
+      const HistoricalNote = () => (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowHistoricalNote(!showHistoricalNote)}
+            className="w-full flex items-center justify-between p-3 rounded-lg text-sm"
+            style={{ backgroundColor: colors.clayLight, color: colors.earthDark }}
+          >
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              <span className="font-medium">A Note on Historical Liberties</span>
+            </div>
+            {showHistoricalNote ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+
+          {showHistoricalNote && (
+            <div
+              className="mt-2 p-4 rounded-lg text-sm border"
+              style={{ backgroundColor: 'white', borderColor: colors.earthLight, color: colors.earthDark }}
+            >
+              <p className="mb-3">
+                This tutorial takes significant creative liberties with historical fact. There is no
+                evidence that Lydian merchants used clay tablets like the Babylonians—Lydians may have
+                used other recording methods (wax tablets, papyrus, or oral agreements) that have not survived.
+              </p>
+              <p className="mb-3">
+                We employ the familiar clay tablet format to maintain pedagogical continuity with Acts I
+                and II, allowing you to apply skills you've already learned to a new context.
+              </p>
+              <p className="italic">
+                This is historical fiction in service of teaching accounting concepts.
+              </p>
+            </div>
+          )}
+        </div>
+      );
+
+      const NarrativeBlock = ({ children }) => (
+        <div
+          className="p-4 rounded-lg border-l-4 italic mb-4"
+          style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+        >
+          <div className="text-gray-700">{children}</div>
+        </div>
+      );
+
+      const DialogueBlock = ({ speaker, children }) => (
+        <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: colors.clayLight }}>
+          <p className="font-bold mb-2" style={{ color: colors.primary }}>{speaker}:</p>
+          <div className="italic" style={{ color: colors.earthDark }}>{children}</div>
+        </div>
+      );
+
+      const InsightPanel = ({ title, children }) => (
+        <div
+          className="p-4 rounded-lg border-2 mb-4"
+          style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+        >
+          <div className="flex items-start gap-2">
+            <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+            <div>
+              {title && <p className="font-bold mb-2" style={{ color: colors.success }}>{title}</p>}
+              <div style={{ color: '#166534' }}>{children}</div>
+            </div>
+          </div>
+        </div>
+      );
+
+      const WarningPanel = ({ title, children }) => (
+        <div
+          className="p-4 rounded-lg border-2 mb-4"
+          style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}
+        >
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: colors.warning }} />
+            <div>
+              {title && <p className="font-bold mb-2" style={{ color: '#92400e' }}>{title}</p>}
+              <div style={{ color: '#92400e' }}>{children}</div>
+            </div>
+          </div>
+        </div>
+      );
+
+      const ContinueButton = ({ onClick, children = "Continue" }) => (
+        <button
+          onClick={() => { playContinueClick(); onClick(); }}
+          className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+          style={{ backgroundColor: colors.primary }}
+        >
+          {children} <ChevronRight className="w-5 h-5" />
+        </button>
+      );
+
+      // Two-choice question component
+      const TwoChoiceQuestion = ({
+        question,
+        optionA,
+        optionB,
+        optionAValue,
+        optionBValue,
+        selectedAnswer,
+        attempts,
+        submitted,
+        onSubmit,
+        hints = [],
+        correctAnswer,
+        explanation
+      }) => (
+        <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+          <p className="text-sm mb-4" style={{ color: colors.earthDark }}>
+            <strong>Question:</strong> {question}
+          </p>
+
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <button
+              onClick={() => !submitted && onSubmit(optionAValue)}
+              disabled={submitted}
+              className={`p-4 rounded-lg border-2 text-center font-bold transition-all ${
+                submitted && optionAValue === correctAnswer
+                  ? 'ring-2 ring-offset-2'
+                  : ''
+              }`}
+              style={{
+                borderColor: submitted && optionAValue === correctAnswer
+                  ? colors.success
+                  : selectedAnswer === optionAValue
+                    ? colors.primary
+                    : colors.earthLight,
+                backgroundColor: submitted && optionAValue === correctAnswer
+                  ? colors.successBg
+                  : selectedAnswer === optionAValue
+                    ? colors.sand
+                    : 'white',
+                color: colors.earthDark,
+                ringColor: colors.success
+              }}
+            >
+              {optionA}
+            </button>
+
+            <button
+              onClick={() => !submitted && onSubmit(optionBValue)}
+              disabled={submitted}
+              className={`p-4 rounded-lg border-2 text-center font-bold transition-all ${
+                submitted && optionBValue === correctAnswer
+                  ? 'ring-2 ring-offset-2'
+                  : ''
+              }`}
+              style={{
+                borderColor: submitted && optionBValue === correctAnswer
+                  ? colors.success
+                  : selectedAnswer === optionBValue
+                    ? colors.primary
+                    : colors.earthLight,
+                backgroundColor: submitted && optionBValue === correctAnswer
+                  ? colors.successBg
+                  : selectedAnswer === optionBValue
+                    ? colors.sand
+                    : 'white',
+                color: colors.earthDark,
+                ringColor: colors.success
+              }}
+            >
+              {optionB}
+            </button>
+          </div>
+
+          {attempts > 0 && !submitted && hints[attempts - 1] && (
+            <p className="text-sm p-2 rounded" style={{ backgroundColor: colors.warningBg, color: '#92400e' }}>
+              <strong>Hint:</strong> {hints[attempts - 1]}
+            </p>
+          )}
+
+          {submitted && (
+            <div
+              className="p-3 rounded-lg mt-2"
+              style={{ backgroundColor: colors.successBg }}
+            >
+              <p className="text-sm" style={{ color: '#166534' }}>
+                {explanation}
+              </p>
+            </div>
+          )}
+        </div>
+      );
+
+      // Tablet component for Kolos's debts (promises he made)
+      const KolosDebtTablet = ({ leftEntries = [], rightEntries = [], highlightLeft = false, highlightRight = false }) => (
+        <div
+          className="rounded-lg border-2 overflow-hidden mb-4"
+          style={{ backgroundColor: colors.clay, borderColor: colors.clayDark }}
+        >
+          <div
+            className="py-2 text-center font-bold border-b-2 text-sm"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark, color: colors.earthDark }}
+          >
+            PROMISES I HAVE MADE
+          </div>
+
+          <div className="grid grid-cols-2 border-b-2" style={{ borderColor: colors.clayDark }}>
+            <div
+              className={`py-2 text-center font-bold text-xs border-r ${highlightLeft ? 'ring-2 ring-inset' : ''}`}
+              style={{
+                borderColor: colors.earthLight,
+                color: colors.earthDark,
+                backgroundColor: highlightLeft ? colors.successBg : 'transparent',
+                ringColor: highlightLeft ? colors.success : 'transparent'
+              }}
+            >
+              HONORED
+            </div>
+            <div
+              className={`py-2 text-center font-bold text-xs ${highlightRight ? 'ring-2 ring-inset' : ''}`}
+              style={{
+                color: colors.earthDark,
+                backgroundColor: highlightRight ? colors.successBg : 'transparent',
+                ringColor: highlightRight ? colors.success : 'transparent'
+              }}
+            >
+              PROMISES MADE
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 min-h-[60px]">
+            <div className="border-r p-3 space-y-1" style={{ borderColor: colors.earthLight }}>
+              {leftEntries.length > 0 ? leftEntries.map((entry, i) => (
+                <div
+                  key={i}
+                  className={`text-sm p-1 rounded ${entry.highlight ? 'ring-2' : ''}`}
+                  style={{
+                    color: colors.earthDark,
+                    backgroundColor: entry.highlight ? colors.successBg : 'transparent',
+                    ringColor: entry.highlight ? colors.success : 'transparent'
+                  }}
+                >
+                  {entry.text}
+                </div>
+              )) : (
+                <div className="text-sm italic" style={{ color: colors.earth }}>—</div>
+              )}
+            </div>
+
+            <div className="p-3 space-y-1">
+              {rightEntries.length > 0 ? rightEntries.map((entry, i) => (
+                <div
+                  key={i}
+                  className={`text-sm p-1 rounded ${entry.highlight ? 'ring-2' : ''}`}
+                  style={{
+                    color: colors.earthDark,
+                    backgroundColor: entry.highlight ? colors.successBg : 'transparent',
+                    ringColor: entry.highlight ? colors.success : 'transparent'
+                  }}
+                >
+                  {entry.text}
+                </div>
+              )) : (
+                <div className="text-sm italic" style={{ color: colors.earth }}>—</div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+
+      // Tablet for promises made TO Kolos
+      const KolosReceivableTablet = ({ leftEntries = [], rightEntries = [], highlightLeft = false, highlightRight = false }) => (
+        <div
+          className="rounded-lg border-2 overflow-hidden mb-4"
+          style={{ backgroundColor: colors.clay, borderColor: colors.clayDark }}
+        >
+          <div
+            className="py-2 text-center font-bold border-b-2 text-sm"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark, color: colors.earthDark }}
+          >
+            PROMISES MADE TO ME
+          </div>
+
+          <div className="grid grid-cols-2 border-b-2" style={{ borderColor: colors.clayDark }}>
+            <div
+              className={`py-2 text-center font-bold text-xs border-r ${highlightLeft ? 'ring-2 ring-inset' : ''}`}
+              style={{
+                borderColor: colors.earthLight,
+                color: colors.earthDark,
+                backgroundColor: highlightLeft ? colors.successBg : 'transparent',
+                ringColor: highlightLeft ? colors.success : 'transparent'
+              }}
+            >
+              PROMISES RECEIVED
+            </div>
+            <div
+              className={`py-2 text-center font-bold text-xs ${highlightRight ? 'ring-2 ring-inset' : ''}`}
+              style={{
+                color: colors.earthDark,
+                backgroundColor: highlightRight ? colors.successBg : 'transparent',
+                ringColor: highlightRight ? colors.success : 'transparent'
+              }}
+            >
+              COLLECTED
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 min-h-[60px]">
+            <div className="border-r p-3 space-y-1" style={{ borderColor: colors.earthLight }}>
+              {leftEntries.length > 0 ? leftEntries.map((entry, i) => (
+                <div
+                  key={i}
+                  className={`text-sm p-1 rounded ${entry.highlight ? 'ring-2' : ''}`}
+                  style={{
+                    color: colors.earthDark,
+                    backgroundColor: entry.highlight ? colors.successBg : 'transparent',
+                    ringColor: entry.highlight ? colors.success : 'transparent'
+                  }}
+                >
+                  {entry.text}
+                </div>
+              )) : (
+                <div className="text-sm italic" style={{ color: colors.earth }}>—</div>
+              )}
+            </div>
+
+            <div className="p-3 space-y-1">
+              {rightEntries.length > 0 ? rightEntries.map((entry, i) => (
+                <div
+                  key={i}
+                  className={`text-sm p-1 rounded ${entry.highlight ? 'ring-2' : ''}`}
+                  style={{
+                    color: colors.earthDark,
+                    backgroundColor: entry.highlight ? colors.successBg : 'transparent',
+                    ringColor: entry.highlight ? colors.success : 'transparent'
+                  }}
+                >
+                  {entry.text}
+                </div>
+              )) : (
+                <div className="text-sm italic" style={{ color: colors.earth }}>—</div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+
+      // Standard barley tablet
+      const BarleyTablet = ({ received = [], distributed = [], highlightReceived = false, highlightDistributed = false }) => (
+        <div
+          className="rounded-lg border-2 overflow-hidden mb-4"
+          style={{ backgroundColor: colors.clay, borderColor: colors.clayDark }}
+        >
+          <div
+            className="py-2 text-center font-bold border-b-2 text-sm"
+            style={{ backgroundColor: colors.clayLight, borderColor: colors.clayDark, color: colors.earthDark }}
+          >
+            BARLEY COUNT
+          </div>
+
+          <div className="grid grid-cols-2 border-b-2" style={{ borderColor: colors.clayDark }}>
+            <div
+              className={`py-2 text-center font-bold text-xs border-r ${highlightReceived ? 'ring-2 ring-inset' : ''}`}
+              style={{
+                borderColor: colors.earthLight,
+                color: colors.earthDark,
+                backgroundColor: highlightReceived ? colors.successBg : 'transparent',
+                ringColor: highlightReceived ? colors.success : 'transparent'
+              }}
+            >
+              RECEIVED
+            </div>
+            <div
+              className={`py-2 text-center font-bold text-xs ${highlightDistributed ? 'ring-2 ring-inset' : ''}`}
+              style={{
+                color: colors.earthDark,
+                backgroundColor: highlightDistributed ? colors.successBg : 'transparent',
+                ringColor: highlightDistributed ? colors.success : 'transparent'
+              }}
+            >
+              DISTRIBUTED
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 min-h-[60px]">
+            <div className="border-r p-3 space-y-1" style={{ borderColor: colors.earthLight }}>
+              {received.length > 0 ? received.map((entry, i) => (
+                <div
+                  key={i}
+                  className={`text-sm p-1 rounded ${entry.highlight ? 'ring-2' : ''}`}
+                  style={{
+                    color: colors.earthDark,
+                    backgroundColor: entry.highlight ? colors.successBg : 'transparent',
+                    ringColor: entry.highlight ? colors.success : 'transparent'
+                  }}
+                >
+                  {entry.text}
+                </div>
+              )) : (
+                <div className="text-sm italic" style={{ color: colors.earth }}>—</div>
+              )}
+            </div>
+
+            <div className="p-3 space-y-1">
+              {distributed.length > 0 ? distributed.map((entry, i) => (
+                <div
+                  key={i}
+                  className={`text-sm p-1 rounded ${entry.highlight ? 'ring-2' : ''}`}
+                  style={{
+                    color: colors.earthDark,
+                    backgroundColor: entry.highlight ? colors.successBg : 'transparent',
+                    ringColor: entry.highlight ? colors.success : 'transparent'
+                  }}
+                >
+                  {entry.text}
+                </div>
+              )) : (
+                <div className="text-sm italic" style={{ color: colors.earth }}>—</div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+
+      // ============================================
+      // PHASE RENDERS
+      // ============================================
+
+      const renderWelcome = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            <NarrativeBlock>
+              The merchant house of Kolos sits near the great marketplace of Sardis, where
+              the Royal Road from Susa meets the trade routes from the Greek coast. This is
+              the crossroads of the world—where Lydian gold, Persian spices, Greek pottery,
+              and Mesopotamian grain all change hands.
+            </NarrativeBlock>
+
+            <NarrativeBlock>
+              You have traveled far from the Tablet House of Babylon. Your training in the
+              eastern methods—the discipline of the scribes, the two-column tablets, the
+              coordinated records—has earned you a reputation. Kolos, one of Sardis's most
+              respected merchants, has agreed to take you as an apprentice.
+            </NarrativeBlock>
+
+            <NarrativeBlock>
+              "The eastern methods," the traders call your skills. They speak of them with
+              a mixture of curiosity and respect. You know how to track the flow of grain.
+              But can you track the flow of <em>promises</em>?
+            </NarrativeBlock>
+
+            <DialogueBlock speaker="A servant at the door">
+              "Master Kolos will see you now. He wishes to test your skills before the
+              trading day begins."
+            </DialogueBlock>
+
+            <NarrativeBlock>
+              You take a breath. The record-keeping room awaits. Whatever Kolos needs to
+              track, the logic of tablets should apply—shouldn't it?
+            </NarrativeBlock>
+
+            <div className="p-4 rounded-lg border-2 mb-4" style={{ backgroundColor: colors.clayLight, borderColor: colors.accent }}>
+              <p className="font-bold mb-2" style={{ color: colors.primary }}>In This Tutorial</p>
+              <ul className="space-y-1 text-sm" style={{ color: colors.earthDark }}>
+                <li>• You'll learn how merchants track promises—what they owe and what others owe them</li>
+                <li>• You'll see complete transactions: receiving goods, making promises, and honoring them</li>
+                <li>• You'll discover how paying a debt creates entries on <em>two</em> tablets at once</li>
+                <li>• You'll understand why coordinated records speak with more authority than single records</li>
+              </ul>
+              <p className="text-sm mt-3 italic" style={{ color: colors.earth }}>~15 minutes</p>
+            </div>
+
+            <HistoricalNote />
+
+            <ContinueButton onClick={() => { setStep(0); setPhase('familiar'); }}>
+              Enter the Merchant House
+            </ContinueButton>
+          </div>
+          {showGlossary && <GlossaryModal />}
+        </div>
+      );
+
+      const renderFamiliar = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            {step === 0 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "Welcome, apprentice. I'm told you trained in the eastern methods—the discipline
+                  of the Babylonian scribes. You know how to track the flow of goods?"
+                </DialogueBlock>
+
+                <NarrativeBlock>
+                  You nod. In the Tablet House of Babylon, you learned to record every
+                  movement of barley: what came in, what went out, what should remain.
+                </NarrativeBlock>
+
+                <ContinueButton onClick={() => setStep(1)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "Good. Show me what you know. The barley tablet—how is it arranged?"
+                </DialogueBlock>
+
+                <BarleyTablet
+                  received={[
+                    { text: "From previous tablet: 200 staters" },
+                    { text: "From the granary: 50 staters" },
+                    { text: "From a merchant: 30 staters" }
+                  ]}
+                  distributed={[
+                    { text: "To the potter: 25 staters" },
+                    { text: "To the weaver: 20 staters" }
+                  ]}
+                />
+
+                <InsightPanel title="The Familiar Form">
+                  <p className="mb-2">
+                    <strong>RECEIVED</strong> on the left: barley that came <em>in</em>.
+                  </p>
+                  <p>
+                    <strong>DISTRIBUTED</strong> on the right: barley that went <em>out</em>.
+                  </p>
+                </InsightPanel>
+
+                <ContinueButton onClick={() => setStep(2)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 2 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "Yes, exactly. Inflows on the left, outflows on the right. This is how we
+                  track what <em>is</em>—the physical barley sitting in our stores."
+                </DialogueBlock>
+
+                <NarrativeBlock>
+                  Kolos pauses, thinking.
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  "But I am not only a keeper of grain. I am a merchant. I make <em>agreements</em>.
+                  I promise to pay; others promise to pay me. These promises are not barley sitting
+                  in jars—yet they are just as real."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(3)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 3 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "The barley tablet tracks barley. So why not a tablet that tracks <em>promises</em>?"
+                </DialogueBlock>
+
+                <NarrativeBlock>
+                  He gestures toward a second tablet, its surface smooth and unmarked.
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  "Let me show you a real transaction. Then you'll understand."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('promises-intro'); }}>Continue</ContinueButton>
+              </>
+            )}
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      const renderPromisesIntro = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            {step === 0 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "Here is the insight that changed how I keep records: <em>a promise is a flow
+                  that hasn't happened yet</em>."
+                </DialogueBlock>
+
+                <InsightPanel title="The Key Insight">
+                  <p className="mb-2">
+                    When you make a promise to pay, you are committing to a <em>future outflow</em>.
+                    The barley will leave your stores later—but the commitment exists now.
+                  </p>
+                  <p>
+                    When someone promises to pay you, they are committing to provide you with a <em>future inflow</em>.
+                    The barley will arrive later—but your claim on it exists now.
+                  </p>
+                </InsightPanel>
+
+                <ContinueButton onClick={() => setStep(1)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "So I keep separate tablets for my promises. One for promises <em>I</em> have made.
+                  One for promises <em>made to me</em>."
+                </DialogueBlock>
+
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <KolosDebtTablet leftEntries={[]} rightEntries={[]} />
+                  <KolosReceivableTablet leftEntries={[]} rightEntries={[]} />
+                </div>
+
+                <NarrativeBlock>
+                  The structure looks familiar—two columns each, like the barley tablet. But
+                  the headers are different, and there are two separate tablets.
+                </NarrativeBlock>
+
+                <ContinueButton onClick={() => setStep(2)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 2 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "Now let me show you how these work with a real trade. A wool merchant
+                  named Manes is coming today to deliver twenty minas of wool."
+                </DialogueBlock>
+
+                <NarrativeBlock>
+                  You hear footsteps approaching the counting room.
+                </NarrativeBlock>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('kolos-scenario'); }}>Continue</ContinueButton>
+              </>
+            )}
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      // KOLOS-MANES SCENARIO: Receiving goods, making a promise
+      const renderKolosScenario = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            {step === 0 && (
+              <>
+                <DialogueBlock speaker="Manes">
+                  "Kolos! I've brought the wool as agreed. Twenty minas, finest quality from
+                  the upland flocks."
+                </DialogueBlock>
+
+                <NarrativeBlock>
+                  Servants carry bundles of raw wool into the warehouse. You can smell the
+                  lanolin—this is indeed fine wool.
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  "Excellent, Manes. The wool is worth 120 staters at today's prices. But as
+                  we discussed, I won't pay you today—I'll pay you in barley after I've sold
+                  the woven cloth."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(1)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="Manes">
+                  "Agreed. You promise to pay me 120 staters of barley within thirty days."
+                </DialogueBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  <span>He turns to you.</span>
+                  <br /><br />
+                  "Now, apprentice, watch carefully. This transaction creates <em>two</em> entries."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(2)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 2 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "First: I am receiving goods. Twenty minas of wool, worth 120 staters, has
+                  entered my warehouse. Where does this go on the barley tablet?"
+                </DialogueBlock>
+
+                <BarleyTablet
+                  received={[{ text: "From previous tablet: 200 staters" }]}
+                  distributed={[]}
+                />
+
+                <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                  <p className="text-sm mb-2" style={{ color: colors.earthDark }}>
+                    Manes delivers wool worth 120 staters. This is value flowing <em>into</em> Kolos's
+                    business—an inflow.
+                  </p>
+                  <p className="font-bold" style={{ color: colors.primary }}>
+                    It goes on the LEFT side (RECEIVED)
+                  </p>
+                </div>
+
+                <ContinueButton onClick={() => setStep(3)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 3 && (
+              <>
+                <NarrativeBlock>
+                  Kolos marks the barley tablet.
+                </NarrativeBlock>
+
+                <BarleyTablet
+                  received={[
+                    { text: "From previous tablet: 200 staters" },
+                    { text: "Wool from Manes: 120 staters", highlight: true }
+                  ]}
+                  distributed={[]}
+                  highlightReceived={true}
+                />
+
+                <DialogueBlock speaker="Kolos">
+                  "Good. But I haven't paid Manes yet. I've only <em>promised</em> to pay.
+                  That promise needs its own record."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(4)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 4 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "Look at my promises tablet. I have made a promise to Manes—I will pay him
+                  120 staters. On which side does this promise belong?"
+                </DialogueBlock>
+
+                <KolosDebtTablet leftEntries={[]} rightEntries={[]} />
+
+                <TwoChoiceQuestion
+                  question="I promise to pay Manes 120 staters. On which side does this promise belong?"
+                  optionA="HONORED"
+                  optionB="PROMISES MADE"
+                  optionAValue="honored"
+                  optionBValue="promises-made"
+                  selectedAnswer={q1Answer}
+                  attempts={q1Attempts}
+                  submitted={q1Submitted}
+                  onSubmit={handleQ1Submit}
+                  hints={[
+                    "Think about it: have I kept this promise yet, or am I just making it now?",
+                    "A new promise is being created. It's not honored yet—it's just been made."
+                  ]}
+                  correctAnswer="promises-made"
+                  explanation={<><strong>PROMISES MADE (right side).</strong> When I make a promise to pay, it's a commitment for a future outflow. Just as physical outflows go on the right of the barley tablet, new promises go on the right of the promises tablet.</>}
+                />
+
+                {q1Submitted && (
+                  <ContinueButton onClick={() => setStep(5)}>Continue</ContinueButton>
+                )}
+              </>
+            )}
+
+            {step === 5 && (
+              <>
+                <NarrativeBlock>
+                  Kolos marks his promises tablet.
+                </NarrativeBlock>
+
+                <KolosDebtTablet
+                  leftEntries={[]}
+                  rightEntries={[{ text: "To Manes: 120 staters", highlight: true }]}
+                  highlightRight={true}
+                />
+
+                <DialogueBlock speaker="Kolos">
+                  "Now the transaction is complete. I have recorded:"
+                </DialogueBlock>
+
+                <div className="bg-white rounded-lg p-4 mb-4 shadow-sm border-2" style={{ borderColor: colors.accent }}>
+                  <p className="text-sm mb-2" style={{ color: colors.earthDark }}>
+                    <strong>Barley tablet:</strong> Wool received worth 120 staters (LEFT)
+                  </p>
+                  <p className="text-sm" style={{ color: colors.earthDark }}>
+                    <strong>Promises tablet:</strong> Promise made to pay 120 staters (RIGHT)
+                  </p>
+                </div>
+
+                <DialogueBlock speaker="Manes">
+                  "Then we are agreed. I'll return in thirty days for my payment."
+                </DialogueBlock>
+
+                <NarrativeBlock>
+                  Manes departs, leaving the wool behind.
+                </NarrativeBlock>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('kolos-fulfillment'); }}>Continue</ContinueButton>
+              </>
+            )}
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      // KOLOS FULFILLMENT: Paying the debt
+      const renderKolosFulfillment = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            {step === 0 && (
+              <>
+                <NarrativeBlock>
+                  Thirty days pass. The wool has been woven into fine cloth and sold at the
+                  market. Kolos's stores are full of barley from the sales. Now Manes returns.
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="Manes">
+                  "Kolos! I've come for my payment. One hundred twenty staters of barley, as
+                  you promised."
+                </DialogueBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  "Of course. My word is my bond."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(1)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  <span>He turns to you again.</span>
+                  <br /><br />
+                  "Now watch: paying this debt also creates <em>two</em> entries. First, the barley
+                  itself. I'm giving Manes 120 staters of barley—it's leaving my stores."
+                </DialogueBlock>
+
+                <BarleyTablet
+                  received={[
+                    { text: "From previous tablet: 200 staters" },
+                    { text: "Wool from Manes: 120 staters" }
+                  ]}
+                  distributed={[]}
+                />
+
+                <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                  <p className="text-sm mb-2" style={{ color: colors.earthDark }}>
+                    Barley going <em>out</em> to Manes is a physical outflow.
+                  </p>
+                  <p className="font-bold" style={{ color: colors.primary }}>
+                    It goes on the RIGHT side (DISTRIBUTED)
+                  </p>
+                </div>
+
+                <ContinueButton onClick={() => setStep(2)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 2 && (
+              <>
+                <NarrativeBlock>
+                  Kolos marks the barley tablet.
+                </NarrativeBlock>
+
+                <BarleyTablet
+                  received={[
+                    { text: "From previous tablet: 200 staters" },
+                    { text: "Wool from Manes: 120 staters" }
+                  ]}
+                  distributed={[{ text: "To Manes: 120 staters", highlight: true }]}
+                  highlightDistributed={true}
+                />
+
+                <DialogueBlock speaker="Kolos">
+                  "Good—barley out, so it goes on the right. But what about the promises
+                  tablet? I made a promise; now I've kept it. The promise has been <em>honored</em>."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(3)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 3 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "Where do I record that the promise has been honored?"
+                </DialogueBlock>
+
+                <KolosDebtTablet
+                  leftEntries={[]}
+                  rightEntries={[{ text: "To Manes: 120 staters" }]}
+                />
+
+                <TwoChoiceQuestion
+                  question="I've paid Manes. The promise is honored. On which side do I record this?"
+                  optionA="HONORED"
+                  optionB="PROMISES MADE"
+                  optionAValue="honored"
+                  optionBValue="promises-made"
+                  selectedAnswer={q2Answer}
+                  attempts={q2Attempts}
+                  submitted={q2Submitted}
+                  onSubmit={handleQ2Submit}
+                  hints={[
+                    "The promise went out when I made it. Now I've kept it—it comes back resolved.",
+                    "Think of it as the promise 'returning' completed. Returns go on the opposite side."
+                  ]}
+                  correctAnswer="honored"
+                  explanation={<><strong>HONORED (left side).</strong> The promise went out when I made it (right side). Now it comes back, resolved and completed (left side). The two sides balance.</>}
+                />
+
+                {q2Submitted && (
+                  <ContinueButton onClick={() => setStep(4)}>Continue</ContinueButton>
+                )}
+              </>
+            )}
+
+            {step === 4 && (
+              <>
+                <NarrativeBlock>
+                  Kolos marks both tablets to show the completed payment.
+                </NarrativeBlock>
+
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <BarleyTablet
+                    received={[
+                      { text: "From previous tablet: 200 staters" },
+                      { text: "Wool from Manes: 120 staters" }
+                    ]}
+                    distributed={[{ text: "To Manes: 120 staters", highlight: true }]}
+                    highlightDistributed={true}
+                  />
+
+                  <KolosDebtTablet
+                    leftEntries={[{ text: "To Manes: 120 staters", highlight: true }]}
+                    rightEntries={[{ text: "To Manes: 120 staters" }]}
+                    highlightLeft={true}
+                  />
+                </div>
+
+                <DialogueBlock speaker="Kolos">
+                  "Do you see it? One act—paying Manes—creates entries on <em>two different tablets</em>."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('pairing-1'); }}>Continue</ContinueButton>
+              </>
+            )}
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      const renderPairing1 = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            {step === 0 && (
+              <>
+                <WarningPanel title="The First Pairing">
+                  <p className="mb-2">When Kolos pays his debt to Manes:</p>
+                  <div className="grid grid-cols-2 gap-4 mt-3">
+                    <div className="text-center p-2 rounded" style={{ backgroundColor: 'white' }}>
+                      <p className="text-xs mb-1">BARLEY TABLET</p>
+                      <p className="font-bold text-lg">RIGHT</p>
+                      <p className="text-xs">(Distributed)</p>
+                    </div>
+                    <div className="text-center p-2 rounded" style={{ backgroundColor: 'white' }}>
+                      <p className="text-xs mb-1">PROMISES TABLET</p>
+                      <p className="font-bold text-lg">LEFT</p>
+                      <p className="text-xs">(Honored)</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-center font-bold">Barley RIGHT ↔ Promise LEFT</p>
+                </WarningPanel>
+
+                <DialogueBlock speaker="Kolos">
+                  "The barley flows <em>out</em>—so it goes on the right of that tablet.
+                  The promise comes back <em>honored</em>—so it goes on the left of this one.
+                  Opposite sides. One transaction, two records, perfectly coordinated."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(1)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <InsightPanel title="Why This Matters">
+                  <p className="mb-2">
+                    If someone looked only at the barley tablet, they'd see 120 staters went to Manes—but
+                    not <em>why</em>. Was it a gift? A purchase? Payment of a debt?
+                  </p>
+                  <p className="mb-2">
+                    If someone looked only at the promises tablet, they'd see a promise was honored—but
+                    not <em>how</em>. Did I pay in barley? In wool? In pottery?
+                  </p>
+                  <p className="font-bold">
+                    Together, the tablets tell the complete story: Kolos owed Manes, and he paid with barley.
+                  </p>
+                </InsightPanel>
+
+                <DialogueBlock speaker="Kolos">
+                  "But I am not only a debtor. Others owe <em>me</em> as well. Let me show you
+                  how I track those promises."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('xanthes-scenario'); }}>Continue</ContinueButton>
+              </>
+            )}
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      // XANTHES SCENARIO: Selling goods, receiving a promise
+      const renderXanthesScenario = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            {step === 0 && (
+              <>
+                <NarrativeBlock>
+                  A Greek merchant enters the counting room, examining the pottery displayed
+                  along the walls.
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  "Ah, Xanthes! Looking for pottery for the Ionian markets?"
+                </DialogueBlock>
+
+                <DialogueBlock speaker="Xanthes">
+                  "Indeed. These amphorae are perfect for the wine trade. I'll take
+                  the set—what's your price?"
+                </DialogueBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  "Eighty staters worth of barley."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(1)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="Xanthes">
+                  "Fair. But I've just arrived from Miletus—my barley is still on the ship.
+                  I'll pay you when the cargo is unloaded, within ten days."
+                </DialogueBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  "Agreed. Your word is good, Xanthes."
+                </DialogueBlock>
+
+                <NarrativeBlock>
+                  Servants wrap the pottery and carry it out to Xanthes's cart.
+                </NarrativeBlock>
+
+                <ContinueButton onClick={() => setStep(2)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 2 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  <span>He turns to you.</span>
+                  <br /><br />
+                  "Another transaction, another two entries. First: I am giving goods. Pottery
+                  worth 80 staters is leaving my warehouse."
+                </DialogueBlock>
+
+                <BarleyTablet
+                  received={[{ text: "From previous tablet: 200 staters" }]}
+                  distributed={[]}
+                />
+
+                <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                  <p className="text-sm mb-2" style={{ color: colors.earthDark }}>
+                    Pottery worth 80 staters going <em>out</em> to Xanthes is an outflow.
+                  </p>
+                  <p className="font-bold" style={{ color: colors.primary }}>
+                    It goes on the RIGHT side (DISTRIBUTED)
+                  </p>
+                </div>
+
+                <ContinueButton onClick={() => setStep(3)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 3 && (
+              <>
+                <NarrativeBlock>
+                  Kolos marks the barley tablet.
+                </NarrativeBlock>
+
+                <BarleyTablet
+                  received={[{ text: "From previous tablet: 200 staters" }]}
+                  distributed={[{ text: "Pottery to Xanthes: 80 staters", highlight: true }]}
+                  highlightDistributed={true}
+                />
+
+                <DialogueBlock speaker="Kolos">
+                  "Good. But Xanthes hasn't paid me yet. He's only <em>promised</em> to pay.
+                  Now I need to record that promise on my other tablet—the one for promises
+                  made <em>to me</em>."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(4)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 4 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "When Xanthes promises to pay me, on which side do I record his promise?"
+                </DialogueBlock>
+
+                <KolosReceivableTablet leftEntries={[]} rightEntries={[]} />
+
+                <TwoChoiceQuestion
+                  question="Xanthes promises to pay me 80 staters. On which side does his promise belong?"
+                  optionA="PROMISES RECEIVED"
+                  optionB="COLLECTED"
+                  optionAValue="promises-received"
+                  optionBValue="collected"
+                  selectedAnswer={q3Answer}
+                  attempts={q3Attempts}
+                  submitted={q3Submitted}
+                  onSubmit={handleQ3Submit}
+                  hints={[
+                    "Think about it: has Xanthes paid me yet, or has he just made a promise?",
+                    "His promise is arriving to me—it's an inflow of a claim. Inflows go on the left."
+                  ]}
+                  correctAnswer="promises-received"
+                  explanation={<><strong>PROMISES RECEIVED (left side).</strong> When Xanthes makes a promise to me, it's like something arriving—a claim I now hold. Just as physical inflows go on the left of the barley tablet, promises I receive go on the left.</>}
+                />
+
+                {q3Submitted && (
+                  <ContinueButton onClick={() => setStep(5)}>Continue</ContinueButton>
+                )}
+              </>
+            )}
+
+            {step === 5 && (
+              <>
+                <NarrativeBlock>
+                  Kolos marks his promises tablet.
+                </NarrativeBlock>
+
+                <KolosReceivableTablet
+                  leftEntries={[{ text: "From Xanthes: 80 staters", highlight: true }]}
+                  rightEntries={[]}
+                  highlightLeft={true}
+                />
+
+                <DialogueBlock speaker="Kolos">
+                  "Now the transaction is complete. I have recorded:"
+                </DialogueBlock>
+
+                <div className="bg-white rounded-lg p-4 mb-4 shadow-sm border-2" style={{ borderColor: colors.accent }}>
+                  <p className="text-sm mb-2" style={{ color: colors.earthDark }}>
+                    <strong>Barley tablet:</strong> Pottery distributed worth 80 staters (RIGHT)
+                  </p>
+                  <p className="text-sm" style={{ color: colors.earthDark }}>
+                    <strong>Promises tablet:</strong> Promise received for 80 staters (LEFT)
+                  </p>
+                </div>
+
+                <DialogueBlock speaker="Xanthes">
+                  "My thanks, Kolos. I'll return with your barley soon."
+                </DialogueBlock>
+
+                <NarrativeBlock>
+                  Xanthes departs with his pottery.
+                </NarrativeBlock>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('xanthes-payment'); }}>Continue</ContinueButton>
+              </>
+            )}
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      // XANTHES PAYMENT: Collecting the debt
+      const renderXanthesPayment = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            {step === 0 && (
+              <>
+                <NarrativeBlock>
+                  Ten days pass. Xanthes returns, followed by servants carrying sacks of barley.
+                </NarrativeBlock>
+
+                <DialogueBlock speaker="Xanthes">
+                  "Kolos! As promised—eighty staters of fine barley from my ship's cargo."
+                </DialogueBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  "Excellent. Your word is indeed good, Xanthes."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(1)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  <span>He turns to you.</span>
+                  <br /><br />
+                  "Now watch: collecting this debt also creates <em>two</em> entries. First, the
+                  barley itself. Xanthes is giving me 80 staters of barley—it's entering my stores."
+                </DialogueBlock>
+
+                <BarleyTablet
+                  received={[{ text: "From previous tablet: 200 staters" }]}
+                  distributed={[{ text: "Pottery to Xanthes: 80 staters" }]}
+                />
+
+                <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                  <p className="text-sm mb-2" style={{ color: colors.earthDark }}>
+                    Barley coming <em>in</em> from Xanthes is a physical inflow.
+                  </p>
+                  <p className="font-bold" style={{ color: colors.primary }}>
+                    It goes on the LEFT side (RECEIVED)
+                  </p>
+                </div>
+
+                <ContinueButton onClick={() => setStep(2)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 2 && (
+              <>
+                <NarrativeBlock>
+                  Kolos marks the barley tablet.
+                </NarrativeBlock>
+
+                <BarleyTablet
+                  received={[
+                    { text: "From previous tablet: 200 staters" },
+                    { text: "From Xanthes: 80 staters", highlight: true }
+                  ]}
+                  distributed={[{ text: "Pottery to Xanthes: 80 staters" }]}
+                  highlightReceived={true}
+                />
+
+                <DialogueBlock speaker="Kolos">
+                  "Good—barley in, so it goes on the left. But what about the promises
+                  tablet? Xanthes made a promise to me; now he's kept it. I have <em>collected</em>
+                  what was owed."
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => setStep(3)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 3 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "Where do I record that I've collected on the promise?"
+                </DialogueBlock>
+
+                <KolosReceivableTablet
+                  leftEntries={[{ text: "From Xanthes: 80 staters" }]}
+                  rightEntries={[]}
+                />
+
+                <TwoChoiceQuestion
+                  question="Xanthes has paid. I've collected what was owed. On which side do I record this?"
+                  optionA="PROMISES RECEIVED"
+                  optionB="COLLECTED"
+                  optionAValue="promises-received"
+                  optionBValue="collected"
+                  selectedAnswer={q4Answer}
+                  attempts={q4Attempts}
+                  submitted={q4Submitted}
+                  onSubmit={handleQ4Submit}
+                  hints={[
+                    "The promise arrived when Xanthes made it. Now it's been fulfilled—it departs.",
+                    "Think of it as the promise 'leaving' now that it's been collected. It goes to the opposite side."
+                  ]}
+                  correctAnswer="collected"
+                  explanation={<><strong>COLLECTED (right side).</strong> The promise arrived when Xanthes made it (left side). Now it departs, completed, no longer outstanding (right side). The two sides balance.</>}
+                />
+
+                {q4Submitted && (
+                  <ContinueButton onClick={() => setStep(4)}>Continue</ContinueButton>
+                )}
+              </>
+            )}
+
+            {step === 4 && (
+              <>
+                <NarrativeBlock>
+                  Kolos marks both tablets to show the completed collection.
+                </NarrativeBlock>
+
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <BarleyTablet
+                    received={[
+                      { text: "From previous tablet: 200 staters" },
+                      { text: "From Xanthes: 80 staters", highlight: true }
+                    ]}
+                    distributed={[{ text: "Pottery to Xanthes: 80 staters" }]}
+                    highlightReceived={true}
+                  />
+
+                  <KolosReceivableTablet
+                    leftEntries={[{ text: "From Xanthes: 80 staters" }]}
+                    rightEntries={[{ text: "From Xanthes: 80 staters", highlight: true }]}
+                    highlightRight={true}
+                  />
+                </div>
+
+                <DialogueBlock speaker="Kolos">
+                  "Again—one act creates entries on two tablets. But notice: the sides are
+                  reversed from before!"
+                </DialogueBlock>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('pairing-2'); }}>Continue</ContinueButton>
+              </>
+            )}
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      const renderPairing2 = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            {step === 0 && (
+              <>
+                <WarningPanel title="The Second Pairing">
+                  <p className="mb-2">When Xanthes pays his debt to Kolos:</p>
+                  <div className="grid grid-cols-2 gap-4 mt-3">
+                    <div className="text-center p-2 rounded" style={{ backgroundColor: 'white' }}>
+                      <p className="text-xs mb-1">BARLEY TABLET</p>
+                      <p className="font-bold text-lg">LEFT</p>
+                      <p className="text-xs">(Received)</p>
+                    </div>
+                    <div className="text-center p-2 rounded" style={{ backgroundColor: 'white' }}>
+                      <p className="text-xs mb-1">PROMISES TABLET</p>
+                      <p className="font-bold text-lg">RIGHT</p>
+                      <p className="text-xs">(Collected)</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-center font-bold">Barley LEFT ↔ Promise RIGHT</p>
+                </WarningPanel>
+
+                <ContinueButton onClick={() => setStep(1)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "When <em>I</em> pay a debt: barley goes RIGHT, promise goes LEFT."
+                </DialogueBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  "When <em>someone pays me</em>: barley goes LEFT, promise goes RIGHT."
+                </DialogueBlock>
+
+                <DialogueBlock speaker="Kolos">
+                  "Always opposite. Always coordinated. Always two entries for one act."
+                </DialogueBlock>
+
+                <InsightPanel title="The Pattern">
+                  <p>
+                    Physical flows and promise resolutions always go on <em>opposite</em> sides
+                    of their respective tablets. This is not coincidence—it's the logic of
+                    coordinated records.
+                  </p>
+                </InsightPanel>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('coordination'); }}>Continue</ContinueButton>
+              </>
+            )}
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      const renderCoordination = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            {step === 0 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "Now you understand the merchant's craft. But tell me: why go to all this trouble?
+                  Why keep two tablets when one might seem enough?"
+                </DialogueBlock>
+
+                <NarrativeBlock>
+                  You consider the question. The Babylonian scribes taught you about
+                  coordinated records—tablets that must agree with each other.
+                </NarrativeBlock>
+
+                <ContinueButton onClick={() => setStep(1)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "There is another reason—one the Babylonian scribes understood well."
+                </DialogueBlock>
+
+                <InsightPanel title="Tablets That Speak Together">
+                  <p className="mb-3">
+                    When two tablets must agree, errors become visible. If the barley tablet shows
+                    120 staters to Manes, but the promises tablet shows no entry in HONORED—something is wrong.
+                  </p>
+                  <p className="mb-3">
+                    Either the barley was sent but not recorded as honoring a promise...
+                  </p>
+                  <p className="mb-3">
+                    Or the promise was marked honored but the barley wasn't actually sent...
+                  </p>
+                  <p className="font-bold">
+                    Coordinated records catch mistakes that a single record would miss.
+                  </p>
+                </InsightPanel>
+
+                <ContinueButton onClick={() => setStep(2)}>Continue</ContinueButton>
+              </>
+            )}
+
+            {step === 2 && (
+              <>
+                <DialogueBlock speaker="Kolos">
+                  "This is what you must remember: every payment creates <em>two</em> entries.
+                  Physical goods moving. Promises being honored or collected. The tablets speak
+                  together, and together they tell the truth."
+                </DialogueBlock>
+
+                <div className="bg-white rounded-lg p-4 mb-4 shadow-sm border-2" style={{ borderColor: colors.accent }}>
+                  <h4 className="font-bold mb-3" style={{ color: colors.primary }}>The Merchant's Discipline</h4>
+                  <div className="space-y-2 text-sm" style={{ color: colors.earthDark }}>
+                    <p><strong>When you pay a debt:</strong></p>
+                    <p className="pl-4">• Barley tablet: DISTRIBUTED (right)</p>
+                    <p className="pl-4">• Promises tablet: HONORED (left)</p>
+
+                    <p className="mt-3"><strong>When someone pays you:</strong></p>
+                    <p className="pl-4">• Barley tablet: RECEIVED (left)</p>
+                    <p className="pl-4">• Promises tablet: COLLECTED (right)</p>
+
+                    <p className="mt-3 font-bold" style={{ color: colors.primary }}>
+                      Always opposite sides. Always two entries. Always coordinated.
+                    </p>
+                  </div>
+                </div>
+
+                <ContinueButton onClick={() => { setStep(0); setPhase('reflection'); }}>Continue</ContinueButton>
+              </>
+            )}
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      const renderReflection = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            <NarrativeBlock>
+              Before you leave, Kolos asks you to reflect on what you've learned.
+            </NarrativeBlock>
+
+            <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+              <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                <strong>Reflection:</strong> Why does paying a debt require entries on two
+                different tablets? What does each tablet capture that the other cannot?
+              </p>
+
+              <textarea
+                value={reflectionAnswer}
+                onChange={(e) => setReflectionAnswer(e.target.value)}
+                disabled={reflectionSubmitted}
+                placeholder="Your thoughts... (at least 30 characters)"
+                rows={4}
+                className="w-full p-3 border rounded text-sm resize-none mb-2"
+                style={{ borderColor: colors.earthLight }}
+              />
+
+              {!reflectionSubmitted && (
+                <button
+                  onClick={handleReflectionSubmit}
+                  disabled={reflectionAnswer.trim().length < 30}
+                  className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Submit Reflection
+                </button>
+              )}
+
+              {reflectionSubmitted && (
+                <InsightPanel>
+                  <p>
+                    The barley tablet tracks <em>what</em> moved—physical goods changing hands.
+                    The promises tablet tracks <em>why</em> it moved—obligations being created and
+                    discharged. Neither tells the full story alone. Together, they create a complete
+                    record that explains both the movement and its purpose.
+                  </p>
+                </InsightPanel>
+              )}
+            </div>
+
+            {reflectionSubmitted && (
+              <ContinueButton onClick={() => { setStep(0); setPhase('complete'); }}>
+                Complete Tutorial
+              </ContinueButton>
+            )}
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      const renderComplete = () => (
+        <div className="min-h-screen pb-16" style={{ backgroundColor: colors.sand }}>
+          <HeaderWithControls />
+          <div className="p-4 max-w-2xl mx-auto">
+
+            <div className="text-center mb-6">
+              <Trophy className="w-16 h-16 mx-auto mb-2" style={{ color: colors.accent }} />
+              <h2 className="text-2xl font-bold" style={{ color: colors.primary }}>
+                Tutorial Complete!
+              </h2>
+              <p className="text-sm" style={{ color: colors.earth }}>
+                The Merchant's Craft
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+              <h3 className="font-bold mb-3" style={{ color: colors.primary }}>What You Learned</h3>
+              <ul className="space-y-2 text-sm" style={{ color: colors.earthDark }}>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Promises are flows that haven't happened yet—future commitments recorded now</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Promises you make go RIGHT (PROMISES MADE); when honored, they go LEFT (HONORED)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Promises made to you go LEFT (PROMISES RECEIVED); when collected, they go RIGHT (COLLECTED)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Every payment creates TWO entries on opposite sides of different tablets</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: colors.success }} />
+                  <span>Coordinated records explain both WHAT moved and WHY it moved</span>
+                </li>
+              </ul>
+            </div>
+
+            <InsightPanel title="The Deeper Insight">
+              <p>
+                A single tablet tells you what happened. Two coordinated tablets tell you what
+                happened <em>and</em> why. When the barley tablet and the promises tablet agree,
+                you have not just a record of movement, but a record of meaning.
+              </p>
+            </InsightPanel>
+
+            <div
+              className="p-4 rounded-lg mb-4 border-2"
+              style={{ backgroundColor: colors.warningBg, borderColor: colors.accent }}
+            >
+              <h4 className="font-bold mb-2" style={{ color: '#92400e' }}>Coming Next</h4>
+              <p className="text-sm" style={{ color: '#92400e' }}>
+                You've learned to track promises with barley. But what happens when the
+                worth of barley itself changes? When a bountiful harvest floods the markets,
+                will your carefully coordinated records still tell the truth?
+              </p>
+              <p className="text-sm mt-2 font-bold" style={{ color: '#92400e' }}>
+                Tutorial 3.2: The Harvest's Shadow
+              </p>
+            </div>
+
+            <button
+              onClick={handleRestart}
+              className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+              style={{ backgroundColor: colors.earthLight, color: colors.earthDark }}
+            >
+              <RefreshCw className="w-5 h-5" />
+              Restart Tutorial
+            </button>
+          </div>
+          {showGlossary && <GlossaryModal />}
+
+        </div>
+      );
+
+      // ============================================
+      // MAIN RENDER
+      // ============================================
+
+      switch (phase) {
+        case 'welcome': return renderWelcome();
+        case 'familiar': return renderFamiliar();
+        case 'promises-intro': return renderPromisesIntro();
+        case 'kolos-scenario': return renderKolosScenario();
+        case 'kolos-fulfillment': return renderKolosFulfillment();
+        case 'pairing-1': return renderPairing1();
+        case 'xanthes-scenario': return renderXanthesScenario();
+        case 'xanthes-payment': return renderXanthesPayment();
+        case 'pairing-2': return renderPairing2();
+        case 'coordination': return renderCoordination();
+        case 'reflection': return renderReflection();
+        case 'complete': return renderComplete();
+        default: return renderWelcome();
+      }
+    };
+
+    // Render to DOM
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Tutorial31 />);
+  </script>
+</body>
+</html>

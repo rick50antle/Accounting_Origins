@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Act II: Welcome to Babylon</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // SVG Icon Components
+    const ChevronRight = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    );
+
+    const Clock = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+    );
+
+    const Building2 = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
+        <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
+        <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+        <path d="M10 6h4"></path>
+        <path d="M10 10h4"></path>
+        <path d="M10 14h4"></path>
+        <path d="M10 18h4"></path>
+      </svg>
+    );
+
+    const Book = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+    );
+
+    const Feather = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+        <line x1="16" y1="8" x2="2" y2="22"></line>
+        <line x1="17.5" y1="15" x2="9" y2="15"></line>
+      </svg>
+    );
+
+    const RefreshCw = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+        <path d="M21 3v5h-5"></path>
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+        <path d="M3 21v-5h5"></path>
+      </svg>
+    );
+
+    const Scale = ({ className, style }) => (
+      <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+        <path d="M7 21h10"></path>
+        <path d="M12 3v18"></path>
+        <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
+      </svg>
+    );
+
+    const ActIIWelcome = () => {
+      const [section, setSection] = useState(0);
+      const [showGlossary, setShowGlossary] = useState(false);
+      const [devMode, setDevMode] = useState(false);
+
+      // Restart handler
+      const handleRestart = () => {
+        setSection(0);
+      };
+
+      const colors = {
+        primary: '#00356b',
+        sand: '#f5f1e8',
+        earth: '#8b7355',
+        earthLight: '#d4c4a8',
+        earthDark: '#5c4d3d',
+        accent: '#c9a227'
+      };
+
+      const totalSections = 5;
+
+      // Glossary terms for Act II
+      const glossaryTerms = [
+        { term: 'Ziggurat', definition: 'A massive stepped temple-tower, the religious center of a Mesopotamian city. The ziggurat of Babylon was dedicated to Marduk, the city\'s patron god.' },
+        { term: 'Marduk', definition: 'The patron god of Babylon, associated with wisdom, justice, and creation. Babylonians believed Marduk granted kings the right to rule.' },
+        { term: 'Hammurabi', definition: 'King of Babylon (~1792-1750 BCE), famous for his law code—one of the earliest written legal codes. His laws assumed written records would exist for commercial disputes.' },
+        { term: 'Cuneiform', definition: 'The writing system of ancient Mesopotamia. Wedge-shaped marks pressed into clay tablets. Used for everything from receipts to royal proclamations.' },
+        { term: 'Scribe', definition: 'A professional writer and record-keeper. In Babylon, scribes were highly trained specialists who managed the records that made large-scale administration possible. Most people could not read or write.' },
+        { term: 'Stylus', definition: 'A reed pen used to make impressions in clay tablets. The wedge-shaped tip created the distinctive marks of cuneiform writing.' },
+        { term: 'Tablet House', definition: 'The school where scribes were trained. Apprentices spent years learning to read, write, and calculate before earning positions in temples, palaces, or merchant houses.' },
+      ];
+
+      // Header component
+      const Header = () => (
+        <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+          <div className="flex items-center gap-2">
+            <Building2 className="w-5 h-5" />
+            <div>
+              <span className="font-bold">Act II: Babylonian Innovations</span>
+              <span className="text-blue-200 text-xs ml-2">~1800 BCE</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowGlossary(true)}
+              className="flex items-center gap-1 text-xs hover:text-blue-200"
+            >
+              <Book className="w-4 h-4" />
+              <span>Glossary</span>
+            </button>
+            <div className="flex items-center gap-1 text-xs">
+              <Clock className="w-4 h-4" />
+              <span>~5 min</span>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Glossary Modal
+      const GlossaryModal = () => (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[80vh] overflow-hidden">
+            <div className="p-4 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
+              <div className="flex items-center gap-2">
+                <Book className="w-5 h-5" />
+                <span className="font-bold">Glossary: Babylonian Terms</span>
+              </div>
+              <button onClick={() => setShowGlossary(false)} className="text-white hover:text-blue-200">×</button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              {glossaryTerms.map((item, i) => (
+                <div key={i} className="mb-4 last:mb-0">
+                  <p className="font-bold text-sm" style={{ color: colors.primary }}>{item.term}</p>
+                  <p className="text-sm text-gray-700">{item.definition}</p>
+                </div>
+              ))}
+              <div className="mt-4 p-3 rounded-lg text-xs" style={{ backgroundColor: colors.sand }}>
+                <p className="text-gray-600 italic">
+                  More terms (measures, counting systems) will be introduced in the tutorials as you encounter them.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Progress indicator
+      const ProgressDots = () => (
+        <div className="flex justify-center items-center gap-4 my-4">
+          <div className="flex gap-2">
+            {[...Array(totalSections)].map((_, i) => (
+              <div
+                key={i}
+                className="w-2 h-2 rounded-full transition-all"
+                style={{
+                  backgroundColor: i === section ? colors.primary : colors.earthLight,
+                  transform: i === section ? 'scale(1.3)' : 'scale(1)'
+                }}
+              />
+            ))}
+          </div>
+          {section > 0 && (
+            <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart">
+              <RefreshCw className="w-3 h-3" />
+              <span>Restart</span>
+            </button>
+          )}
+        </div>
+      );
+
+      // Section 0: The Transition
+      const TransitionSection = () => (
+        <div className="space-y-4">
+          <div className="p-4 rounded-lg border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+            <p className="text-gray-700 mb-3">
+              The river valley is far behind you now.
+            </p>
+            <p className="text-gray-700 mb-3">
+              In the seasons since you walked among scattered huts and haggled over wool and barley, the world has transformed beyond recognition. Villages have swelled into cities. Chiefs have become kings. Memories spoken aloud have been pressed into clay that lasts forever.
+            </p>
+            <p className="text-gray-700 mb-3">
+              You have traveled—not in body, but in time—to a civilization that would have seemed impossible to the valley's traders. A place where tens of thousands of people live within the same walls. Where temples rise higher than any tree you ever climbed. Where scribes hold more power than warriors.
+            </p>
+            <p className="text-gray-700 font-medium">
+              Welcome to Babylon.
+            </p>
+          </div>
+        </div>
+      );
+
+      // Section 1: The City
+      const CitySection = () => (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold" style={{ color: colors.primary }}>A City of 50,000 Souls</h2>
+
+          <p className="text-sm text-gray-700">
+            Babylon sprawls along the Euphrates like a creature too vast to comprehend. Within its walls, you find:
+          </p>
+
+          <div className="space-y-3">
+            {[
+              { name: 'The Ziggurat', desc: 'A temple-mountain dedicated to Marduk, visible from every corner of the city' },
+              { name: 'The Palace', desc: 'Where King Hammurabi receives reports each morning from officials who manage his vast holdings' },
+              { name: 'The Merchant Houses', desc: 'Families who send caravans to distant lands and keep records of debts spanning generations' },
+              { name: 'The Granaries', desc: 'Storehouses holding thousands of measures of barley, enough to feed armies and survive famines' },
+              { name: 'The Canal System', desc: 'Waterways that turn desert into farmland, managed by engineers who plan years in advance' },
+            ].map((item, i) => (
+              <div key={i} className="flex gap-3 items-start">
+                <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: colors.accent }} />
+                <div>
+                  <span className="font-medium text-sm" style={{ color: colors.earthDark }}>{item.name}</span>
+                  <span className="text-sm text-gray-600"> — {item.desc}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-3 rounded-lg text-sm" style={{ backgroundColor: colors.sand }}>
+            <p className="text-gray-700 italic">
+              This is not a place where you can know everyone's business by walking through the village. The scale is different. The problems are different.
+            </p>
+          </div>
+        </div>
+      );
+
+      // Section 2: Writing Changes Everything
+      const WritingSection = () => (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold" style={{ color: colors.primary }}>Writing Changes Everything</h2>
+
+          <div className="p-4 rounded-lg border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+            <p className="text-gray-700 mb-3">
+              In the valley, information existed only in the moment—spoken, observed, remembered. You <em>had</em> to be present because there was no other way for information to reach you.
+            </p>
+            <p className="text-gray-700">
+              In Babylon, marks pressed into clay can travel where you cannot. A record made in a distant storehouse can reach the king days later. Information persists. It moves across distance and time.
+            </p>
+          </div>
+
+          <p className="text-sm text-gray-700">
+            This is what makes Babylon possible. Construction projects spanning years. Trade caravans traveling months to distant cities. Granaries holding more grain than anyone could count from memory. The king governs it all from a throne room where officials bring him tablets—marks on clay—and he must decide what to believe.
+          </p>
+
+          <div className="p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+            <h3 className="font-bold text-sm mb-3" style={{ color: colors.primary }}>The Problem Writing Creates</h3>
+
+            <p className="text-sm text-gray-700 mb-3">
+              Writing enables absence. You no longer need to witness every transaction yourself. But this creates a new kind of problem:
+            </p>
+
+            <p className="text-sm text-gray-700 mb-3">
+              In the valley, even when traders concealed their true limits, you were <em>there</em>. You could observe, respond, verify with your own eyes.
+            </p>
+
+            <p className="text-sm text-gray-700">
+              Now you receive reports from places you've never been, about counts you didn't witness. And your reports travel to people who will never meet you. The information is real—pressed into clay, permanent, official—but you cannot verify it through presence.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg text-center" style={{ backgroundColor: colors.primary }}>
+            <p className="text-white text-sm italic mb-1">The question that haunts every scribe, merchant, and king in Babylon:</p>
+            <p className="text-white font-bold">How do you trust information you didn't produce yourself?</p>
+          </div>
+        </div>
+      );
+
+      // Section 3: Your Role
+      const RoleSection = () => (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold" style={{ color: colors.primary }}>You Are One of the Few</h2>
+
+          <div className="p-4 rounded-lg border-l-4 italic" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
+            <p className="text-gray-700 mb-3">
+              You are an apprentice scribe.
+            </p>
+            <p className="text-gray-700 mb-3">
+              In a city of 50,000, perhaps a few hundred can read and write. The farmers who grow the barley cannot. The workers who build the walls cannot. The soldiers who guard the gates cannot. But you can—and that is why you matter.
+            </p>
+            <p className="text-gray-700">
+              Three seasons ago, Master Nabu-rimanni—the Royal Head Scribe—chose you as one of seven young men to train in the tablet house. The others remain there still, practicing their wedge marks and memorizing conversion tables. But you have proven yourself. When counts were questioned, you found the errors. When records disagreed, you traced the source.
+            </p>
+          </div>
+
+          <p className="text-sm text-gray-700">
+            Now you alone accompany Master Nabu-rimanni to the king's morning reports. You stand in the shadows of the receiving hall, keeping your own mental tally while your master verifies the counts that officials bring before Hammurabi himself.
+          </p>
+
+          <div className="flex items-center gap-3 p-3 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+            <Feather className="w-8 h-8 flex-shrink-0" style={{ color: colors.primary }} />
+            <div>
+              <p className="font-medium text-sm" style={{ color: colors.earthDark }}>Your Power</p>
+              <p className="text-xs text-gray-600">You can make information persist. You can read what others have recorded. In Babylon, this makes you essential.</p>
+            </div>
+          </div>
+
+          <p className="text-sm text-gray-700 italic">
+            Your stylus and fresh clay tablets are your tools. Your accuracy is your reputation. And soon, you will face a problem that tests everything you've learned.
+          </p>
+        </div>
+      );
+
+      // Section 4: What Awaits
+      const AwaitsSection = () => (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold" style={{ color: colors.primary }}>In the Tutorials Ahead</h2>
+
+          <div className="space-y-3 text-sm text-gray-700">
+            <p>
+              You will learn to keep records—marking inflows and outflows on clay tablets, tallying balances, carrying counts forward from one tablet to the next.
+            </p>
+            <p>
+              You will witness a crisis in the king's receiving hall—a day when the counts don't agree, and officials lose their seals of office.
+            </p>
+            <p>
+              You will investigate the record halls of Babylon, searching for an error hidden somewhere in tablets and tallies.
+            </p>
+            <p>
+              And you will discover principles so fundamental that they still govern how we track wealth and verify truth today.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg border" style={{ borderColor: colors.accent, backgroundColor: '#fffbeb' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Scale className="w-5 h-5" style={{ color: colors.accent }} />
+              <h3 className="font-bold text-sm" style={{ color: colors.earthDark }}>What You'll Discover</h3>
+            </div>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li className="flex gap-2 items-start">
+                <span style={{ color: colors.accent }}>•</span>
+                <span>Why errors hide when records are kept separately—and how records can be organized to catch mistakes</span>
+              </li>
+              <li className="flex gap-2 items-start">
+                <span style={{ color: colors.accent }}>•</span>
+                <span>How coordinating records across departments catches errors the moment they occur</span>
+              </li>
+              <li className="flex gap-2 items-start">
+                <span style={{ color: colors.accent }}>•</span>
+                <span>How insisting on balance reveals what observation alone could never show</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="p-4 rounded-lg text-center" style={{ backgroundColor: colors.sand }}>
+            <p className="text-sm" style={{ color: colors.earthDark }}>
+              These are the foundations of accounting. Not rules to memorize, but solutions to problems you'll experience firsthand.
+            </p>
+          </div>
+        </div>
+      );
+
+      // Navigation buttons
+      const NavigationButtons = () => (
+        <div className="flex gap-3 mt-6">
+          {section > 0 && (
+            <button
+              onClick={() => setSection(section - 1)}
+              className="flex-1 py-3 rounded-lg text-sm font-medium"
+              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+            >
+              ← Back
+            </button>
+          )}
+          {section < totalSections - 1 ? (
+            <button
+              onClick={() => setSection(section + 1)}
+              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+              style={{ backgroundColor: colors.primary }}
+            >
+              Continue <ChevronRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <a
+              href="tutorial-2-1.html"
+              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+              style={{ backgroundColor: '#2d6a4f', textDecoration: 'none' }}
+            >
+              Begin Act II <ChevronRight className="w-4 h-4" />
+            </a>
+          )}
+        </div>
+      );
+
+      // Dev mode skip
+      const DevModeControls = () => devMode && (
+        <div className="mb-3 p-2 bg-purple-100 rounded-lg flex gap-2 flex-wrap">
+          <span className="text-xs text-purple-700 font-medium">DEV:</span>
+          {[...Array(totalSections)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setSection(i)}
+              className={`text-xs px-2 py-1 rounded ${i === section ? 'bg-purple-600 text-white' : 'bg-purple-200 text-purple-700'}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      );
+
+      // Render current section
+      const renderSection = () => {
+        switch (section) {
+          case 0: return <TransitionSection />;
+          case 1: return <CitySection />;
+          case 2: return <WritingSection />;
+          case 3: return <RoleSection />;
+          case 4: return <AwaitsSection />;
+          default: return <TransitionSection />;
+        }
+      };
+
+      // Section titles for context
+      const sectionTitles = [
+        'The Transition',
+        'The City',
+        'Writing Changes Everything',
+        'Your Role',
+        'What Awaits'
+      ];
+
+      return (
+        <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+          {/* Hidden dev mode toggle */}
+          <div
+            className="fixed top-0 left-0 w-4 h-4 z-50"
+            onDoubleClick={() => setDevMode(!devMode)}
+          />
+
+          <Header />
+
+          <div className="p-4 max-w-2xl mx-auto pb-16">
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
+              {/* Title bar */}
+              <div className="p-4 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
+                <h1 className="text-xl font-bold mb-1">Welcome to Babylon</h1>
+                <p className="text-blue-200 text-sm">The world has changed. So have the problems.</p>
+              </div>
+
+              {/* Section indicator */}
+              <div className="px-5 py-2 text-xs font-medium flex items-center justify-between" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                <span>{sectionTitles[section]}</span>
+                <span>{section + 1} of {totalSections}</span>
+              </div>
+
+              {/* Content */}
+              <div className="p-5">
+                <DevModeControls />
+
+                {renderSection()}
+
+                <ProgressDots />
+                <NavigationButtons />
+              </div>
+            </div>
+
+            {/* Subtitle for final screen */}
+            {section === totalSections - 1 && (
+              <p className="text-center text-xs text-gray-500 mt-3">
+                Next: Tutorial 2.1 — The Scribe's Craft
+              </p>
+            )}
+          </div>
+
+          {showGlossary && <GlossaryModal />}
+
+          {/* Navigation Footer */}
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 shadow-lg z-40">
+            <div className="max-w-2xl mx-auto flex items-center justify-between">
+              <a href="../act-1/act-1-review.html" className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span>Act I Review</span>
+              </a>
+
+              <a href="../index.html" className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Hub</span>
+              </a>
+
+              <a href="tutorial-2-1.html" className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                <span>Tutorial 2.1</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ActIIWelcome />);
+  </script>
+</body>
+</html>
