@@ -1,1492 +1,1785 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutorial 1.4 - The Common Measure - Accounting Origins</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial 1.4: The Common Standard | Accounting Origins</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+Pro:wght@400;600;700&display=swap');
+    
+    body {
+      font-family: 'Source Sans Pro', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .font-serif {
+      font-family: 'Crimson Text', serif;
+    }
+    
+    .narrative-text {
+      font-family: 'Crimson Text', serif;
+      font-style: italic;
+      line-height: 1.7;
+    }
+    
+    /* Smooth transitions */
+    .fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Trade animation */
+    .trade-step {
+      animation: slideIn 0.5s ease-out forwards;
+      opacity: 0;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    /* Input focus styles */
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 53, 107, 0.2);
+    }
+    
+    /* Button hover effects */
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 53, 107, 0.3);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+  </style>
 </head>
 <body>
-    <div id="root"></div>
-    <script type="text/babel">
-        const { useState } = React;
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    /**
+     * Tutorial 1.4: The Common Standard
+     * Accounting Origins Project
+     * 
+     * @version 2.1
+     * @date 2025-12-19
+     * @description Teaches that arbitrage makes exchange rates line up;
+     *              the common standard is a lens for seeing that structure.
+     */
 
-        // Inline SVG icon components
-        const ChevronRight = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-        );
+    const { useState, useEffect } = React;
 
-        const Clock = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-        );
+    // ============================================================
+    // COLOR PALETTE
+    // ============================================================
+    const colors = {
+      primary: '#00356b',
+      sand: '#f5f1e8',
+      earth: '#8b7355',
+      earthLight: '#d4c4a8',
+      earthDark: '#5c4d3d',
+      accent: '#c9a227',
+      clay: '#c4a574',
+      clayLight: '#e8dcc8',
+      clayDark: '#a08050',
+      success: '#22c55e',
+      successBg: '#f0fdf4',
+      warning: '#f59e0b',
+      warningBg: '#fffbeb',
+      error: '#dc2626',
+      errorBg: '#fef2f2',
+      profit: '#16a34a'
+    };
 
-        const CheckCircle = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        );
+    // ============================================================
+    // SOUND FUNCTIONS
+    // ============================================================
+    const createAudioContext = () => {
+      return new (window.AudioContext || window.webkitAudioContext)();
+    };
 
-        const HelpCircle = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-        );
+    const playSuccessTone = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [523.25, 659.25, 783.99];
+        const startTime = ctx.currentTime;
+        
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+          
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+          
+          const noteStart = startTime + (i * 0.1);
+          const noteEnd = noteStart + 0.15;
+          
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.3, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+          
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.1);
+        });
+        
+        setTimeout(() => ctx.close(), 600);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
 
-        const Book = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-            </svg>
-        );
+    const playSoftNope = () => {
+      try {
+        const ctx = createAudioContext();
+        const notes = [400, 300];
+        const startTime = ctx.currentTime;
+        
+        notes.forEach((freq, i) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+          
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+          
+          const noteStart = startTime + (i * 0.12);
+          const noteEnd = noteStart + 0.12;
+          
+          gainNode.gain.setValueAtTime(0, noteStart);
+          gainNode.gain.linearRampToValueAtTime(0.2, noteStart + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+          
+          oscillator.start(noteStart);
+          oscillator.stop(noteEnd + 0.05);
+        });
+        
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
 
-        const Trophy = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
-                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
-                <path d="M4 22h16"></path>
-                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
-                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
-                <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path>
-            </svg>
-        );
+    const playBuzzer = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        oscillator.frequency.value = 150;
+        oscillator.type = 'sawtooth';
+        
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0.25, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.35);
+        
+        setTimeout(() => ctx.close(), 400);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
 
-        const Eye = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-        );
+    const playContinueClick = () => {
+      try {
+        const ctx = createAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        oscillator.frequency.value = 600;
+        oscillator.type = 'sine';
+        
+        const startTime = ctx.currentTime;
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.1);
+        
+        setTimeout(() => ctx.close(), 150);
+      } catch (e) {
+        console.log('Audio not available');
+      }
+    };
 
-        const Scale = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"></path>
-                <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"></path>
-                <path d="M7 21h10"></path>
-                <path d="M12 3v18"></path>
-                <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
-            </svg>
-        );
+    // ============================================================
+    // GLOSSARY TERMS
+    // ============================================================
+    const glossaryTerms = [
+      {
+        term: 'Exchange Ratio',
+        definition: 'The rate at which two goods trade directly (e.g., "2 barley for 1 wool").'
+      },
+      {
+        term: 'Common Standard',
+        definition: 'A good used as a reference point to express what other goods can command. Makes comparison easier.'
+      },
+      {
+        term: 'Commensurable',
+        definition: 'Able to be compared because they\'re expressed in the same terms. "6 barley" and "8 barley" are commensurable; "3 wool" and "2 pots" are not.'
+      },
+      {
+        term: 'Arbitrage',
+        definition: 'Profiting from inconsistent rates by trading in a cycle. Not cheating — just using information.'
+      },
+      {
+        term: 'Mispricing',
+        definition: 'When exchange rates are inconsistent with each other, creating arbitrage opportunities.'
+      }
+    ];
 
-        const TrendingUp = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-            </svg>
-        );
+    // ============================================================
+    // ICONS (SVG components)
+    // ============================================================
+    const MapPinIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+    );
 
-        const ArrowRight = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-        );
+    const BookIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+      </svg>
+    );
 
-        const RefreshCw = ({ className }) => (
-            <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-            </svg>
-        );
+    const RefreshIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+        <path d="M21 3v5h-5"/>
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+        <path d="M8 16H3v5"/>
+      </svg>
+    );
 
-        const BarleyIcon = () => <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M12 2C12 2 10 6 10 8s1 3 2 3 2-1 2-3-2-6-2-6zm-4 6c0-2 2-6 2-6s-2 4-2 6 1 3 2 3 2-1 2-3m8 0c0-2-2-6-2-6s2 4 2 6-1 3-2 3-2-1-2-3m-4 6v8m-2-6l2-2 2 2"/></svg>;
-        const WoolIcon = () => <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><circle cx="12" cy="14" r="3"/><circle cx="6" cy="16" r="2"/><circle cx="18" cy="16" r="2"/></svg>;
-        const PotteryIcon = () => <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor"><path d="M12 2C9 2 7 4 7 7v3c0 2-1 3-2 4v2h14v-2c-1-1-2-2-2-4V7c0-3-2-5-5-5zm-4 16v1c0 1.7 1.3 3 3 3h2c1.7 0 3-1.3 3-3v-1H8z"/></svg>;
+    const ChevronRightIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m9 18 6-6-6-6"/>
+      </svg>
+    );
 
-        const Tutorial14 = () => {
-            const [phase, setPhase] = useState('intro');
-            const [step, setStep] = useState(-1);
-            const [answer, setAnswer] = useState('');
-            const [showExplanation, setShowExplanation] = useState(false);
-            const [hintIndex, setHintIndex] = useState(0);
-            const [showGlossary, setShowGlossary] = useState(false);
-            const [devMode, setDevMode] = useState(false);
-            const [attemptCount, setAttemptCount] = useState(0);
-            const [showIncorrectFeedback, setShowIncorrectFeedback] = useState(false);
+    const ChevronDownIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m6 9 6 6 6-6"/>
+      </svg>
+    );
 
-            const [currentDay, setCurrentDay] = useState(1);
+    const ChevronUpIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m18 15-6-6-6 6"/>
+      </svg>
+    );
 
-            const [kiraTradeIndex, setKiraTradeIndex] = useState(-1);
-            const [showKiraTrades, setShowKiraTrades] = useState(false);
-            const [kiraTradesComplete, setKiraTradesComplete] = useState(false);
+    const InfoIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 16v-4"/>
+        <path d="M12 8h.01"/>
+      </svg>
+    );
 
-            const [giveValue, setGiveValue] = useState('');
-            const [receiveValue, setReceiveValue] = useState('');
-            const [dealAssessment, setDealAssessment] = useState('');
+    const CheckCircleIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <path d="m9 11 3 3L22 4"/>
+      </svg>
+    );
 
-            const [woolValue, setWoolValue] = useState('');
-            const [potValue, setPotValue] = useState('');
+    const TrophyIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+        <path d="M4 22h16"/>
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+      </svg>
+    );
 
-            const [giveValue2, setGiveValue2] = useState('');
-            const [receiveValue2, setReceiveValue2] = useState('');
-            const [dealAssessment2, setDealAssessment2] = useState('');
+    const LightbulbIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+        <path d="M9 18h6"/>
+        <path d="M10 22h4"/>
+      </svg>
+    );
 
-            const [giveValue3, setGiveValue3] = useState('');
-            const [receiveValue3, setReceiveValue3] = useState('');
-            const [dealAssessment3, setDealAssessment3] = useState('');
+    // Good icons
+    const BarleyIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2v20"/>
+        <path d="M8 6c0-1.5 1.5-3 4-3s4 1.5 4 3c0 2-2 3-4 3s-4-1-4-3z"/>
+        <path d="M8 12c0-1.5 1.5-3 4-3s4 1.5 4 3c0 2-2 3-4 3s-4-1-4-3z"/>
+        <path d="M8 18c0-1.5 1.5-3 4-3s4 1.5 4 3"/>
+      </svg>
+    );
 
-            const [selectedCycle, setSelectedCycle] = useState([]);
+    const WoolIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="8"/>
+        <path d="M12 4c-2 2-2 4 0 6s2 4 0 6"/>
+        <path d="M8 8c2 0 4 2 4 4s-2 4-4 4"/>
+        <path d="M16 8c-2 0-4 2-4 4s2 4 4 4"/>
+      </svg>
+    );
 
-            const [codaAnswered, setCodaAnswered] = useState(false);
+    const PotteryIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 2h8"/>
+        <path d="M9 2v2"/>
+        <path d="M15 2v2"/>
+        <path d="M7 4h10c1 4 1 8-1 12H8c-2-4-2-8-1-12z"/>
+        <path d="M6 16h12"/>
+        <path d="M7 16c-1 2-1 4 0 6h10c1-2 1-4 0-6"/>
+      </svg>
+    );
 
-            const handleRestart = () => {
-                setPhase('intro');
-                setStep(-1);
-                setAnswer('');
-                setShowExplanation(false);
-                setHintIndex(0);
-                setAttemptCount(0);
-                setShowIncorrectFeedback(false);
-                setCurrentDay(1);
-                setKiraTradeIndex(-1);
-                setShowKiraTrades(false);
-                setKiraTradesComplete(false);
-                setGiveValue('');
-                setReceiveValue('');
-                setDealAssessment('');
-                setWoolValue('');
-                setPotValue('');
-                setGiveValue2('');
-                setReceiveValue2('');
-                setDealAssessment2('');
-                setGiveValue3('');
-                setReceiveValue3('');
-                setDealAssessment3('');
-                setSelectedCycle([]);
-                setCodaAnswered(false);
-            };
+    const ArrowRightIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 12h14"/>
+        <path d="m12 5 7 7-7 7"/>
+      </svg>
+    );
 
-            const colors = {
-                primary: '#00356b',
-                sand: '#f5f1e8',
-                earth: '#8b7355',
-                earthLight: '#d4c4a8',
-                earthDark: '#5c4d3d',
-                accent: '#c9a227',
-                profit: '#16a34a',
-                loss: '#dc2626'
-            };
+    // ============================================================
+    // MAIN TUTORIAL COMPONENT
+    // ============================================================
+    const Tutorial14 = () => {
+      // Phase management
+      const phaseOrder = ['welcome', 'phase1', 'phase2', 'phase3', 'phase4', 'phase5', 'coda', 'complete'];
+      const [phase, setPhase] = useState('welcome');
+      
+      // UI state
+      const [showGlossary, setShowGlossary] = useState(false);
+      const [showHistoricalNote, setShowHistoricalNote] = useState(false);
+      const [devMode, setDevMode] = useState(false);
+      const [headerClickCount, setHeaderClickCount] = useState(0);
+      
+      // Q1 state (Complexity Problem)
+      const [q1Answer, setQ1Answer] = useState('');
+      const [q1Attempts, setQ1Attempts] = useState(0);
+      const [q1Submitted, setQ1Submitted] = useState(false);
+      
+      // Q2 state (Watch Kira)
+      const [showKiraTrades, setShowKiraTrades] = useState(false);
+      const [kiraTradeIndex, setKiraTradeIndex] = useState(-1);
+      const [kiraTradesComplete, setKiraTradesComplete] = useState(false);
+      const [q2Answer, setQ2Answer] = useState('');
+      const [q2Attempts, setQ2Attempts] = useState(0);
+      const [q2Submitted, setQ2Submitted] = useState(false);
+      
+      // Q3 state (Gap Calculator)
+      const [giveValue, setGiveValue] = useState('');
+      const [receiveValue, setReceiveValue] = useState('');
+      const [dealAssessment, setDealAssessment] = useState('');
+      const [q3Attempts, setQ3Attempts] = useState(0);
+      const [q3Submitted, setQ3Submitted] = useState(false);
+      
+      // Q4 state (Why Rates Line Up)
+      const [q4Answer, setQ4Answer] = useState('');
+      const [q4Attempts, setQ4Attempts] = useState(0);
+      const [q4Submitted, setQ4Submitted] = useState(false);
+      
+      // Q5 state (Is Barley Special?)
+      const [q5Choice, setQ5Choice] = useState('');
+      const [q5Explanation, setQ5Explanation] = useState('');
+      const [q5Attempts, setQ5Attempts] = useState(0);
+      const [q5Submitted, setQ5Submitted] = useState(false);
 
-            const day1Rates = [
-                { goods: ['barley', 'wool'], ratio: '2 barley : 1 wool', a: 2, b: 1, aName: 'barley', bName: 'wool' },
-                { goods: ['barley', 'pottery'], ratio: '4 barley : 1 pot', a: 4, b: 1, aName: 'barley', bName: 'pot' },
-                { goods: ['wool', 'pottery'], ratio: '3 wool : 2 pots', a: 3, b: 2, aName: 'wool', bName: 'pots', mispriced: true },
-            ];
+      // Progress calculation
+      const currentPhaseIndex = phaseOrder.indexOf(phase);
+      const progress = Math.round((currentPhaseIndex / (phaseOrder.length - 1)) * 100);
 
-            const day2Rates = [
-                { goods: ['barley', 'pottery'], ratio: '4 barley : 1 pot', a: 4, b: 1, aName: 'barley', bName: 'pot' },
-                { goods: ['barley', 'wool'], ratio: '2 barley : 1 wool', a: 2, b: 1, aName: 'barley', bName: 'wool' },
-                { goods: ['wool', 'pottery'], ratio: '3 wool : 1 pot', a: 3, b: 1, aName: 'wool', bName: 'pot', mispriced: true },
-            ];
+      // Header click handler for dev mode
+      const handleHeaderClick = () => {
+        const newCount = headerClickCount + 1;
+        setHeaderClickCount(newCount);
+        if (newCount >= 3) {
+          setDevMode(!devMode);
+          setHeaderClickCount(0);
+        }
+      };
 
-            const kiraTrades = [
-                { from: 'barley', to: 'wool', fromAmt: 12, toAmt: 6, rate: '2:1' },
-                { from: 'wool', to: 'pottery', fromAmt: 6, toAmt: 4, rate: '3:2' },
-                { from: 'pottery', to: 'barley', fromAmt: 4, toAmt: 16, rate: '4:1' },
-            ];
+      // Restart handler
+      const handleRestart = () => {
+        playContinueClick();
+        setPhase('welcome');
+        setQ1Answer('');
+        setQ1Attempts(0);
+        setQ1Submitted(false);
+        setShowKiraTrades(false);
+        setKiraTradeIndex(-1);
+        setKiraTradesComplete(false);
+        setQ2Answer('');
+        setQ2Attempts(0);
+        setQ2Submitted(false);
+        setGiveValue('');
+        setReceiveValue('');
+        setDealAssessment('');
+        setQ3Attempts(0);
+        setQ3Submitted(false);
+        setQ4Answer('');
+        setQ4Attempts(0);
+        setQ4Submitted(false);
+        setQ5Choice('');
+        setQ5Explanation('');
+        setQ5Attempts(0);
+        setQ5Submitted(false);
+        setShowHistoricalNote(false);
+      };
 
-            const glossaryTerms = [
-                { term: 'Exchange Ratio', definition: 'The rate at which two goods trade directly, without reference to other goods (e.g., "3 wool : 2 pots").' },
-                { term: 'Numeraire', definition: 'A good used as a common unit to express all values. Makes different goods commensurable.' },
-                { term: 'Unit of Account', definition: 'A standard unit in which values are expressed, allowing comparison across different goods.' },
-                { term: 'Commensurable', definition: 'Able to be compared because they\'re measured in the same unit. "6 barley" and "8 barley" are commensurable; "3 wool" and "2 pots" are not.' },
-                { term: 'Arbitrage', definition: 'Profiting from inconsistent prices by trading in a cycle. Not cheating—just using information.' },
-                { term: 'Mispricing', definition: 'When exchange rates are inconsistent with each other, creating arbitrage opportunities.' },
-            ];
+      // Kira trade animation
+      const startKiraAnimation = () => {
+        playContinueClick();
+        setShowKiraTrades(true);
+        setKiraTradeIndex(0);
+        
+        setTimeout(() => setKiraTradeIndex(1), 1500);
+        setTimeout(() => setKiraTradeIndex(2), 3000);
+        setTimeout(() => {
+          setKiraTradeIndex(3);
+          setKiraTradesComplete(true);
+        }, 4500);
+      };
 
-            const runKiraTrades = async () => {
-                setShowKiraTrades(true);
-                setKiraTradeIndex(-1);
+      // Q1 evaluation
+      const evaluateQ1 = () => {
+        const answer = q1Answer.toLowerCase().trim();
+        const acceptKeywords = ['no', 'hard', 'can\'t', 'cannot', 'not sure', 'unclear', 'difficult', 'impossible', 'don\'t know'];
+        const isAccepted = acceptKeywords.some(k => answer.includes(k)) || answer.length > 15;
+        
+        if (isAccepted) {
+          playSuccessTone();
+          setQ1Submitted(true);
+        } else {
+          const newAttempts = q1Attempts + 1;
+          setQ1Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ1Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
 
-                for (let i = 0; i < kiraTrades.length; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    setKiraTradeIndex(i);
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                }
+      // Q2 evaluation
+      const evaluateQ2 = () => {
+        const answer = q2Answer.toLowerCase().trim();
+        const acceptKeywords = ['inconsistent', 'mispric', 'don\'t fit', 'don\'t match', 'gap', 'wrong', 'off', 'arbitrage', 'doesn\'t fit', 'not consistent'];
+        const isAccepted = acceptKeywords.some(k => answer.includes(k)) || answer.length > 20;
+        
+        if (isAccepted) {
+          playSuccessTone();
+          setQ2Submitted(true);
+        } else {
+          const newAttempts = q2Attempts + 1;
+          setQ2Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ2Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
 
-                await new Promise(resolve => setTimeout(resolve, 500));
-                setKiraTradesComplete(true);
-            };
+      // Q3 evaluation (Gap Calculator)
+      const evaluateQ3 = () => {
+        const give = parseInt(giveValue);
+        const receive = parseInt(receiveValue);
+        const isCorrect = give === 6 && receive === 8 && dealAssessment === 'good';
+        
+        if (isCorrect) {
+          playSuccessTone();
+          setQ3Submitted(true);
+        } else {
+          const newAttempts = q3Attempts + 1;
+          setQ3Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ3Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
 
-            const saveResults = () => {
-                try {
-                    localStorage.setItem('tutorial14Results', JSON.stringify({
-                        day1Observed: true,
-                        day2Profit: 6,
-                        completedAt: Date.now()
-                    }));
-                } catch (e) {
-                    console.log('Could not save results');
-                }
-            };
+      // Q4 evaluation
+      const evaluateQ4 = () => {
+        const answer = q4Answer.toLowerCase().trim();
+        const acceptKeywords = ['arbitrage', 'traders', 'exploit', 'profit', 'adjust', 'close', 'eliminate', 'consistent', 'correct', 'opportunity', 'gap'];
+        const isAccepted = acceptKeywords.some(k => answer.includes(k)) || answer.length > 30;
+        
+        if (isAccepted) {
+          playSuccessTone();
+          setQ4Submitted(true);
+        } else {
+          const newAttempts = q4Attempts + 1;
+          setQ4Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ4Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
 
-            const questions = [
-                {
-                    id: 0,
-                    type: 'complexity',
-                    day: 1,
-                    narrative: "You watch the market. Three goods. Three exchange rates:\n\n• Barley ↔ Wool: 2 barley for 1 wool\n• Barley ↔ Pottery: 4 barley for 1 pot\n• Wool ↔ Pottery: 3 wool for 2 pots\n\nEach rate makes sense on its own. But do they fit together?",
-                    question: "Looking at these three rates, can you tell if any trade is a particularly good or bad deal?",
-                    hints: ["Try to compare... but compare to what?", "If you don't see anything obvious, that's the point."],
-                    evaluate: (a) => {
-                        const lower = a.toLowerCase();
-                        return lower.includes('no') || lower.includes('can\'t') || lower.includes('hard') || lower.includes('difficult') || lower.includes('not sure') || lower.includes('unclear') || a.length > 10;
-                    },
-                    answer: "No / Hard to tell",
-                    explanation: "If you couldn't spot anything wrong, you're in good company. Most people can't—not because they're missing something obvious, but because there's nothing obvious to see.\n\nEach ratio compares two goods directly. But there's no common reference point. How do you compare \"2 barley : 1 wool\" to \"3 wool : 2 pots\"? The units are different. Your brain has to juggle conversions, and the numbers just... sit there.\n\nMaybe someone who trades here every day can see patterns you can't. Let's watch and find out."
-                },
-                {
-                    id: 1,
-                    type: 'observe',
-                    day: 1,
-                    narrative: "You watch the old trader more closely. Her name, you learn, is Kira. She's from somewhere downstream—been trading longer than anyone can remember.\n\nShe doesn't haggle. She doesn't rush. She just... moves through the market, making trades.\n\nYou follow her cycle:",
-                    question: "Watch Kira's trades. She starts with 12 sila of barley. How did she end up with more than she started?",
-                    hints: ["Each individual trade was at the market rate...", "But somehow 12 became 16. The rates must not fit together properly.", "Something about those three rates creates an opportunity..."],
-                    evaluate: (a) => {
-                        const lower = a.toLowerCase();
-                        return lower.includes('inconsistent') || lower.includes('mispric') || lower.includes('arbitrage') || lower.includes('don\'t add') || lower.includes('don\'t match') || lower.includes('don\'t fit') || lower.includes('profit') || lower.includes('gap') || lower.includes('wrong') || lower.includes('off') || a.length > 20;
-                    },
-                    answer: "The rates are inconsistent / mispricing",
-                    explanation: "You see the result clearly: 12 barley became 16. But you're not sure how it works. Each individual trade was at the posted market rate. Nothing was hidden. Nothing was unfair.\n\nYet somehow, trading in a cycle created profit from nothing.\n\nSomething about those three rates doesn't fit together. But what? You stare at them—2:1, 4:1, 3:2—and the numbers just sit there, refusing to reveal their secret.\n\nKira notices you watching. She gives a slight nod."
-                },
-                {
-                    id: 2,
-                    type: 'revelation',
-                    day: 1,
-                    narrative: "\"You're curious,\" Kira says. It's not a question.\n\nYou nod. \"How did you do that?\"\n\nShe picks up a small stone, scratches in the dirt.\n\n\"When you look at the rates,\" she says, \"you see three different comparisons. Barley to wool. Barley to pottery. Wool to pottery. Hard to hold them all in your head.\"\n\n\"But what if you state everything in barley?\"",
-                    question: "Using Kira's method, calculate the barley value of each side of the wool↔pottery trade.\n\nThen decide: is trading wool for pottery a good deal, bad deal, or fair?",
-                    hints: ["From the first rate: 2 barley = 1 wool, so 1 wool is worth 2 barley", "From the second rate: 4 barley = 1 pot, so 1 pot is worth 4 barley", "Now apply those values to the third rate (3 wool : 2 pots)..."],
-                    evaluate: () => {
-                        return parseInt(giveValue) === 6 && parseInt(receiveValue) === 8 && dealAssessment === 'good';
-                    },
-                    answer: "Give 6, Receive 8, Good deal",
-                    explanation: "There it is! You give 6 barley worth of wool and receive 8 barley worth of pottery. That's a gain of 2 barley every time you make this trade.\n\nThe mispricing was invisible when you looked at \"3 wool : 2 pots\"—those are just numbers. But when you translate both sides into barley, the gap jumps out.\n\n\"The common unit doesn't change what things are worth,\" Kira says. \"It just lets you see what was always there.\""
-                },
-                {
-                    id: 3,
-                    type: 'why',
-                    day: 1,
-                    narrative: "You sit with this for a moment.\n\nThe rates hadn't changed. The trades were all \"fair\" by market standards. But by expressing everything in barley, the inconsistency became visible.",
-                    question: "Why does stating values in a common unit reveal mispricings that ratios hide?",
-                    hints: ["With ratios, you compare pairs. With a common unit, you compare...", "Think about what happens when you try to compare \"3 wool : 2 pots\" to \"4 barley : 1 pot\" directly..."],
-                    evaluate: (a) => {
-                        const lower = a.toLowerCase();
-                        return (lower.includes('compar') || lower.includes('same unit') || lower.includes('common') || lower.includes('see') || lower.includes('visible')) && a.length > 20;
-                    },
-                    answer: "Can compare directly in same units",
-                    explanation: "When values are stated in different units (wool, pots, barley), you can't directly compare them. Your brain has to juggle multiple conversions.\n\nWhen everything is stated in the same unit (barley), comparison is immediate. \"6 barley for 8 barley\" is obviously a gain. The information was always there—the common unit just makes it visible.\n\nThis is why a common unit of account matters. It's not about convenience. It's about seeing."
-                },
-                {
-                    id: 4,
-                    type: 'day2intro',
-                    day: 2,
-                    narrative: "You go home that evening with more than wool. You have an idea.\n\nThe next morning, you return to the market early. The rates have shifted overnight—traders adjusting, new people arriving.\n\nToday's rates:\n\n• Barley ↔ Pottery: 4 barley for 1 pot\n• Barley ↔ Wool: 2 barley for 1 wool\n• Wool ↔ Pottery: 3 wool for 1 pot",
-                    question: "Using the barley↔pottery and barley↔wool rates, what is each good worth in barley?",
-                    hints: ["2 barley buys 1 wool, so 1 wool = ?", "4 barley buys 1 pot, so 1 pot = ?"],
-                    evaluate: () => {
-                        return parseInt(woolValue) === 2 && parseInt(potValue) === 4;
-                    },
-                    answer: "Wool = 2, Pot = 4",
-                    explanation: "From the market rates:\n• 2 barley : 1 wool → 1 wool = 2 barley\n• 4 barley : 1 pot → 1 pot = 4 barley\n\nNow you have your common unit. Let's check the third rate—the wool↔pottery trade."
-                },
-                {
-                    id: 5,
-                    type: 'findgap',
-                    day: 2,
-                    narrative: "The wool↔pottery rate today is 3 wool for 1 pot.\n\nUsing your barley values (1 wool = 2 barley, 1 pot = 4 barley), let's check if this rate is consistent.",
-                    question: "If you trade wool for pottery at today's rate:\n\n• You give 3 wool = ___ barley worth\n• You receive 1 pot = ___ barley worth\n\nIs this a good deal, bad deal, or fair?",
-                    hints: ["3 wool × 2 barley per wool = ?", "1 pot = 4 barley", "Are you getting more or less than you're giving?"],
-                    evaluate: () => {
-                        return parseInt(giveValue2) === 6 && parseInt(receiveValue2) === 4 && dealAssessment2 === 'bad';
-                    },
-                    answer: "Give 6, Receive 4 — Bad deal",
-                    explanation: "You're giving 6 barley worth of wool to receive only 4 barley worth of pottery. That's a loss of 2 barley!\n\nIf wool→pottery is a bad deal... what about the other direction?"
-                },
-                {
-                    id: '5b',
-                    type: 'findgap_reverse',
-                    day: 2,
-                    narrative: "You found that trading wool for pottery is a bad deal—you lose value.\n\nBut every trade has two directions. What if you flip it around?\n\nThe rate is still 3 wool : 1 pot. But now consider trading pottery for wool.",
-                    question: "If you trade pottery for wool at today's rate:\n\n• You give 1 pot = ___ barley worth\n• You receive 3 wool = ___ barley worth\n\nIs this a good deal, bad deal, or fair?",
-                    hints: ["1 pot = 4 barley", "3 wool × 2 barley per wool = ?", "Now are you getting more or less?"],
-                    evaluate: () => {
-                        return parseInt(giveValue3) === 4 && parseInt(receiveValue3) === 6 && dealAssessment3 === 'good';
-                    },
-                    answer: "Give 4, Receive 6 — Good deal!",
-                    explanation: "Now you're giving 4 barley worth of pottery and receiving 6 barley worth of wool. That's a gain of 2 barley!\n\nThe mispricing works both ways. If one direction is a loss, the reverse is a gain. Today, you want to SELL pottery and BUY wool at the wool↔pottery rate.\n\nNow you know which direction to trade. Can you build the complete cycle?"
-                },
-                {
-                    id: 6,
-                    type: 'cycle',
-                    day: 2,
-                    narrative: "Yesterday, Kira traded wool for pottery because that direction was profitable.\n\nToday, the mispricing is reversed—you want to trade pottery for wool.\n\nStarting with barley, you need to:\n1. Get pottery somehow\n2. Trade pottery for wool (the profitable trade)\n3. Convert back to barley",
-                    question: "Starting with 12 barley, arrange the trades in the correct order to profit:",
-                    hints: ["You want to BUY wool at the wool↔pottery rate (where wool is cheap)...", "That means you need pottery first. How do you get pottery from barley?", "Barley → ??? → ??? → Barley"],
-                    evaluate: () => {
-                        return selectedCycle.length === 3 &&
-                               selectedCycle[0] === 'barley-pottery' &&
-                               selectedCycle[1] === 'pottery-wool' &&
-                               selectedCycle[2] === 'wool-barley';
-                    },
-                    answer: "Barley → Pottery → Wool → Barley",
-                    explanation: "Let's trace it:\n\n1. 12 barley → 3 pots (at 4 barley : 1 pot)\n2. 3 pots → 9 wool (at 1 pot : 3 wool)\n3. 9 wool → 18 barley (at 1 wool : 2 barley)\n\nResult: 12 barley → 18 barley. Profit: 6 barley!\n\nYou found it. The common unit revealed the mispricing. You figured out which direction to trade. And you built a cycle that profits from the inconsistency.\n\nHere's the thing: as traders like you and Kira exploit these gaps, the rates adjust. Buy the underpriced good, its price rises. Sell the overpriced good, its price falls. The mispricing disappears. Arbitrage doesn't just profit the trader—it corrects the market."
-                },
-            ];
+      // Q5 evaluation
+      const evaluateQ5 = () => {
+        const explanation = q5Explanation.toLowerCase().trim();
+        const hasDepends = explanation.includes('depend') || explanation.includes('different') || 
+                          explanation.includes('wool') || explanation.includes('pot') ||
+                          explanation.includes('trading for') || explanation.includes('relative');
+        const isCorrect = q5Choice === 'no' && hasDepends && explanation.length > 10;
+        
+        if (isCorrect) {
+          playSuccessTone();
+          setQ5Submitted(true);
+        } else {
+          const newAttempts = q5Attempts + 1;
+          setQ5Attempts(newAttempts);
+          if (newAttempts >= 3) {
+            playBuzzer();
+            setQ5Submitted(true);
+          } else {
+            playSoftNope();
+          }
+        }
+      };
 
-            const handleSubmit = () => {
-                const q = questions.find(q => q.id === step);
-                if (q && q.evaluate(answer)) {
-                    setShowExplanation(true);
-                    setShowIncorrectFeedback(false);
-                } else {
-                    const newAttemptCount = attemptCount + 1;
-                    setAttemptCount(newAttemptCount);
-                    if (newAttemptCount >= 3) {
-                        setShowExplanation(true);
-                        setShowIncorrectFeedback(false);
-                    } else {
-                        setShowIncorrectFeedback(true);
-                    }
-                }
-            };
+      // Q1 hints
+      const q1Hints = [
+        "Try to compare... but compare to what?",
+        "If you don't see anything obvious, that's the point."
+      ];
 
-            const nextStep = () => {
-                setAnswer('');
-                setShowExplanation(false);
-                setHintIndex(0);
-                setAttemptCount(0);
-                setShowIncorrectFeedback(false);
-                setGiveValue('');
-                setReceiveValue('');
-                setDealAssessment('');
-                setGiveValue2('');
-                setReceiveValue2('');
-                setDealAssessment2('');
-                setGiveValue3('');
-                setReceiveValue3('');
-                setDealAssessment3('');
-                setSelectedCycle([]);
+      // Q2 hints
+      const q2Hints = [
+        "Each individual trade was at the market rate...",
+        "But somehow 12 became 16. The rates must not fit together properly.",
+        "Something about those three rates creates an opportunity..."
+      ];
 
-                if (step === 3) {
-                    setCurrentDay(2);
-                    setStep(4);
-                } else if (step === 5) {
-                    setStep('5b');
-                } else if (step === '5b') {
-                    setStep(6);
-                } else if (step === 6) {
-                    setStep('coda');
-                } else if (step === 'coda') {
-                    saveResults();
-                    setPhase('complete');
-                } else if (typeof step === 'number' && step < 6) {
-                    setStep(step + 1);
-                }
-            };
+      // Q3 hints
+      const q3Hints = [
+        "From the first rate: 2 barley = 1 wool, so 1 wool is... how many barley?",
+        "From the second rate: 4 barley = 1 pot, so 1 pot is... how many barley?",
+        "Now apply those to 3 wool and 2 pots..."
+      ];
 
-            const getQuestionNumber = () => {
-                if (typeof step === 'number') return step + 1;
-                if (step === '5b') return 7;
-                return 8;
-            };
+      // Q4 hints
+      const q4Hints = [
+        "What happens when many traders see the same gap Kira saw?",
+        "If buying wool is profitable, what happens to the demand for wool?",
+        "Inconsistencies are opportunities. What happens to opportunities?"
+      ];
 
-            const getTotalQuestions = () => 8;
+      // Q5 hints
+      const q5Hints = [
+        "What does barley get you in wool? What does it get you in pottery?",
+        "Are those the same number?"
+      ];
 
-            const GlossaryModal = () => (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-lg w-full max-h-[80vh] overflow-y-auto">
-                        <div className="p-4 border-b flex justify-between items-center" style={{ borderColor: colors.earthLight }}>
-                            <h2 className="font-bold text-lg" style={{ color: colors.primary }}>Glossary</h2>
-                            <button onClick={() => setShowGlossary(false)} className="text-gray-500 hover:text-gray-700 text-xl">×</button>
-                        </div>
-                        <div className="p-4">
-                            {glossaryTerms.map((t, i) => (
-                                <div key={i} className="mb-4 last:mb-0">
-                                    <h3 className="font-bold text-sm" style={{ color: colors.earthDark }}>{t.term}</h3>
-                                    <p className="text-gray-600 text-sm">{t.definition}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+      // ============================================================
+      // REUSABLE COMPONENTS
+      // ============================================================
+
+      // Header with progress bar
+      const Header = () => (
+        <div 
+          className="rounded-lg p-4 mb-4"
+          style={{ backgroundColor: colors.primary }}
+        >
+          <div className="flex justify-between items-start">
+            <div onClick={handleHeaderClick} style={{ cursor: 'pointer' }}>
+              <div className="flex items-center gap-2">
+                <span className="text-white"><MapPinIcon /></span>
+                <h1 className="text-lg font-bold text-white">Tutorial 1.4: The Common Standard</h1>
+              </div>
+              <p className="text-sm mt-1" style={{ color: colors.earthLight }}>
+                The Crossing, ~3500 BCE • ~10 min
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowGlossary(true)}
+                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                title="Glossary"
+              >
+                <span className="text-white"><BookIcon /></span>
+              </button>
+              <button
+                onClick={handleRestart}
+                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                title="Restart tutorial"
+              >
+                <span className="text-white"><RefreshIcon /></span>
+              </button>
+            </div>
+          </div>
+          
+          {/* Progress bar */}
+          <div className="mt-4">
+            <div className="flex justify-between text-xs text-white/70 mb-1">
+              <span>Progress</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="h-2 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+              <div 
+                className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${progress}%`, backgroundColor: colors.accent }}
+              />
+            </div>
+          </div>
+          
+          {/* Dev mode controls */}
+          {devMode && (
+            <div className="mt-3 pt-3 border-t border-white/20">
+              <p className="text-xs text-white/70 mb-2">Dev Mode: Skip to phase</p>
+              <div className="flex flex-wrap gap-1">
+                {phaseOrder.map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setPhase(p)}
+                    className={`px-2 py-1 rounded text-xs transition-colors ${
+                      phase === p ? 'bg-white text-blue-900' : 'bg-white/20 text-white hover:bg-white/30'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+
+      // Glossary Modal
+      const GlossaryModal = () => (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full max-h-[80vh] overflow-y-auto shadow-xl">
+            <div className="p-4 border-b sticky top-0 bg-white flex justify-between items-center">
+              <h3 className="font-bold" style={{ color: colors.primary }}>Glossary</h3>
+              <button 
+                onClick={() => setShowGlossary(false)} 
+                className="text-gray-500 hover:text-gray-700 text-xl font-bold w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              {glossaryTerms.map((item, i) => (
+                <div key={i}>
+                  <p className="font-semibold" style={{ color: colors.primary }}>{item.term}</p>
+                  <p className="text-gray-600 text-sm mt-1">{item.definition}</p>
                 </div>
-            );
+              ))}
+            </div>
+          </div>
+        </div>
+      );
 
-            const Header = () => (
-                <div className="p-3 text-white flex items-center justify-between" style={{ backgroundColor: colors.primary }}>
-                    <div className="flex items-center gap-2">
-                        <Scale className="w-5 h-5" />
-                        <span className="font-bold">Tutorial 1.4</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        {currentDay > 1 && (
-                            <span className="text-xs bg-white/20 px-2 py-1 rounded">Day {currentDay}</span>
-                        )}
-                        <div className="flex items-center gap-1 text-xs">
-                            <Clock className="w-4 h-4" />
-                            <span>~15 min</span>
-                        </div>
-                    </div>
+      // Narrative Block
+      const NarrativeBlock = ({ children }) => (
+        <div 
+          className="p-4 rounded-lg border-l-4 mb-4"
+          style={{ backgroundColor: colors.sand, borderColor: colors.accent }}
+        >
+          <div className="narrative-text text-gray-700">{children}</div>
+        </div>
+      );
+
+      // Continue Button
+      const ContinueButton = ({ onClick, children = "Continue" }) => (
+        <button
+          onClick={() => { playContinueClick(); onClick(); }}
+          className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all"
+          style={{ backgroundColor: colors.primary }}
+        >
+          {children} <ChevronRightIcon />
+        </button>
+      );
+
+      // Insight Panel
+      const InsightPanel = ({ title, children }) => (
+        <div 
+          className="p-4 rounded-lg border-2 mb-4"
+          style={{ backgroundColor: colors.successBg, borderColor: colors.success }}
+        >
+          <div className="flex items-start gap-3">
+            <span className="flex-shrink-0 mt-0.5" style={{ color: colors.success }}>
+              <CheckCircleIcon />
+            </span>
+            <div>
+              {title && <p className="font-bold mb-2" style={{ color: colors.success }}>{title}</p>}
+              <div style={{ color: '#166534' }}>{children}</div>
+            </div>
+          </div>
+        </div>
+      );
+
+      // Key Insight Box
+      const KeyInsightBox = ({ children }) => (
+        <div 
+          className="p-4 rounded-lg border-2 mb-4"
+          style={{ backgroundColor: '#fef9e7', borderColor: colors.accent }}
+        >
+          <div className="flex items-start gap-3">
+            <span className="flex-shrink-0 mt-0.5" style={{ color: colors.accent }}>
+              <LightbulbIcon />
+            </span>
+            <div style={{ color: colors.earthDark }}>{children}</div>
+          </div>
+        </div>
+      );
+
+      // Hint Display
+      const HintDisplay = ({ attempts, hints }) => {
+        if (attempts === 0 || attempts > hints.length) return null;
+        return (
+          <div className="mt-3 p-3 rounded-lg" style={{ backgroundColor: colors.warningBg }}>
+            <p className="text-sm" style={{ color: '#92400e' }}>
+              <strong>Hint {attempts}/{hints.length}:</strong> {hints[attempts - 1]}
+            </p>
+          </div>
+        );
+      };
+
+      // Third Strike Reveal
+      const ThirdStrikeReveal = ({ show, answer }) => {
+        if (!show) return null;
+        return (
+          <div className="mt-3 p-3 rounded-lg border" style={{ backgroundColor: colors.warningBg, borderColor: colors.warning }}>
+            <p className="text-sm font-medium" style={{ color: '#92400e' }}>
+              Here's what we were looking for:
+            </p>
+            <p className="text-sm mt-1" style={{ color: '#92400e' }}>
+              {answer}
+            </p>
+          </div>
+        );
+      };
+
+      // Rate Card
+      const RateCard = ({ good1, good2, ratio, icon1, icon2 }) => (
+        <div 
+          className="p-3 rounded-lg border bg-white"
+          style={{ borderColor: colors.earthLight }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span style={{ color: colors.earth }}>{icon1}</span>
+              <span className="text-gray-400">↔</span>
+              <span style={{ color: colors.earth }}>{icon2}</span>
+            </div>
+            <span className="font-mono text-sm font-semibold" style={{ color: colors.earthDark }}>
+              {ratio}
+            </span>
+          </div>
+          <p className="text-xs mt-2 text-gray-500">{good1} ↔ {good2}</p>
+        </div>
+      );
+
+      // ============================================================
+      // PHASE RENDERS
+      // ============================================================
+
+      // WELCOME
+      const renderWelcome = () => (
+        <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <Header />
+            
+            <NarrativeBlock>
+              <p className="mb-3">
+                The wool trade is done. You linger at the market, watching.
+              </p>
+              <p className="mb-3">
+                Three goods dominate the trading: barley, wool, and pottery. Calls ring out — "Two barley for one wool!" "Four barley for one pot!" — but also "Three wool for two pots!"
+              </p>
+              <p>
+                Then you notice something. An old trader keeps trading in cycles. Barley to wool to pottery and back to barley. And somehow, she always ends up with more than she started.
+              </p>
+            </NarrativeBlock>
+            
+            {/* What You'll Discover */}
+            <div 
+              className="p-4 rounded-lg border-2 mb-4"
+              style={{ backgroundColor: 'white', borderColor: colors.primary }}
+            >
+              <h3 className="font-bold mb-3" style={{ color: colors.primary }}>What You'll Discover</h3>
+              <ol className="space-y-2 text-sm" style={{ color: colors.earthDark }}>
+                <li className="flex gap-2">
+                  <span className="font-bold" style={{ color: colors.primary }}>1.</span>
+                  Exchange ratios are hard to compare directly
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-bold" style={{ color: colors.primary }}>2.</span>
+                  A common standard makes comparison immediate
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-bold" style={{ color: colors.primary }}>3.</span>
+                  How traders calling out rates in public leads to consistency across all traded goods
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-bold" style={{ color: colors.primary }}>4.</span>
+                  The standard is a lens for seeing, not the source of the structure
+                </li>
+              </ol>
+            </div>
+            
+            {/* Historical Liberties Note */}
+            <div className="mb-4">
+              <button
+                onClick={() => setShowHistoricalNote(!showHistoricalNote)}
+                className="w-full flex items-center justify-between p-3 rounded-lg text-sm"
+                style={{ backgroundColor: colors.clayLight, color: colors.earthDark }}
+              >
+                <div className="flex items-center gap-2">
+                  <InfoIcon />
+                  <span className="font-medium">A Note on Historical Liberties</span>
                 </div>
-            );
-
-            const RateCard = ({ rate, highlighted = false }) => (
-                <div
-                    className={`p-3 rounded-lg border ${highlighted ? 'border-amber-400 bg-amber-50' : 'border-gray-200 bg-white'}`}
+                {showHistoricalNote ? <ChevronUpIcon /> : <ChevronDownIcon />}
+              </button>
+              
+              {showHistoricalNote && (
+                <div 
+                  className="mt-2 p-4 rounded-lg text-sm border"
+                  style={{ backgroundColor: 'white', borderColor: colors.earthLight, color: colors.earthDark }}
                 >
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            {rate.goods[0] === 'barley' && <BarleyIcon />}
-                            {rate.goods[0] === 'wool' && <WoolIcon />}
-                            {rate.goods[0] === 'pottery' && <PotteryIcon />}
-                            <span className="text-sm">↔</span>
-                            {rate.goods[1] === 'barley' && <BarleyIcon />}
-                            {rate.goods[1] === 'wool' && <WoolIcon />}
-                            {rate.goods[1] === 'pottery' && <PotteryIcon />}
-                        </div>
-                        <span className="font-mono text-sm font-medium" style={{ color: highlighted ? colors.accent : colors.earthDark }}>
-                            {rate.ratio}
-                        </span>
-                    </div>
-                    {rate.mispriced && highlighted && (
-                        <p className="text-xs text-amber-700 mt-1">← Check this one!</p>
-                    )}
+                  <p className="mb-3">
+                    This tutorial is set in a fictional pre-urban river valley, roughly 3500 BCE. The marketplace, the character of Kira, and the specific trade goods are imagined to illustrate economic concepts.
+                  </p>
+                  <p className="mb-3">
+                    The tutorial takes liberties: real prehistoric exchange would have been more varied and less systematic than depicted. The clean "discovery" of arbitrage and common standards would have been gradual and uneven.
+                  </p>
+                  <p className="italic">
+                    This is historical fiction in service of teaching accounting concepts — not a claim about how ancient economies actually worked.
+                  </p>
                 </div>
-            );
+              )}
+            </div>
+            
+            <ContinueButton onClick={() => setPhase('phase1')}>
+              Begin Tutorial
+            </ContinueButton>
+          </div>
+        </div>
+      );
 
-            const KiraTradeDisplay = () => (
+      // PHASE 1: The Complexity Problem
+      const renderPhase1 = () => (
+        <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <Header />
+            
+            <NarrativeBlock>
+              <p className="mb-3">
+                You watch the market. Three goods. Three exchange rates:
+              </p>
+              <ul className="space-y-1 mb-3 not-italic">
+                <li>• Barley ↔ Wool: <strong>2 barley for 1 wool</strong></li>
+                <li>• Barley ↔ Pottery: <strong>4 barley for 1 pot</strong></li>
+                <li>• Wool ↔ Pottery: <strong>3 wool for 2 pots</strong></li>
+              </ul>
+              <p>
+                Each rate makes sense on its own. But do they fit together?
+              </p>
+            </NarrativeBlock>
+            
+            {/* Rate Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+              <RateCard 
+                good1="Barley" 
+                good2="Wool" 
+                ratio="2:1"
+                icon1={<BarleyIcon />}
+                icon2={<WoolIcon />}
+              />
+              <RateCard 
+                good1="Barley" 
+                good2="Pottery" 
+                ratio="4:1"
+                icon1={<BarleyIcon />}
+                icon2={<PotteryIcon />}
+              />
+              <RateCard 
+                good1="Wool" 
+                good2="Pottery" 
+                ratio="3:2"
+                icon1={<WoolIcon />}
+                icon2={<PotteryIcon />}
+              />
+            </div>
+            
+            {/* Question */}
+            <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+              <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                <strong>Question:</strong> Looking at these three rates, can you tell if any trade is a particularly good or bad deal?
+              </p>
+              
+              {!q1Submitted && (
+                <>
+                  <textarea
+                    value={q1Answer}
+                    onChange={(e) => setQ1Answer(e.target.value)}
+                    placeholder="Your answer..."
+                    rows={2}
+                    className="w-full p-3 border rounded-lg text-sm resize-none mb-3"
+                    style={{ borderColor: colors.earthLight }}
+                  />
+                  <button
+                    onClick={evaluateQ1}
+                    disabled={q1Answer.trim().length < 2}
+                    className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Check
+                  </button>
+                  
+                  {!q1Submitted && <HintDisplay attempts={q1Attempts} hints={q1Hints} />}
+                </>
+              )}
+              
+              {q1Submitted && q1Attempts >= 3 && (
+                <ThirdStrikeReveal 
+                  show={true} 
+                  answer="It's hard to tell — the rates use different units and don't obviously compare." 
+                />
+              )}
+            </div>
+            
+            {/* Explanation after submission */}
+            {q1Submitted && (
+              <>
+                <InsightPanel>
+                  <p className="mb-2">
+                    If you couldn't spot anything wrong, you're in good company. Most people can't — not because they're missing something, but because there's nothing obvious to see.
+                  </p>
+                  <p className="mb-2">
+                    Each ratio compares two goods directly. But there's no common basis for comparison. How do you compare "2 barley : 1 wool" to "3 wool : 2 pots"? The units are different. The numbers just sit there.
+                  </p>
+                  <p>
+                    Maybe someone who trades here every day can see patterns you can't. Let's watch and find out.
+                  </p>
+                </InsightPanel>
+                
+                <ContinueButton onClick={() => setPhase('phase2')}>
+                  Continue
+                </ContinueButton>
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // PHASE 2: Watch Kira
+      const renderPhase2 = () => (
+        <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <Header />
+            
+            <NarrativeBlock>
+              <p className="mb-3">
+                You watch the old trader more closely. Her name, you learn, is Kira. She's from somewhere downstream — been trading longer than anyone can remember.
+              </p>
+              <p>
+                She doesn't haggle. She doesn't rush. She just moves through the market, making trades.
+              </p>
+            </NarrativeBlock>
+            
+            {/* Watch Kira's Trades */}
+            {!showKiraTrades && (
+              <button
+                onClick={startKiraAnimation}
+                className="w-full py-4 rounded-lg font-bold text-white mb-4 flex items-center justify-center gap-2 btn-primary transition-all"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Watch Kira's Trades <ArrowRightIcon />
+              </button>
+            )}
+            
+            {showKiraTrades && (
+              <div 
+                className="rounded-lg p-4 mb-4 border-2"
+                style={{ backgroundColor: 'white', borderColor: colors.clayDark }}
+              >
+                <h4 className="font-bold mb-3" style={{ color: colors.primary }}>Kira's Trading Cycle</h4>
+                
                 <div className="space-y-3">
-                    {kiraTrades.map((trade, i) => (
-                        <div
-                            key={i}
-                            className={`p-3 rounded-lg border transition-all ${
-                                kiraTradeIndex >= i ? 'border-green-400 bg-green-50' : 'border-gray-200 bg-gray-50 opacity-50'
-                            }`}
-                        >
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium">{i + 1}.</span>
-                                    <span className="text-sm">
-                                        {trade.fromAmt} {trade.from} → {trade.toAmt} {trade.to}
-                                    </span>
-                                </div>
-                                <span className="text-xs text-gray-500">(at {trade.rate})</span>
-                            </div>
+                  {/* Trade 1 */}
+                  {kiraTradeIndex >= 0 && (
+                    <div 
+                      className="p-3 rounded-lg trade-step"
+                      style={{ backgroundColor: colors.clayLight, animationDelay: '0s' }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span style={{ color: colors.earth }}><BarleyIcon /></span>
+                        <span className="font-mono">12 barley</span>
+                        <span className="mx-2">→</span>
+                        <span style={{ color: colors.earth }}><WoolIcon /></span>
+                        <span className="font-mono">6 wool</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">at 2:1 rate</p>
+                    </div>
+                  )}
+                  
+                  {/* Trade 2 */}
+                  {kiraTradeIndex >= 1 && (
+                    <div 
+                      className="p-3 rounded-lg trade-step"
+                      style={{ backgroundColor: colors.clayLight, animationDelay: '0s' }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span style={{ color: colors.earth }}><WoolIcon /></span>
+                        <span className="font-mono">6 wool</span>
+                        <span className="mx-2">→</span>
+                        <span style={{ color: colors.earth }}><PotteryIcon /></span>
+                        <span className="font-mono">4 pots</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">at 3:2 rate</p>
+                    </div>
+                  )}
+                  
+                  {/* Trade 3 */}
+                  {kiraTradeIndex >= 2 && (
+                    <div 
+                      className="p-3 rounded-lg trade-step"
+                      style={{ backgroundColor: colors.clayLight, animationDelay: '0s' }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span style={{ color: colors.earth }}><PotteryIcon /></span>
+                        <span className="font-mono">4 pots</span>
+                        <span className="mx-2">→</span>
+                        <span style={{ color: colors.earth }}><BarleyIcon /></span>
+                        <span className="font-mono">16 barley</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">at 4:1 rate</p>
+                    </div>
+                  )}
+                  
+                  {/* Result */}
+                  {kiraTradeIndex >= 3 && (
+                    <div 
+                      className="p-4 rounded-lg border-2 trade-step"
+                      style={{ backgroundColor: colors.successBg, borderColor: colors.success, animationDelay: '0s' }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600">Started with:</p>
+                          <p className="font-bold text-lg">12 barley</p>
                         </div>
+                        <div className="text-2xl">→</div>
+                        <div>
+                          <p className="text-sm text-gray-600">Ended with:</p>
+                          <p className="font-bold text-lg">16 barley</p>
+                        </div>
+                      </div>
+                      <div 
+                        className="mt-3 pt-3 border-t text-center"
+                        style={{ borderColor: colors.success }}
+                      >
+                        <span className="font-bold text-lg" style={{ color: colors.profit }}>
+                          Profit: +4 barley
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Question - only show after animation complete */}
+            {kiraTradesComplete && (
+              <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                  <strong>Question:</strong> She started with 12 barley and ended with 16. Each trade was at the shouted rate. How is this possible?
+                </p>
+                
+                {!q2Submitted && (
+                  <>
+                    <textarea
+                      value={q2Answer}
+                      onChange={(e) => setQ2Answer(e.target.value)}
+                      placeholder="Your answer..."
+                      rows={3}
+                      className="w-full p-3 border rounded-lg text-sm resize-none mb-3"
+                      style={{ borderColor: colors.earthLight }}
+                    />
+                    <button
+                      onClick={evaluateQ2}
+                      disabled={q2Answer.trim().length < 5}
+                      className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Check
+                    </button>
+                    
+                    <HintDisplay attempts={q2Attempts} hints={q2Hints} />
+                  </>
+                )}
+                
+                {q2Submitted && q2Attempts >= 3 && (
+                  <ThirdStrikeReveal 
+                    show={true} 
+                    answer="The rates are inconsistent with each other. When you trade in a cycle, the inconsistency creates a gap — and that gap is profit." 
+                  />
+                )}
+              </div>
+            )}
+            
+            {/* Explanation after submission */}
+            {q2Submitted && (
+              <>
+                <InsightPanel>
+                  <p className="mb-2">
+                    You see the result clearly: 12 barley became 16. But how?
+                  </p>
+                  <p className="mb-2">
+                    Each individual trade was at the market rate everyone was calling out. Nothing was hidden. Nothing was unfair. Yet somehow, trading in a cycle created profit from nothing.
+                  </p>
+                  <p className="mb-2">
+                    Something about those three rates doesn't fit together. But what? You stare at them — 2:1, 4:1, 3:2 — and the numbers just sit there, refusing to reveal their secret.
+                  </p>
+                  <p className="italic">
+                    Kira notices you watching. She gives a slight nod.
+                  </p>
+                </InsightPanel>
+                
+                <ContinueButton onClick={() => setPhase('phase3')}>
+                  Continue
+                </ContinueButton>
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // PHASE 3: The Common Standard (Gap Calculator)
+      const renderPhase3 = () => (
+        <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <Header />
+            
+            <NarrativeBlock>
+              <p className="mb-3">
+                "You're curious," Kira says. It's not a question.
+              </p>
+              <p className="mb-3">
+                You nod. "How did you do that?"
+              </p>
+              <p className="mb-3">
+                She picks up a stick, scratches in the dirt.
+              </p>
+              <p>
+                "When you look at the rates, you see three different comparisons. Barley to wool. Barley to pottery. Wool to pottery. Hard to hold them all in your head."
+              </p>
+            </NarrativeBlock>
+            
+            {/* Kira's Method */}
+            <div 
+              className="rounded-lg p-4 mb-4 border-2"
+              style={{ backgroundColor: 'white', borderColor: colors.accent }}
+            >
+              <h4 className="font-bold mb-3" style={{ color: colors.primary }}>
+                "But what if you state everything in barley?"
+              </h4>
+              
+              <div className="space-y-2 mb-4">
+                <div className="p-3 rounded-lg" style={{ backgroundColor: colors.clayLight }}>
+                  <p className="text-sm">From rate 1: 2 barley = 1 wool</p>
+                  <p className="font-bold" style={{ color: colors.primary }}>→ 1 wool = 2 barley</p>
+                </div>
+                <div className="p-3 rounded-lg" style={{ backgroundColor: colors.clayLight }}>
+                  <p className="text-sm">From rate 2: 4 barley = 1 pot</p>
+                  <p className="font-bold" style={{ color: colors.primary }}>→ 1 pot = 4 barley</p>
+                </div>
+              </div>
+              
+              <p className="text-sm italic" style={{ color: colors.earthDark }}>
+                "Now check the wool↔pottery trade (3 wool : 2 pots):"
+              </p>
+            </div>
+            
+            {/* Gap Calculator */}
+            <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+              <h4 className="font-bold mb-4" style={{ color: colors.primary }}>Gap Calculator</h4>
+              
+              <div className="space-y-4">
+                {/* Give input */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: colors.earthDark }}>
+                    You give 3 wool = ___ barley
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={giveValue}
+                      onChange={(e) => setGiveValue(e.target.value.replace(/\D/g, ''))}
+                      disabled={q3Submitted}
+                      placeholder="?"
+                      className="w-24 p-3 border rounded-lg text-center font-mono text-lg"
+                      style={{ borderColor: colors.earthLight }}
+                    />
+                    <span className="text-sm" style={{ color: colors.earth }}>barley</span>
+                  </div>
+                </div>
+                
+                {/* Receive input */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: colors.earthDark }}>
+                    You receive 2 pots = ___ barley
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={receiveValue}
+                      onChange={(e) => setReceiveValue(e.target.value.replace(/\D/g, ''))}
+                      disabled={q3Submitted}
+                      placeholder="?"
+                      className="w-24 p-3 border rounded-lg text-center font-mono text-lg"
+                      style={{ borderColor: colors.earthLight }}
+                    />
+                    <span className="text-sm" style={{ color: colors.earth }}>barley</span>
+                  </div>
+                </div>
+                
+                {/* Gap display */}
+                {giveValue && receiveValue && (
+                  <div 
+                    className="p-3 rounded-lg text-center"
+                    style={{ backgroundColor: colors.clayLight }}
+                  >
+                    <p className="text-sm" style={{ color: colors.earthDark }}>
+                      Gap: {receiveValue} − {giveValue} = <strong>{parseInt(receiveValue || 0) - parseInt(giveValue || 0)} barley</strong>
+                    </p>
+                  </div>
+                )}
+                
+                {/* Assessment */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: colors.earthDark }}>
+                    Is this a good deal, bad deal, or fair?
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['good', 'bad', 'fair'].map(option => (
+                      <button
+                        key={option}
+                        onClick={() => !q3Submitted && setDealAssessment(option)}
+                        disabled={q3Submitted}
+                        className={`py-3 px-4 rounded-lg border-2 font-semibold capitalize transition-all ${
+                          dealAssessment === option 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        style={{ 
+                          borderColor: dealAssessment === option ? colors.primary : undefined,
+                          backgroundColor: dealAssessment === option ? '#eff6ff' : undefined
+                        }}
+                      >
+                        {option}
+                      </button>
                     ))}
-
-                    {kiraTradesComplete && (
-                        <div className="p-4 rounded-lg border-2 border-green-500 bg-green-50 mt-4">
-                            <div className="flex items-center gap-2">
-                                <TrendingUp className="w-5 h-5 text-green-600" />
-                                <span className="font-bold text-green-800">Result: 12 barley → 16 barley</span>
-                            </div>
-                            <p className="text-green-700 text-sm mt-1">Profit: <strong>+4 barley</strong></p>
-                        </div>
-                    )}
+                  </div>
                 </div>
-            );
+                
+                {/* Submit */}
+                {!q3Submitted && (
+                  <>
+                    <button
+                      onClick={evaluateQ3}
+                      disabled={!giveValue || !receiveValue || !dealAssessment}
+                      className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Check
+                    </button>
+                    
+                    <HintDisplay attempts={q3Attempts} hints={q3Hints} />
+                  </>
+                )}
+                
+                {q3Submitted && q3Attempts >= 3 && (
+                  <ThirdStrikeReveal 
+                    show={true} 
+                    answer="3 wool = 6 barley, 2 pots = 8 barley. You give 6, receive 8. That's a good deal!" 
+                  />
+                )}
+              </div>
+            </div>
+            
+            {/* Explanation after submission */}
+            {q3Submitted && (
+              <>
+                <InsightPanel>
+                  <p className="mb-2">
+                    There it is. You give 6 barley's worth of wool and receive 8 barley's worth of pottery. That's a gain of 2 barley every time you make this trade.
+                  </p>
+                  <p className="mb-2">
+                    The gap was invisible when you looked at "3 wool : 2 pots" — those are just numbers in different units. But when you express both sides in barley, the inconsistency jumps out.
+                  </p>
+                  <p className="italic">
+                    "The common standard doesn't change what things can get you," Kira says. "It just lets you see what was always there."
+                  </p>
+                </InsightPanel>
+                
+                <ContinueButton onClick={() => setPhase('phase4')}>
+                  Continue
+                </ContinueButton>
+              </>
+            )}
+          </div>
+        </div>
+      );
 
-            const NumeraireTable = ({ wool, pot, editable = false }) => (
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm border-collapse">
-                        <thead>
-                            <tr className="border-b-2" style={{ borderColor: colors.earthLight }}>
-                                <th className="text-left p-2">Good</th>
-                                <th className="text-center p-2" style={{ color: colors.primary }}>Value in Barley</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr className="border-b" style={{ borderColor: colors.earthLight }}>
-                                <td className="p-2 flex items-center gap-2"><BarleyIcon /> 1 sila barley</td>
-                                <td className="p-2 text-center font-bold" style={{ color: colors.primary }}>1</td>
-                            </tr>
-                            <tr className="border-b" style={{ borderColor: colors.earthLight }}>
-                                <td className="p-2 flex items-center gap-2"><WoolIcon /> 1 mina wool</td>
-                                <td className="p-2 text-center">
-                                    {editable ? (
-                                        <input
-                                            type="number"
-                                            value={woolValue}
-                                            onChange={(e) => setWoolValue(e.target.value)}
-                                            className="w-16 p-1 border rounded text-center font-bold"
-                                            style={{ borderColor: colors.earthLight }}
-                                        />
-                                    ) : (
-                                        <span className="font-bold" style={{ color: colors.primary }}>{wool}</span>
-                                    )}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="p-2 flex items-center gap-2"><PotteryIcon /> 1 pot</td>
-                                <td className="p-2 text-center">
-                                    {editable ? (
-                                        <input
-                                            type="number"
-                                            value={potValue}
-                                            onChange={(e) => setPotValue(e.target.value)}
-                                            className="w-16 p-1 border rounded text-center font-bold"
-                                            style={{ borderColor: colors.earthLight }}
-                                        />
-                                    ) : (
-                                        <span className="font-bold" style={{ color: colors.primary }}>{pot}</span>
-                                    )}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+      // PHASE 4: Why Rates Line Up
+      const renderPhase4 = () => (
+        <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <Header />
+            
+            <NarrativeBlock>
+              <p className="mb-3">
+                You sit with this for a moment.
+              </p>
+              <p>
+                But here's what puzzles you: if these gaps exist, why doesn't everyone see them? Why don't they get exploited until they disappear?
+              </p>
+            </NarrativeBlock>
+            
+            {/* Kira's response */}
+            <div 
+              className="rounded-lg p-4 mb-4 border-l-4"
+              style={{ backgroundColor: colors.clayLight, borderColor: colors.accent }}
+            >
+              <p className="font-bold mb-2" style={{ color: colors.primary }}>Kira:</p>
+              <p className="italic mb-2" style={{ color: colors.earthDark }}>
+                "They do. I'm not the only one watching. Other traders see the same gap. They start making the same trades."
+              </p>
+              <p className="italic mb-2" style={{ color: colors.earthDark }}>
+                "When everyone buys wool at the wool↔pottery rate, wool gets scarcer there. The potter has to offer more pots for the same wool. When everyone sells pottery for barley, pottery piles up. The barley traders offer less."
+              </p>
+              <p className="italic" style={{ color: colors.earthDark }}>
+                "The gap closes. Not because someone declared it should — but because traders chasing profit <em>made</em> it close."
+              </p>
+            </div>
+            
+            {/* Question */}
+            <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+              <p className="text-sm mb-3" style={{ color: colors.earthDark }}>
+                <strong>Question:</strong> Why do exchange rates across a market tend to line up with each other?
+              </p>
+              
+              {!q4Submitted && (
+                <>
+                  <textarea
+                    value={q4Answer}
+                    onChange={(e) => setQ4Answer(e.target.value)}
+                    placeholder="Your answer..."
+                    rows={3}
+                    className="w-full p-3 border rounded-lg text-sm resize-none mb-3"
+                    style={{ borderColor: colors.earthLight }}
+                  />
+                  <button
+                    onClick={evaluateQ4}
+                    disabled={q4Answer.trim().length < 10}
+                    className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Check
+                  </button>
+                  
+                  <HintDisplay attempts={q4Attempts} hints={q4Hints} />
+                </>
+              )}
+              
+              {q4Submitted && q4Attempts >= 3 && (
+                <ThirdStrikeReveal 
+                  show={true} 
+                  answer="Arbitrage — traders exploit inconsistencies for profit, and their trading closes the gaps." 
+                />
+              )}
+            </div>
+            
+            {/* Explanation after submission */}
+            {q4Submitted && (
+              <>
+                <InsightPanel>
+                  <p className="mb-2">
+                    Exchange rates line up because inconsistencies are opportunities — and opportunities get exploited until they disappear.
+                  </p>
+                  <p className="mb-2">
+                    This process has a name: <strong>arbitrage</strong>. It's not just that clever traders profit. It's that their profit-seeking <em>creates</em> consistency. Buy the underpriced good, its price rises. Sell the overpriced good, its price falls. The gap closes.
+                  </p>
+                  <p className="font-semibold">
+                    Arbitrage knits all the exchange rates together into a consistent structure. The common standard lets you see that structure — but arbitrage is what creates and maintains it.
+                  </p>
+                </InsightPanel>
+                
+                <KeyInsightBox>
+                  <p>
+                    The rates <em>have</em> to line up because if they don't, someone will exploit the gap until they do. That's why we can talk about "the" exchange relationship between any two goods — because if multiple inconsistent rates existed, they'd collapse into one.
+                  </p>
+                </KeyInsightBox>
+                
+                <ContinueButton onClick={() => setPhase('phase5')}>
+                  Continue
+                </ContinueButton>
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // PHASE 5: Is Barley Special?
+      const renderPhase5 = () => (
+        <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <Header />
+            
+            <NarrativeBlock>
+              <p className="mb-3">
+                "Why barley?" you ask.
+              </p>
+              <p className="mb-3">
+                Kira shrugs. "It could be wool. Watch—"
+              </p>
+              <p>
+                She scratches in the dirt again:
+              </p>
+            </NarrativeBlock>
+            
+            {/* Two-Way Rates Display */}
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'white', border: `2px solid ${colors.earthLight}` }}>
+                <p className="font-bold text-sm mb-3" style={{ color: colors.primary }}>In barley:</p>
+                <ul className="space-y-1 text-sm" style={{ color: colors.earthDark }}>
+                  <li>• 2 barley for 1 wool</li>
+                  <li>• 4 barley for 1 pot</li>
+                </ul>
+              </div>
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'white', border: `2px solid ${colors.earthLight}` }}>
+                <p className="font-bold text-sm mb-3" style={{ color: colors.primary }}>In wool:</p>
+                <ul className="space-y-1 text-sm" style={{ color: colors.earthDark }}>
+                  <li>• 1 wool for 2 barley</li>
+                  <li>• 2 wool for 1 pot</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div 
+              className="rounded-lg p-3 mb-4 italic text-sm"
+              style={{ backgroundColor: colors.clayLight, color: colors.earthDark }}
+            >
+              "Same trades. I just said them starting from wool instead of barley."
+            </div>
+            
+            {/* Question */}
+            <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+              <p className="text-sm mb-4" style={{ color: colors.earthDark }}>
+                <strong>Question:</strong> Does barley have "a worth" — a single number that tells you what it can get you?
+              </p>
+              
+              {/* Yes/No buttons */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <button
+                  onClick={() => !q5Submitted && setQ5Choice('yes')}
+                  disabled={q5Submitted}
+                  className={`p-4 rounded-lg border-2 text-center font-bold transition-all ${
+                    q5Choice === 'yes' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  style={{ 
+                    borderColor: q5Submitted && 'no' === 'yes' ? colors.success : 
+                                q5Choice === 'yes' ? colors.primary : undefined,
+                    backgroundColor: q5Submitted && 'no' === 'yes' ? colors.successBg :
+                                    q5Choice === 'yes' ? '#eff6ff' : undefined
+                  }}
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => !q5Submitted && setQ5Choice('no')}
+                  disabled={q5Submitted}
+                  className={`p-4 rounded-lg border-2 text-center font-bold transition-all ${
+                    q5Choice === 'no' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  style={{ 
+                    borderColor: q5Submitted && 'no' === 'no' ? colors.success : 
+                                q5Choice === 'no' ? colors.primary : undefined,
+                    backgroundColor: q5Submitted && 'no' === 'no' ? colors.successBg :
+                                    q5Choice === 'no' ? '#eff6ff' : undefined
+                  }}
+                >
+                  No
+                </button>
+              </div>
+              
+              {/* Explanation text area */}
+              {q5Choice && !q5Submitted && (
+                <div className="mb-3">
+                  <label className="block text-sm font-medium mb-2" style={{ color: colors.earthDark }}>
+                    Explain briefly:
+                  </label>
+                  <textarea
+                    value={q5Explanation}
+                    onChange={(e) => setQ5Explanation(e.target.value)}
+                    placeholder="Why do you think that?"
+                    rows={2}
+                    className="w-full p-3 border rounded-lg text-sm resize-none"
+                    style={{ borderColor: colors.earthLight }}
+                  />
                 </div>
-            );
-
-            const GapCalculator = ({
-                giveVal, setGiveVal,
-                receiveVal, setReceiveVal,
-                giveLabel, receiveLabel,
-                assessment, setAssessment,
-                giveHint, receiveHint
-            }) => {
-                const give = parseInt(giveVal) || 0;
-                const receive = parseInt(receiveVal) || 0;
-                const diff = receive - give;
-                const bothFilled = giveVal && receiveVal;
-
-                return (
-                    <div className="p-4 rounded-lg border" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-sm text-gray-600">{giveLabel}</span>
-                                <input
-                                    type="number"
-                                    value={giveVal}
-                                    onChange={(e) => setGiveVal(e.target.value)}
-                                    className="w-16 p-2 border rounded text-center font-bold"
-                                    style={{ borderColor: colors.earthLight }}
-                                    placeholder="?"
-                                />
-                                <span className="text-sm text-gray-600">barley</span>
-                                {giveHint && !giveVal && <span className="text-xs text-gray-400">({giveHint})</span>}
-                            </div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-sm text-gray-600">{receiveLabel}</span>
-                                <input
-                                    type="number"
-                                    value={receiveVal}
-                                    onChange={(e) => setReceiveVal(e.target.value)}
-                                    className="w-16 p-2 border rounded text-center font-bold"
-                                    style={{ borderColor: colors.earthLight }}
-                                    placeholder="?"
-                                />
-                                <span className="text-sm text-gray-600">barley</span>
-                                {receiveHint && !receiveVal && <span className="text-xs text-gray-400">({receiveHint})</span>}
-                            </div>
-
-                            {bothFilled && (
-                                <div
-                                    className="p-2 rounded text-center font-bold"
-                                    style={{
-                                        backgroundColor: diff > 0 ? '#dcfce7' : diff < 0 ? '#fee2e2' : '#f3f4f6',
-                                        color: diff > 0 ? colors.profit : diff < 0 ? colors.loss : colors.earthDark
-                                    }}
-                                >
-                                    Difference: {diff > 0 ? '+' : ''}{diff} barley
-                                </div>
-                            )}
-
-                            {bothFilled && (
-                                <div className="pt-3 border-t" style={{ borderColor: colors.earthLight }}>
-                                    <p className="text-sm font-medium mb-2" style={{ color: colors.earthDark }}>Is this a good deal for you?</p>
-                                    <div className="flex gap-2">
-                                        {['good', 'bad', 'fair'].map((option) => (
-                                            <button
-                                                key={option}
-                                                onClick={() => setAssessment(option)}
-                                                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-all ${
-                                                    assessment === option
-                                                        ? option === 'good' ? 'bg-green-100 border-green-500 text-green-700'
-                                                          : option === 'bad' ? 'bg-red-100 border-red-500 text-red-700'
-                                                          : 'bg-gray-100 border-gray-500 text-gray-700'
-                                                        : 'bg-white border-gray-200 hover:border-gray-400'
-                                                }`}
-                                            >
-                                                {option === 'good' ? '👍 Good deal' : option === 'bad' ? '👎 Bad deal' : '🤝 Fair'}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                );
-            };
-
-            const CycleBuilder = () => {
-                const options = [
-                    { id: 'barley-pottery', label: 'Barley → Pottery', detail: '12 barley → 3 pots' },
-                    { id: 'barley-wool', label: 'Barley → Wool', detail: '12 barley → 6 wool' },
-                    { id: 'pottery-wool', label: 'Pottery → Wool', detail: '3 pots → 9 wool' },
-                    { id: 'pottery-barley', label: 'Pottery → Barley', detail: '3 pots → 12 barley' },
-                    { id: 'wool-barley', label: 'Wool → Barley', detail: '9 wool → 18 barley' },
-                    { id: 'wool-pottery', label: 'Wool → Pottery', detail: '6 wool → 2 pots' },
-                ];
-
-                const handleSelect = (id) => {
-                    if (selectedCycle.includes(id)) {
-                        setSelectedCycle(selectedCycle.filter(x => x !== id));
-                    } else if (selectedCycle.length < 3) {
-                        setSelectedCycle([...selectedCycle, id]);
-                    }
-                };
-
-                const isValidCycle = selectedCycle.length === 3 &&
-                                     selectedCycle[0] === 'barley-pottery' &&
-                                     selectedCycle[1] === 'pottery-wool' &&
-                                     selectedCycle[2] === 'wool-barley';
-
-                return (
-                    <div className="space-y-3">
-                        <p className="text-xs text-gray-600 mb-2">Select 3 trades in order (click to add/remove):</p>
-
-                        <div className="flex flex-wrap gap-2">
-                            {options.map((opt) => {
-                                const index = selectedCycle.indexOf(opt.id);
-                                const isSelected = index !== -1;
-                                return (
-                                    <button
-                                        key={opt.id}
-                                        onClick={() => handleSelect(opt.id)}
-                                        className={`p-2 rounded-lg border text-sm transition-all ${
-                                            isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-400'
-                                        }`}
-                                    >
-                                        {isSelected && <span className="font-bold text-blue-600 mr-1">{index + 1}.</span>}
-                                        {opt.label}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {selectedCycle.length > 0 && (
-                            <div className="p-3 rounded-lg" style={{ backgroundColor: colors.sand }}>
-                                <p className="text-xs font-medium mb-2" style={{ color: colors.earthDark }}>Your cycle:</p>
-                                <div className="flex items-center gap-2 text-sm flex-wrap">
-                                    {selectedCycle.map((id, i) => (
-                                        <React.Fragment key={id}>
-                                            {i > 0 && <ArrowRight className="w-4 h-4 text-gray-400" />}
-                                            <span>{options.find(o => o.id === id)?.label}</span>
-                                        </React.Fragment>
-                                    ))}
-                                </div>
-                                {selectedCycle.length === 3 && (
-                                    <p className={`text-xs mt-2 ${isValidCycle ? 'text-green-600' : 'text-red-600'}`}>
-                                        {isValidCycle ? '✓ This cycle profits!' : '✗ This cycle doesn\'t work. Try again.'}
-                                    </p>
-                                )}
-                            </div>
-                        )}
-
-                        {selectedCycle.length > 0 && (
-                            <button
-                                onClick={() => setSelectedCycle([])}
-                                className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
-                            >
-                                <RefreshCw className="w-3 h-3" /> Reset
-                            </button>
-                        )}
-                    </div>
-                );
-            };
-
-            if (phase === 'intro') return (
-                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
-                    <Header />
-                    <div className="p-4 max-w-2xl mx-auto">
-                        <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
-                            <div className="p-5 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
-                                <h1 className="text-xl font-bold mb-1">Why We Start Here</h1>
-                                <p className="text-blue-200 text-sm">Seeing what ratios hide</p>
-                            </div>
-                            <div className="p-5 text-sm leading-relaxed">
-                                <p className="text-gray-700 mb-3">
-                                    In Tutorial 1.3, you discovered that markets make information visible. Traders call out their offers. You can compare before committing. Prices emerge from the crowd.
-                                </p>
-                                <p className="text-gray-700 mb-3">
-                                    But the market has many goods, not just wool and barley. Fish for pottery. Tools for cloth. Honey for salt. Each pair has its own exchange rate.
-                                </p>
-                                <p className="text-gray-700 mb-3">
-                                    <strong>How do you compare across different goods?</strong> How do you know if "3 wool for 2 pots" is a good deal when you're thinking in terms of barley?
-                                </p>
-
-                                <div className="my-4 p-4 rounded-lg border-l-4" style={{ backgroundColor: colors.sand, borderColor: colors.primary }}>
-                                    <p className="font-medium mb-2" style={{ color: colors.primary }}>A common unit makes comparison possible.</p>
-                                    <p className="text-gray-600 text-xs">
-                                        If you state all values in terms of one good—a numeraire—you can compare anything to anything. And when you compare, inconsistencies become visible. Those inconsistencies are opportunities.
-                                    </p>
-                                </div>
-
-                                <p className="text-gray-700 mb-4">
-                                    In this tutorial, you'll watch a clever trader profit from what others can't see. Then you'll learn her method—and use it yourself.
-                                </p>
-
-                                <button onClick={() => setPhase('tutorial')} className="w-full mt-5 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
-                                    Continue <ChevronRight className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3">
-                        <div className="max-w-2xl mx-auto flex justify-between items-center text-sm">
-                            <a href="tutorial-1-3.html" className="text-blue-600 hover:underline">← Prev: Tutorial 1.3</a>
-                            <a href="../index.html" className="text-gray-600 hover:underline">Hub</a>
-                            <a href="tutorial-1-5.html" className="text-blue-600 hover:underline">Next: Tutorial 1.5 →</a>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            if (phase === 'tutorial' && step === -1) return (
-                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
-                    <Header />
-                    <div className="p-4 max-w-2xl mx-auto">
-                        <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
-                            <div className="p-5" style={{ background: `linear-gradient(to right, ${colors.earth}, ${colors.earthDark})` }}>
-                                <h1 className="text-xl font-bold text-white mb-1">The Common Measure</h1>
-                                <p className="text-sm" style={{ color: colors.earthLight }}>Seeing what ratios hide</p>
-                            </div>
-                            <div className="p-5 text-sm">
-                                <div className="mb-4 p-4 rounded-lg border-l-4 italic text-gray-700 text-sm" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
-                                    <p>The wool trade is done. You linger at the market, watching.</p>
-                                    <p className="mt-2">Three goods dominate the trading: barley, wool, and pottery. Calls ring out—"Two barley for one wool!" "Four barley for one pot!"—but also "Three wool for two pots!"</p>
-                                    <p className="mt-2">Then you notice something. An old trader keeps trading in cycles. Barley to wool to pottery and back to barley. And somehow, she always ends up with more than she started.</p>
-                                </div>
-
-                                <div className="mb-4">
-                                    <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>What You'll Discover</h3>
-                                    {[
-                                        "Exchange ratios can hide mispricings",
-                                        "A common unit (numeraire) makes values comparable",
-                                        "Comparison reveals arbitrage opportunities",
-                                        "This is information technology, not just convenience"
-                                    ].map((t, i) => (
-                                        <div key={i} className="flex items-start gap-2 p-2 rounded border mb-1 text-xs" style={{ backgroundColor: '#f8f9fa', borderColor: colors.earthLight }}>
-                                            <span className="font-bold" style={{ color: colors.primary }}>{i+1}</span>
-                                            <span className="text-gray-700">{t}</span>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="flex gap-2 mb-4 pt-3 border-t" style={{ borderColor: colors.earthLight }}>
-                                    <button onClick={() => setDevMode(!devMode)} className={`${devMode ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'} px-3 py-1.5 rounded text-xs font-medium`}>
-                                        Dev: {devMode ? 'ON' : 'OFF'}
-                                    </button>
-                                    <button onClick={() => setShowGlossary(true)} className="px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
-                                        <Book className="w-3 h-3" /> Glossary
-                                    </button>
-                                    <span className="text-xs text-gray-500 ml-auto self-center">~15 min • 8 questions</span>
-                                </div>
-
-                                <button onClick={() => setStep(0)} className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.earth }}>
-                                    Begin <ChevronRight className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    {showGlossary && <GlossaryModal />}
-
-                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3">
-                        <div className="max-w-2xl mx-auto flex justify-between items-center text-sm">
-                            <a href="tutorial-1-3.html" className="text-blue-600 hover:underline">← Prev: Tutorial 1.3</a>
-                            <a href="../index.html" className="text-gray-600 hover:underline">Hub</a>
-                            <a href="tutorial-1-5.html" className="text-blue-600 hover:underline">Next: Tutorial 1.5 →</a>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            if (phase === 'tutorial' && step === 'coda') return (
-                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
-                    <Header />
-                    <div className="p-4 max-w-2xl mx-auto">
-                        <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
-                            <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
-                                <span className="text-sm font-medium" style={{ color: colors.primary }}>Coda: The Seed of Money</span>
-                                {devMode && <button onClick={nextStep} className="text-xs bg-purple-600 text-white px-2 py-1 rounded">Skip</button>}
-                            </div>
-
-                            <div className="p-5">
-                                <div className="mb-4 p-4 rounded-lg border-l-4 italic text-gray-700 text-sm" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
-                                    <p>That evening, Kira finds you by the river.</p>
-                                    <p className="mt-2">"You learned fast," she says. "Most people never see it."</p>
-                                    <p className="mt-2">You're still thinking about the barley. How it made everything comparable. How the numbers suddenly made sense.</p>
-                                    <p className="mt-2 font-medium not-italic">"Why barley?" you ask. "Why not wool? Or pottery?"</p>
-                                </div>
-
-                                <div className="mb-4 p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
-                                    <p className="text-gray-700 text-sm mb-3">
-                                        Kira shrugs. "Barley works because everyone trades in it. Everyone needs to eat. So everyone knows what barley is worth to them."
-                                    </p>
-                                    <p className="text-gray-700 text-sm mb-3">
-                                        She pauses.
-                                    </p>
-                                    <p className="text-gray-700 text-sm mb-3">
-                                        "But it's heavy. It spoils. And when you use barley as your unit of account, you have to actually <em>have</em> barley to trade."
-                                    </p>
-                                    <p className="text-gray-700 text-sm mb-3">
-                                        She looks out at the river.
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        "Downstream, in the big settlements, I've heard they're trying something different. Little tokens. Clay, or shells, or bits of metal. Things that aren't worth much on their own—you can't eat them, can't wear them, can't build with them."
-                                    </p>
-                                </div>
-
-                                {!codaAnswered ? (
-                                    <>
-                                        <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: '#fef3c7', borderLeft: `4px solid ${colors.accent}` }}>
-                                            <p className="font-medium text-sm mb-2" style={{ color: '#92400e' }}>
-                                                You frown. "Then why would anyone accept them?"
-                                            </p>
-                                            <p className="text-sm text-gray-700">
-                                                Kira smiles but doesn't answer. She's waiting to see if you can figure it out.
-                                            </p>
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <p className="font-medium text-sm mb-3" style={{ color: colors.earthDark }}>
-                                                Why would anyone accept something that has no value in itself?
-                                            </p>
-                                            <textarea
-                                                value={answer}
-                                                onChange={(e) => setAnswer(e.target.value)}
-                                                className="w-full p-3 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                                                style={{ borderColor: colors.earthLight }}
-                                                rows={3}
-                                                placeholder="Your answer..."
-                                            />
-                                        </div>
-
-                                        <button
-                                            onClick={() => setCodaAnswered(true)}
-                                            disabled={answer.length < 20}
-                                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50"
-                                            style={{ backgroundColor: colors.primary }}
-                                        >
-                                            Submit <ChevronRight className="w-4 h-4" />
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="mb-4 p-4 rounded-lg border-l-4" style={{ backgroundColor: '#f0fff4', borderColor: '#22c55e' }}>
-                                            <p className="font-bold text-green-800 text-sm mb-2">Kira nods slowly.</p>
-                                            <p className="text-gray-700 text-sm italic">
-                                                "Because everyone else accepts them. That's the only reason—but it's enough."
-                                            </p>
-                                            <p className="text-gray-700 text-sm mt-3">
-                                                "The tokens work like barley—you can state any value in terms of tokens. But unlike barley, the tokens are <em>only</em> good for keeping score. They're light. They don't spoil. And you don't need a granary to save them."
-                                            </p>
-                                        </div>
-
-                                        <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: '#f0f7ff', borderLeft: `4px solid ${colors.primary}` }}>
-                                            <p className="font-bold text-sm mb-2" style={{ color: colors.primary }}>The Old Answer</p>
-                                            <p className="text-gray-700 text-sm mb-3">
-                                                For a long time, economists thought they knew why people accept worthless tokens: <strong>because the government forces them to</strong>. Paper money is "legal tender"—you must accept it for debts, or face penalties. The state's power to tax and enforce gives the tokens value.
-                                            </p>
-                                            <p className="text-gray-700 text-sm">
-                                                This seemed like the complete answer. Without government backing, why would anyone trust a piece of paper?
-                                            </p>
-                                        </div>
-
-                                        <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: '#fef3c7', borderLeft: `4px solid ${colors.accent}` }}>
-                                            <p className="font-bold text-sm mb-2" style={{ color: '#92400e' }}>The New Question</p>
-                                            <p className="text-gray-700 text-sm mb-3">
-                                                Then came cryptocurrencies. No government backs them. No one forces anyone to accept them. They have no consumption value whatsoever—you can't eat a Bitcoin, wear it, or build with it.
-                                            </p>
-                                            <p className="text-gray-700 text-sm mb-3">
-                                                And yet people accept them. Billions of dollars worth, every day.
-                                            </p>
-                                            <p className="text-gray-700 text-sm">
-                                                This suggests Kira was closer to the truth than the economists: <strong>the only thing that matters is that everyone else accepts them</strong>. Government backing is one way to bootstrap that belief—but it's not the only way.
-                                            </p>
-                                        </div>
-
-                                        <div className="mb-4 p-4 rounded-lg border" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
-                                            <p className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>The Deeper Insight</p>
-                                            <p className="text-gray-700 text-sm mb-3">
-                                                Money's value is <em>informational</em>, not physical. What matters isn't what the token is made of, or who issues it, but whether people coordinate on using it as a common measure.
-                                            </p>
-                                            <p className="text-gray-700 text-sm mb-3">
-                                                Barley worked because everyone needed to eat. Gold worked because everyone believed it was valuable. Government currency works because law and habit coordinate belief. Crypto works because... people decided to believe.
-                                            </p>
-                                            <p className="text-gray-700 text-sm italic">
-                                                The mystery isn't why worthless tokens can have value. The mystery is how millions of strangers come to believe the same thing at the same time. That's what makes money possible—and fragile.
-                                            </p>
-                                        </div>
-
-                                        <button
-                                            onClick={nextStep}
-                                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                                            style={{ backgroundColor: colors.primary }}
-                                        >
-                                            Complete Tutorial <ChevronRight className="w-4 h-4" />
-                                        </button>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                    {showGlossary && <GlossaryModal />}
-
-                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3">
-                        <div className="max-w-2xl mx-auto flex justify-between items-center text-sm">
-                            <a href="tutorial-1-3.html" className="text-blue-600 hover:underline">← Prev: Tutorial 1.3</a>
-                            <a href="../index.html" className="text-gray-600 hover:underline">Hub</a>
-                            <a href="tutorial-1-5.html" className="text-blue-600 hover:underline">Next: Tutorial 1.5 →</a>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            if (phase === 'complete') return (
-                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
-                    <Header />
-                    <div className="p-4 max-w-2xl mx-auto">
-                        <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
-                            <div className="p-5 text-white text-center" style={{ background: 'linear-gradient(to right, #2d6a4f, #40916c)' }}>
-                                <Trophy className="w-12 h-12 mx-auto mb-2 text-yellow-300" />
-                                <h1 className="text-xl font-bold">Tutorial Complete!</h1>
-                                <p className="text-green-100 text-sm">You've discovered the power of a common measure</p>
-                            </div>
-                            <div className="p-5 text-sm">
-                                <div className="mb-4 p-4 rounded-lg border-l-4" style={{ backgroundColor: '#f0f7ff', borderColor: colors.primary }}>
-                                    <h3 className="font-bold mb-2" style={{ color: colors.primary }}>What You Discovered</h3>
-                                    {[
-                                        ["Exchange ratios hide inconsistencies", "hard to compare \"3 wool : 2 pots\" to \"4 barley : 1 pot\""],
-                                        ["A common unit makes values commensurable", "express everything in barley, comparison becomes immediate"],
-                                        ["Comparison reveals mispricings", "\"6 barley for 8 barley\" is obviously a gain"],
-                                        ["Arbitrage corrects markets", "exploiting gaps makes prices consistent"],
-                                        ["The unit's value is informational", "it lets you see what was always there"]
-                                    ].map(([t, d], i) => (
-                                        <div key={i} className="flex items-start gap-2 mb-1 text-xs">
-                                            <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-                                            <div><strong>{t}</strong>—{d}</div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: colors.sand }}>
-                                    <h3 className="font-bold text-xs mb-2" style={{ color: colors.earthDark }}>Your Trading Summary</h3>
-                                    <div className="grid grid-cols-2 gap-3 text-center">
-                                        <div>
-                                            <p className="text-xs text-gray-600">Day 1 (Observed)</p>
-                                            <p className="font-bold" style={{ color: colors.earthDark }}>Kira's cycle</p>
-                                            <p className="text-xs" style={{ color: colors.profit }}>12 → 16 barley (+4)</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-gray-600">Day 2 (Your cycle)</p>
-                                            <p className="font-bold" style={{ color: colors.earthDark }}>Reverse direction</p>
-                                            <p className="text-xs" style={{ color: colors.profit }}>12 → 18 barley (+6)</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="mb-4 p-4 rounded-lg border" style={{ backgroundColor: '#f8f9fa', borderColor: colors.earthLight }}>
-                                    <p className="font-bold text-xs mb-1" style={{ color: colors.primary }}>Act I Complete!</p>
-                                    <p className="text-gray-700 text-xs mb-2">
-                                        You've experienced the information problems that gave rise to markets and money:
-                                    </p>
-                                    <ul className="text-gray-700 text-xs space-y-1">
-                                        <li>• <strong>1.1:</strong> Search costs—finding trading partners</li>
-                                        <li>• <strong>1.2:</strong> Negotiation costs—discovering terms</li>
-                                        <li>• <strong>1.3:</strong> Markets—concentrating information</li>
-                                        <li>• <strong>1.4:</strong> Numeraire—making values comparable</li>
-                                    </ul>
-                                    <p className="text-gray-700 text-xs mt-3">
-                                        In Act II, you'll travel to Babylon—where scribes are inventing the tools to record, track, and verify these exchanges. Double-entry bookkeeping awaits.
-                                    </p>
-                                </div>
-
-                                <button
-                                    onClick={handleRestart}
-                                    className="w-full text-white font-bold py-3 rounded-lg hover:opacity-90"
-                                    style={{ backgroundColor: colors.primary }}
-                                >
-                                    Restart Tutorial
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    {showGlossary && <GlossaryModal />}
-
-                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3">
-                        <div className="max-w-2xl mx-auto flex justify-between items-center text-sm">
-                            <a href="tutorial-1-3.html" className="text-blue-600 hover:underline">← Prev: Tutorial 1.3</a>
-                            <a href="../index.html" className="text-gray-600 hover:underline">Hub</a>
-                            <a href="tutorial-1-5.html" className="text-blue-600 hover:underline">Next: Tutorial 1.5 →</a>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const q = questions.find(q => q.id === step);
-            if (!q) return null;
-
-            const currentRates = q.day === 2 ? day2Rates : day1Rates;
-
-            return (
-                <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
-                    <Header />
-                    <div className="p-4 max-w-2xl mx-auto">
-                        <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
-                            <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
-                                <span className="text-xs font-medium text-gray-600">Question {getQuestionNumber()} of {getTotalQuestions()}</span>
-                                <div className="flex gap-1">
-                                    {[0,1,2,3,4,5,6,7].map(i => {
-                                        const currentQ = getQuestionNumber() - 1;
-                                        return (
-                                            <div
-                                                key={i}
-                                                className={`w-5 h-1.5 rounded ${i < currentQ ? 'bg-green-500' : i === currentQ ? '' : 'bg-gray-200'}`}
-                                                style={i === currentQ ? { backgroundColor: colors.primary } : {}}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    {devMode && <button onClick={nextStep} className="text-xs bg-purple-600 text-white px-2 py-1 rounded">Skip</button>}
-                                    <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
-                                        <RefreshCw className="w-3 h-3" />
-                                        <span>Restart</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="p-5">
-                                {q.day === 2 && step === 4 && (
-                                    <div className="mb-4 p-2 rounded-lg text-center text-sm font-medium" style={{ backgroundColor: '#fef3c7', color: '#92400e' }}>
-                                        🌅 Day 2 — The rates have shifted
-                                    </div>
-                                )}
-
-                                <div className="mb-4 p-4 rounded-lg border-l-4 italic text-gray-700 text-sm whitespace-pre-line" style={{ backgroundColor: colors.sand, borderColor: colors.accent }}>
-                                    {q.narrative}
-                                </div>
-
-                                {q.type === 'complexity' && (
-                                    <div className="mb-4 space-y-2">
-                                        {currentRates.map((rate, i) => (
-                                            <RateCard key={i} rate={rate} />
-                                        ))}
-                                    </div>
-                                )}
-
-                                {q.type === 'observe' && (
-                                    <div className="mb-4">
-                                        {!showKiraTrades ? (
-                                            <button
-                                                onClick={runKiraTrades}
-                                                className="w-full py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2"
-                                                style={{ backgroundColor: colors.primary }}
-                                            >
-                                                <Eye className="w-4 h-4" /> Watch Kira's Trades
-                                            </button>
-                                        ) : (
-                                            <KiraTradeDisplay />
-                                        )}
-                                    </div>
-                                )}
-
-                                {q.type === 'revelation' && (
-                                    <div className="mb-4">
-                                        <div className="mb-3 p-3 rounded-lg" style={{ backgroundColor: '#f0f7ff' }}>
-                                            <p className="text-xs font-medium mb-2" style={{ color: colors.primary }}>Kira's method: State everything in barley</p>
-                                            <div className="text-xs text-gray-600">
-                                                <p>• From rate 1: 2 barley = 1 wool → <strong>1 wool = 2 barley</strong></p>
-                                                <p>• From rate 2: 4 barley = 1 pot → <strong>1 pot = 4 barley</strong></p>
-                                            </div>
-                                        </div>
-                                        <p className="text-sm font-medium mb-2" style={{ color: colors.earthDark }}>
-                                            Now check the wool↔pottery trade (3 wool : 2 pots):
-                                        </p>
-                                        <GapCalculator
-                                            giveVal={giveValue}
-                                            setGiveVal={setGiveValue}
-                                            receiveVal={receiveValue}
-                                            setReceiveVal={setReceiveValue}
-                                            giveLabel="You give 3 wool ="
-                                            receiveLabel="You receive 2 pots ="
-                                            assessment={dealAssessment}
-                                            setAssessment={setDealAssessment}
-                                            giveHint="3 × 2"
-                                            receiveHint="2 × 4"
-                                        />
-                                    </div>
-                                )}
-
-                                {q.type === 'day2intro' && (
-                                    <div className="mb-4">
-                                        <div className="mb-3 space-y-2">
-                                            {currentRates.slice(0, 2).map((rate, i) => (
-                                                <RateCard key={i} rate={rate} />
-                                            ))}
-                                        </div>
-                                        <NumeraireTable editable={true} />
-                                    </div>
-                                )}
-
-                                {q.type === 'findgap' && (
-                                    <div className="mb-4">
-                                        <div className="mb-3 p-3 rounded-lg" style={{ backgroundColor: '#f0f7ff' }}>
-                                            <p className="text-xs font-medium mb-2" style={{ color: colors.primary }}>Your barley values:</p>
-                                            <NumeraireTable wool={2} pot={4} />
-                                        </div>
-                                        <p className="text-sm font-medium mb-2" style={{ color: colors.earthDark }}>
-                                            Check the wool→pottery trade (3 wool : 1 pot):
-                                        </p>
-                                        <GapCalculator
-                                            giveVal={giveValue2}
-                                            setGiveVal={setGiveValue2}
-                                            receiveVal={receiveValue2}
-                                            setReceiveVal={setReceiveValue2}
-                                            giveLabel="You give 3 wool ="
-                                            receiveLabel="You receive 1 pot ="
-                                            assessment={dealAssessment2}
-                                            setAssessment={setDealAssessment2}
-                                            giveHint="3 × 2"
-                                            receiveHint="1 × 4"
-                                        />
-                                    </div>
-                                )}
-
-                                {q.type === 'findgap_reverse' && (
-                                    <div className="mb-4">
-                                        <div className="mb-3 p-3 rounded-lg" style={{ backgroundColor: '#f0f7ff' }}>
-                                            <p className="text-xs font-medium mb-2" style={{ color: colors.primary }}>Same rate, opposite direction:</p>
-                                            <p className="text-xs text-gray-600">Rate: 3 wool : 1 pot (now trading pottery FOR wool)</p>
-                                        </div>
-                                        <GapCalculator
-                                            giveVal={giveValue3}
-                                            setGiveVal={setGiveValue3}
-                                            receiveVal={receiveValue3}
-                                            setReceiveVal={setReceiveValue3}
-                                            giveLabel="You give 1 pot ="
-                                            receiveLabel="You receive 3 wool ="
-                                            assessment={dealAssessment3}
-                                            setAssessment={setDealAssessment3}
-                                            giveHint="1 × 4"
-                                            receiveHint="3 × 2"
-                                        />
-                                    </div>
-                                )}
-
-                                {q.type === 'cycle' && (
-                                    <div className="mb-4">
-                                        <div className="mb-3 p-3 rounded-lg" style={{ backgroundColor: '#fef3c7' }}>
-                                            <p className="text-xs font-medium mb-1" style={{ color: '#92400e' }}>Today's profitable trade:</p>
-                                            <p className="text-xs text-gray-700">Pottery → Wool (give 4 barley worth, receive 6 barley worth)</p>
-                                        </div>
-                                        <CycleBuilder />
-                                    </div>
-                                )}
-
-                                <div className="mb-4">
-                                    <p className="font-medium text-sm mb-3 whitespace-pre-line" style={{ color: colors.earthDark }}>{q.question}</p>
-
-                                    {!showExplanation && (q.type === 'complexity' || q.type === 'observe' || q.type === 'why') && (
-                                        <div className="space-y-3">
-                                            <textarea
-                                                value={answer}
-                                                onChange={(e) => setAnswer(e.target.value)}
-                                                className="w-full p-3 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                                                style={{ borderColor: colors.earthLight }}
-                                                rows={2}
-                                                placeholder="Your answer..."
-                                            />
-
-                                            {hintIndex > 0 && (
-                                                <div className="p-3 rounded-lg text-xs" style={{ backgroundColor: '#fff7ed', borderLeft: `3px solid ${colors.accent}` }}>
-                                                    {q.hints.slice(0, hintIndex).map((h, i) => (
-                                                        <p key={i} className="mb-1 last:mb-0">💡 {h}</p>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {showIncorrectFeedback && (
-                                                <div className="p-3 rounded-lg border-l-4" style={{ backgroundColor: '#fef3c7', borderColor: '#f59e0b' }}>
-                                                    <p className="text-amber-800 text-sm">Not quite. Try again! ({3 - attemptCount} attempt{3 - attemptCount !== 1 ? 's' : ''} remaining)</p>
-                                                </div>
-                                            )}
-
-                                            <div className="flex gap-2">
-                                                {hintIndex < q.hints.length && (
-                                                    <button
-                                                        onClick={() => setHintIndex(hintIndex + 1)}
-                                                        className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1"
-                                                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                                                    >
-                                                        <HelpCircle className="w-4 h-4" /> Hint
-                                                    </button>
-                                                )}
-                                                <button
-                                                    onClick={handleSubmit}
-                                                    disabled={!answer.trim() && q.type !== 'observe'}
-                                                    className="flex-1 text-white py-2 rounded-lg text-sm font-medium disabled:opacity-50"
-                                                    style={{ backgroundColor: colors.primary }}
-                                                >
-                                                    Submit
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {!showExplanation && q.type === 'observe' && kiraTradesComplete && (
-                                        <div className="space-y-3 mt-4">
-                                            <textarea
-                                                value={answer}
-                                                onChange={(e) => setAnswer(e.target.value)}
-                                                className="w-full p-3 border rounded-lg text-sm focus:outline-none focus:ring-2"
-                                                style={{ borderColor: colors.earthLight }}
-                                                rows={2}
-                                                placeholder="How did Kira profit?"
-                                            />
-
-                                            {hintIndex > 0 && (
-                                                <div className="p-3 rounded-lg text-xs" style={{ backgroundColor: '#fff7ed', borderLeft: `3px solid ${colors.accent}` }}>
-                                                    {q.hints.slice(0, hintIndex).map((h, i) => (
-                                                        <p key={i} className="mb-1 last:mb-0">💡 {h}</p>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {showIncorrectFeedback && (
-                                                <div className="p-3 rounded-lg border-l-4" style={{ backgroundColor: '#fef3c7', borderColor: '#f59e0b' }}>
-                                                    <p className="text-amber-800 text-sm">Not quite. Try again! ({3 - attemptCount} attempt{3 - attemptCount !== 1 ? 's' : ''} remaining)</p>
-                                                </div>
-                                            )}
-
-                                            <div className="flex gap-2">
-                                                {hintIndex < q.hints.length && (
-                                                    <button
-                                                        onClick={() => setHintIndex(hintIndex + 1)}
-                                                        className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1"
-                                                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                                                    >
-                                                        <HelpCircle className="w-4 h-4" /> Hint
-                                                    </button>
-                                                )}
-                                                <button
-                                                    onClick={handleSubmit}
-                                                    disabled={!answer.trim()}
-                                                    className="flex-1 text-white py-2 rounded-lg text-sm font-medium disabled:opacity-50"
-                                                    style={{ backgroundColor: colors.primary }}
-                                                >
-                                                    Submit
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {!showExplanation && (q.type === 'revelation' || q.type === 'findgap' || q.type === 'findgap_reverse') && (
-                                        <div className="mt-4">
-                                            {hintIndex > 0 && (
-                                                <div className="p-3 rounded-lg text-xs mb-3" style={{ backgroundColor: '#fff7ed', borderLeft: `3px solid ${colors.accent}` }}>
-                                                    {q.hints.slice(0, hintIndex).map((h, i) => (
-                                                        <p key={i} className="mb-1 last:mb-0">💡 {h}</p>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {showIncorrectFeedback && (
-                                                <div className="p-3 rounded-lg border-l-4 mb-3" style={{ backgroundColor: '#fef3c7', borderColor: '#f59e0b' }}>
-                                                    <p className="text-amber-800 text-sm">Not quite. Try again! ({3 - attemptCount} attempt{3 - attemptCount !== 1 ? 's' : ''} remaining)</p>
-                                                </div>
-                                            )}
-
-                                            <div className="flex gap-2">
-                                                {hintIndex < q.hints.length && (
-                                                    <button
-                                                        onClick={() => setHintIndex(hintIndex + 1)}
-                                                        className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1"
-                                                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                                                    >
-                                                        <HelpCircle className="w-4 h-4" /> Hint
-                                                    </button>
-                                                )}
-                                                <button
-                                                    onClick={() => {
-                                                        if (q.evaluate()) {
-                                                            setShowExplanation(true);
-                                                            setShowIncorrectFeedback(false);
-                                                        } else {
-                                                            const newAttemptCount = attemptCount + 1;
-                                                            setAttemptCount(newAttemptCount);
-                                                            if (newAttemptCount >= 3) {
-                                                                setShowExplanation(true);
-                                                                setShowIncorrectFeedback(false);
-                                                            } else {
-                                                                setShowIncorrectFeedback(true);
-                                                            }
-                                                        }
-                                                    }}
-                                                    className="flex-1 text-white py-2 rounded-lg text-sm font-medium"
-                                                    style={{ backgroundColor: colors.primary }}
-                                                >
-                                                    Check Answer
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {!showExplanation && q.type === 'day2intro' && (
-                                        <div className="mt-4">
-                                            {hintIndex > 0 && (
-                                                <div className="p-3 rounded-lg text-xs mb-3" style={{ backgroundColor: '#fff7ed', borderLeft: `3px solid ${colors.accent}` }}>
-                                                    {q.hints.slice(0, hintIndex).map((h, i) => (
-                                                        <p key={i} className="mb-1 last:mb-0">💡 {h}</p>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {showIncorrectFeedback && (
-                                                <div className="p-3 rounded-lg border-l-4 mb-3" style={{ backgroundColor: '#fef3c7', borderColor: '#f59e0b' }}>
-                                                    <p className="text-amber-800 text-sm">Not quite. Try again! ({3 - attemptCount} attempt{3 - attemptCount !== 1 ? 's' : ''} remaining)</p>
-                                                </div>
-                                            )}
-
-                                            <div className="flex gap-2">
-                                                {hintIndex < q.hints.length && (
-                                                    <button
-                                                        onClick={() => setHintIndex(hintIndex + 1)}
-                                                        className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1"
-                                                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                                                    >
-                                                        <HelpCircle className="w-4 h-4" /> Hint
-                                                    </button>
-                                                )}
-                                                <button
-                                                    onClick={() => {
-                                                        if (q.evaluate()) {
-                                                            setShowExplanation(true);
-                                                            setShowIncorrectFeedback(false);
-                                                        } else {
-                                                            const newAttemptCount = attemptCount + 1;
-                                                            setAttemptCount(newAttemptCount);
-                                                            if (newAttemptCount >= 3) {
-                                                                setShowExplanation(true);
-                                                                setShowIncorrectFeedback(false);
-                                                            } else {
-                                                                setShowIncorrectFeedback(true);
-                                                            }
-                                                        }
-                                                    }}
-                                                    className="flex-1 text-white py-2 rounded-lg text-sm font-medium"
-                                                    style={{ backgroundColor: colors.primary }}
-                                                >
-                                                    Check Answer
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {!showExplanation && q.type === 'cycle' && (
-                                        <div className="mt-4">
-                                            {hintIndex > 0 && (
-                                                <div className="p-3 rounded-lg text-xs mb-3" style={{ backgroundColor: '#fff7ed', borderLeft: `3px solid ${colors.accent}` }}>
-                                                    {q.hints.slice(0, hintIndex).map((h, i) => (
-                                                        <p key={i} className="mb-1 last:mb-0">💡 {h}</p>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {showIncorrectFeedback && (
-                                                <div className="p-3 rounded-lg border-l-4 mb-3" style={{ backgroundColor: '#fef3c7', borderColor: '#f59e0b' }}>
-                                                    <p className="text-amber-800 text-sm">Not quite. Try again! ({3 - attemptCount} attempt{3 - attemptCount !== 1 ? 's' : ''} remaining)</p>
-                                                </div>
-                                            )}
-
-                                            <div className="flex gap-2">
-                                                {hintIndex < q.hints.length && (
-                                                    <button
-                                                        onClick={() => setHintIndex(hintIndex + 1)}
-                                                        className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1"
-                                                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                                                    >
-                                                        <HelpCircle className="w-4 h-4" /> Hint
-                                                    </button>
-                                                )}
-                                                <button
-                                                    onClick={() => {
-                                                        if (q.evaluate()) {
-                                                            setShowExplanation(true);
-                                                            setShowIncorrectFeedback(false);
-                                                        } else {
-                                                            const newAttemptCount = attemptCount + 1;
-                                                            setAttemptCount(newAttemptCount);
-                                                            if (newAttemptCount >= 3) {
-                                                                setShowExplanation(true);
-                                                                setShowIncorrectFeedback(false);
-                                                            } else {
-                                                                setShowIncorrectFeedback(true);
-                                                            }
-                                                        }
-                                                    }}
-                                                    disabled={selectedCycle.length !== 3}
-                                                    className="flex-1 text-white py-2 rounded-lg text-sm font-medium disabled:opacity-50"
-                                                    style={{ backgroundColor: colors.primary }}
-                                                >
-                                                    Check Cycle
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {showExplanation && (
-                                        <div className="space-y-4">
-                                            <div className="p-4 rounded-lg border-l-4" style={{
-                                                backgroundColor: attemptCount >= 3 ? '#fef3c7' : '#f0fff4',
-                                                borderColor: attemptCount >= 3 ? '#f59e0b' : '#22c55e'
-                                            }}>
-                                                <p className={`font-bold text-sm mb-2 ${attemptCount >= 3 ? 'text-amber-800' : 'text-green-800'}`}>
-                                                    {attemptCount >= 3 ? "Here's what we were looking for:" : '✓ Correct!'}
-                                                </p>
-                                                <p className="text-gray-700 text-sm whitespace-pre-line">{q.explanation}</p>
-                                            </div>
-                                            <button
-                                                onClick={nextStep}
-                                                className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                                                style={{ backgroundColor: colors.primary }}
-                                            >
-                                                Continue <ChevronRight className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {showGlossary && <GlossaryModal />}
-
-                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3">
-                        <div className="max-w-2xl mx-auto flex justify-between items-center text-sm">
-                            <a href="tutorial-1-3.html" className="text-blue-600 hover:underline">← Prev: Tutorial 1.3</a>
-                            <a href="../index.html" className="text-gray-600 hover:underline">Hub</a>
-                            <a href="tutorial-1-5.html" className="text-blue-600 hover:underline">Next: Tutorial 1.5 →</a>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<Tutorial14 />);
-    </script>
+              )}
+              
+              {!q5Submitted && q5Choice && (
+                <>
+                  <button
+                    onClick={evaluateQ5}
+                    disabled={!q5Choice || q5Explanation.trim().length < 5}
+                    className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Check
+                  </button>
+                  
+                  <HintDisplay attempts={q5Attempts} hints={q5Hints} />
+                </>
+              )}
+              
+              {q5Submitted && q5Attempts >= 3 && (
+                <ThirdStrikeReveal 
+                  show={true} 
+                  answer="No — barley gets you different amounts depending on what you're trading for (2 barley for 1 wool, but 4 barley for 1 pot)." 
+                />
+              )}
+            </div>
+            
+            {/* Explanation after submission */}
+            {q5Submitted && (
+              <>
+                <InsightPanel>
+                  <p className="mb-2">
+                    Barley doesn't have "a worth" — it has what it can get you. And that depends on what you're trading for.
+                  </p>
+                  <ul className="mb-2 space-y-1">
+                    <li>• 2 barley gets you 1 wool</li>
+                    <li>• 4 barley gets you 1 pot</li>
+                  </ul>
+                  <p>
+                    Those are different trades, not one number.
+                  </p>
+                </InsightPanel>
+                
+                <KeyInsightBox>
+                  <p className="mb-2">
+                    Every good's "worth" is relative — what can this get me in terms of <em>that</em>?
+                  </p>
+                  <p>
+                    The common standard is conventional, not fundamental. It picks one good as the reference point so comparisons are easier. But the underlying exchange relationships exist independently of which standard you choose.
+                  </p>
+                </KeyInsightBox>
+                
+                <ContinueButton onClick={() => setPhase('coda')}>
+                  Continue
+                </ContinueButton>
+              </>
+            )}
+          </div>
+        </div>
+      );
+
+      // CODA
+      const renderCoda = () => (
+        <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <Header />
+            
+            <NarrativeBlock>
+              <p className="mb-3">
+                That evening, Kira finds you by the river.
+              </p>
+              <p className="mb-3">
+                "You learned fast," she says. "Most people never see it."
+              </p>
+              <p className="mb-3">
+                You're still thinking about the barley. How it made everything comparable. How the gaps became visible.
+              </p>
+              <p className="mb-3">
+                "Barley works," Kira says, "because everyone trades in it. Everyone knows what barley can get them."
+              </p>
+              <p className="mb-3">
+                She pauses.
+              </p>
+              <p className="mb-3">
+                "But barley has its own problems. Good harvest, bad harvest — the supply changes. When that happens, all the barley-numbers shift. Even if nothing else has changed."
+              </p>
+              <p className="italic">
+                She doesn't say more. But you're left wondering: what happens when the standard itself moves?
+              </p>
+            </NarrativeBlock>
+            
+            <ContinueButton onClick={() => setPhase('complete')}>
+              Complete Tutorial
+            </ContinueButton>
+          </div>
+        </div>
+      );
+
+      // COMPLETE
+      const renderComplete = () => (
+        <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
+          <div className="p-4 max-w-2xl mx-auto">
+            <Header />
+            
+            {/* Trophy */}
+            <div className="text-center mb-6">
+              <div 
+                className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4"
+                style={{ backgroundColor: colors.accent }}
+              >
+                <span className="text-white"><TrophyIcon /></span>
+              </div>
+              <h2 className="text-2xl font-bold" style={{ color: colors.primary }}>
+                Tutorial Complete!
+              </h2>
+            </div>
+            
+            {/* What You Discovered */}
+            <div 
+              className="rounded-lg p-4 mb-4 border-2"
+              style={{ backgroundColor: 'white', borderColor: colors.success }}
+            >
+              <h3 className="font-bold mb-3" style={{ color: colors.primary }}>What You Discovered</h3>
+              <ol className="space-y-2 text-sm" style={{ color: colors.earthDark }}>
+                <li className="flex gap-2">
+                  <span style={{ color: colors.success }}>✓</span>
+                  Exchange ratios are hard to compare directly — different units, no common basis
+                </li>
+                <li className="flex gap-2">
+                  <span style={{ color: colors.success }}>✓</span>
+                  A common standard (barley) makes all goods commensurable — "6 barley for 8 barley" is obviously a gain
+                </li>
+                <li className="flex gap-2">
+                  <span style={{ color: colors.success }}>✓</span>
+                  Arbitrage makes rates line up — inconsistencies get exploited until they disappear
+                </li>
+                <li className="flex gap-2">
+                  <span style={{ color: colors.success }}>✓</span>
+                  The standard is a lens, not the source — you could use wool instead; same structure, different numbers
+                </li>
+                <li className="flex gap-2">
+                  <span style={{ color: colors.success }}>✓</span>
+                  Every good's "worth" is relative — what can this get me in terms of <em>that</em>?
+                </li>
+              </ol>
+            </div>
+            
+            {/* The Deeper Point */}
+            <KeyInsightBox>
+              <p className="font-semibold mb-2">The Deeper Point</p>
+              <p>
+                Exchange doesn't just set relationships pair by pair. Arbitrage knits all the relationships together into a consistent structure. The common standard lets you see that structure — but arbitrage is what creates it.
+              </p>
+            </KeyInsightBox>
+            
+            {/* Coming Next */}
+            <div 
+              className="rounded-lg p-4 mb-4"
+              style={{ backgroundColor: colors.clayLight }}
+            >
+              <h3 className="font-bold mb-2" style={{ color: colors.primary }}>Coming Next</h3>
+              <p className="text-sm" style={{ color: colors.earthDark }}>
+                But what happens when the standard itself shifts? When barley's supply changes with the harvest, all the barley-numbers change — even if nothing real has moved.
+              </p>
+              <p className="font-bold mt-2" style={{ color: colors.primary }}>
+                Next: Tutorial 1.5 — The Bountiful Harvest
+              </p>
+            </div>
+            
+            {/* Optional Workshop */}
+            <div 
+              className="rounded-lg p-4 mb-4 border"
+              style={{ backgroundColor: 'white', borderColor: colors.earthLight }}
+            >
+              <p className="text-sm" style={{ color: colors.earthDark }}>
+                <strong>Want to explore arbitrage further?</strong> The Arbitrageur's Workshop lets you build profitable cycles, discover reversed mispricings, and see how arbitrage corrects markets. (Available separately)
+              </p>
+            </div>
+            
+            {/* Next Tutorial Button */}
+            <button
+              onClick={() => { playContinueClick(); /* Link will be added later */ }}
+              className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all mb-3"
+              style={{ backgroundColor: colors.primary }}
+            >
+              Next Tutorial <ChevronRightIcon />
+            </button>
+            
+            {/* Restart */}
+            <button
+              onClick={handleRestart}
+              className="w-full py-3 rounded-lg font-bold border-2 flex items-center justify-center gap-2 transition-all hover:bg-gray-50"
+              style={{ borderColor: colors.primary, color: colors.primary }}
+            >
+              <RefreshIcon /> Restart Tutorial
+            </button>
+          </div>
+        </div>
+      );
+
+      // ============================================================
+      // MAIN RENDER
+      // ============================================================
+      return (
+        <>
+          {showGlossary && <GlossaryModal />}
+          
+          {phase === 'welcome' && renderWelcome()}
+          {phase === 'phase1' && renderPhase1()}
+          {phase === 'phase2' && renderPhase2()}
+          {phase === 'phase3' && renderPhase3()}
+          {phase === 'phase4' && renderPhase4()}
+          {phase === 'phase5' && renderPhase5()}
+          {phase === 'coda' && renderCoda()}
+          {phase === 'complete' && renderComplete()}
+        </>
+      );
+    };
+
+    // Render the app
+    ReactDOM.render(<Tutorial14 />, document.getElementById('root'));
+  </script>
 </body>
 </html>
