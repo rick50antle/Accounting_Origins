@@ -3,239 +3,764 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accounting Origins - Tutorial Hub</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Accounting Origins - An Imagined Journey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #00356b;
+            --primary-light: #1a4a7a;
             --sand: #f5f1e8;
+            --sand-light: #faf8f3;
             --earth: #8b7355;
             --earth-light: #d4c4a8;
             --earth-dark: #5c4d3d;
             --accent: #c9a227;
+            --accent-warm: #d4a84b;
+            --text-dark: #2c2416;
+            --text-muted: #6b5d4d;
         }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(to bottom right, #f5f1e8, #fff, #f5f1e8);
-            min-height: 100vh;
+            font-family: 'Source Sans 3', sans-serif;
+            background: var(--sand-light);
+            color: var(--text-dark);
+            line-height: 1.7;
+            font-weight: 400;
         }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #002244 100%);
+            color: white;
+            padding: 4rem 2rem 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5L35 15H25L30 5zM15 20L20 30H10L15 20zM45 20L50 30H40L45 20zM30 35L35 45H25L30 35zM10 45L15 55H5L10 45zM50 45L55 55H45L50 45z' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255,255,255,0.2);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .hero-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: var(--accent-warm);
+        }
+
+        .hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .hero-subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            text-align: center;
+            opacity: 0.9;
+            font-style: italic;
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+
+        .hero-quote {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            background: rgba(255,255,255,0.05);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .hero-quote p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Section Styling */
+        .content-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin: -3rem auto 2rem;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid rgba(212, 196, 168, 0.3);
+        }
+
+        .content-section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .content-section h2 svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .content-section p {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+        }
+
+        .content-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        .signature-line {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--earth-dark);
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--earth-light);
+        }
+
+        /* How to Use Section */
+        .how-to-use {
+            background: linear-gradient(135deg, var(--sand) 0%, var(--sand-light) 100%);
+            border: 2px solid var(--earth-light);
+        }
+
+        .how-to-use ul {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .how-to-use li {
+            padding: 0.75rem 0 0.75rem 2.5rem;
+            position: relative;
+            font-size: 1.05rem;
+        }
+
+        .how-to-use li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .how-to-use li:nth-child(1)::before { content: '1'; color: white; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+        .how-to-use li:nth-child(2)::before { content: '2'; color: white; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+        .how-to-use li:nth-child(3)::before { content: '3'; color: white; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+
+        .time-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            border: 1px solid var(--earth-light);
+        }
+
+        .time-note svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--earth);
+        }
+
+        .fiction-note {
+            margin-top: 1.25rem;
+            padding: 1rem 1.25rem;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            border-left: 3px solid var(--accent);
+            line-height: 1.6;
+        }
+
+        .fiction-note strong {
+            color: var(--earth-dark);
+        }
+
+        /* Act Sections */
+        .act-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid var(--earth-light);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .act-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        .act-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .act-number {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .act-number.act-1 { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); }
+        .act-number.act-2 { background: linear-gradient(135deg, var(--earth) 0%, #9d8567 100%); }
+        .act-number.act-3 { background: linear-gradient(135deg, var(--earth-dark) 0%, #6d5e4e 100%); }
+
+        .act-title-block h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .act-setting {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .act-description {
+            font-size: 1rem;
+            color: var(--text-dark);
+            margin-bottom: 1.25rem;
+            padding-left: 4rem;
+            line-height: 1.7;
+        }
+
+        /* Tutorial Links */
+        .tutorial-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
         .tutorial-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--earth-light);
+            text-decoration: none;
+            color: var(--text-dark);
             transition: all 0.2s ease;
+            background: var(--sand-light);
         }
+
         .tutorial-link:hover {
+            background: white;
+            border-color: var(--accent);
             transform: translateX(4px);
-            background-color: #f8f9fa;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .tutorial-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            background: var(--sand);
+            color: var(--earth-dark);
+            border: 1px solid var(--earth-light);
+        }
+
+        .tutorial-badge.welcome {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tutorial-badge.review {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .tutorial-info {
+            flex: 1;
+        }
+
+        .tutorial-title {
+            font-weight: 500;
+            font-size: 1rem;
+            color: var(--earth-dark);
+        }
+
+        .tutorial-duration {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-left: 0.5rem;
+        }
+
+        .tutorial-arrow {
+            width: 20px;
+            height: 20px;
+            stroke: var(--earth-light);
+            transition: stroke 0.2s ease, transform 0.2s ease;
+        }
+
+        .tutorial-link:hover .tutorial-arrow {
+            stroke: var(--accent);
+            transform: translateX(3px);
+        }
+
+        /* Coming Soon */
+        .coming-soon {
+            padding: 1rem;
+            background: var(--sand);
+            border-radius: 8px;
+            text-align: center;
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Credits Footer */
+        .credits {
+            background: var(--primary);
+            color: white;
+            padding: 3rem 2rem;
+            margin-top: 3rem;
+        }
+
+        .credits-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .credits h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .authors {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .author {
+            font-size: 1rem;
+        }
+
+        .author-name {
+            font-weight: 600;
+        }
+
+        .author-title {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .credits-footer {
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .credits-footer p {
+            margin-bottom: 0.75rem;
+        }
+
+        .credits-footer a {
+            color: var(--accent-warm);
+            text-decoration: none;
+        }
+
+        .credits-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Decorative Elements */
+        .cuneiform-border {
+            height: 6px;
+            background: linear-gradient(90deg, 
+                var(--earth-light) 0%, 
+                var(--accent) 25%, 
+                var(--earth) 50%, 
+                var(--accent) 75%, 
+                var(--earth-light) 100%
+            );
+            opacity: 0.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .hero {
+                padding: 3rem 1.5rem 4rem;
+            }
+
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.15rem;
+            }
+
+            .hero-quote {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .content-section {
+                padding: 1.75rem;
+                margin: -2rem 1rem 1.5rem;
+            }
+
+            .act-description {
+                padding-left: 0;
+                margin-top: 1rem;
+            }
+
+            .act-header {
+                flex-wrap: wrap;
+            }
+
+            .authors {
+                gap: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="min-h-screen p-4 md:p-8">
-        <div class="max-w-4xl mx-auto">
-            <!-- Header -->
-            <div class="text-center py-8 mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style="background-color: var(--primary);">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
-                        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
-                        <path d="M7 21h10" />
-                        <path d="M12 3v18" />
-                        <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
-                    </svg>
-                </div>
-                <h1 class="text-3xl md:text-4xl font-bold mb-2" style="color: var(--primary);">Accounting Origins</h1>
-                <p class="text-gray-600 text-lg">An Interactive Journey Through the History of Accounting</p>
-                <p class="text-sm text-gray-500 mt-2">From barter to bookkeeping in ancient Mesopotamia</p>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                    <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                    <path d="M7 21h10" />
+                    <path d="M12 3v18" />
+                    <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+                </svg>
             </div>
-
-            <!-- Act I -->
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border" style="border-color: var(--earth-light);">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background-color: var(--primary);">I</div>
-                    <div>
-                        <h2 class="text-xl font-bold" style="color: var(--primary);">Act I: Before the Markets</h2>
-                        <p class="text-sm text-gray-500">The Uruk Valley, ~3500 BCE</p>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600 mb-4">Experience the information costs of trade before markets existed. Search for trading partners, negotiate in the dark, and discover why markets emerge.</p>
-                <div class="space-y-2">
-                    <a href="act-1/act-1-welcome.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">W</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">Welcome to the Valley</span>
-                            <span class="text-xs text-gray-500 ml-2">~5 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-1/tutorial-1-1.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">1.1</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Search</span>
-                            <span class="text-xs text-gray-500 ml-2">~15 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-1/tutorial-1-2.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">1.2</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Negotiation Problem</span>
-                            <span class="text-xs text-gray-500 ml-2">~12 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-1/tutorial-1-3.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">1.3</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Market Solution</span>
-                            <span class="text-xs text-gray-500 ml-2">~15 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-1/tutorial-1-4.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">1.4</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Common Measure</span>
-                            <span class="text-xs text-gray-500 ml-2">~12 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-1/tutorial-1-5.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">1.5</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Birth of Value</span>
-                            <span class="text-xs text-gray-500 ml-2">~10 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-1/act-1-review.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--accent); background-color: #fffbeb;">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--accent); color: white;">R</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">Act I Review</span>
-                            <span class="text-xs text-gray-500 ml-2">~10 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Act II -->
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border" style="border-color: var(--earth-light);">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background-color: var(--earth);">II</div>
-                    <div>
-                        <h2 class="text-xl font-bold" style="color: var(--primary);">Act II: The Temple Economy</h2>
-                        <p class="text-sm text-gray-500">Uruk, ~3200 BCE</p>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600 mb-4">The temple rises. Learn how scribes invented writing to solve accounting problems, and discover the power of recorded information.</p>
-                <div class="space-y-2">
-                    <a href="act-2/act-2-welcome.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">W</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">Welcome to the Temple</span>
-                            <span class="text-xs text-gray-500 ml-2">~5 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-2/tutorial-2-1.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">2.1</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Clay Tablet</span>
-                            <span class="text-xs text-gray-500 ml-2">~12 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-2/tutorial-2-2.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">2.2</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Memory Problem</span>
-                            <span class="text-xs text-gray-500 ml-2">~15 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-2/tutorial-2-3.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">2.3</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Verification Problem</span>
-                            <span class="text-xs text-gray-500 ml-2">~15 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-2/tutorial-2-4.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">2.4</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Double Entry</span>
-                            <span class="text-xs text-gray-500 ml-2">~15 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-2/tutorial-2-5.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">2.5</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Accounting Equation</span>
-                            <span class="text-xs text-gray-500 ml-2">~12 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-2/tutorial-2-6.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">2.6</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The King's Dilemma</span>
-                            <span class="text-xs text-gray-500 ml-2">~15 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-2/act-2-review.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--accent); background-color: #fffbeb;">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--accent); color: white;">R</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">Act II Review</span>
-                            <span class="text-xs text-gray-500 ml-2">~10 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Act III -->
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border" style="border-color: var(--earth-light);">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background-color: var(--earth-dark);">III</div>
-                    <div>
-                        <h2 class="text-xl font-bold" style="color: var(--primary);">Act III: The Trading Networks</h2>
-                        <p class="text-sm text-gray-500">Mediterranean World, ~1800 BCE</p>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600 mb-4">Trade expands across regions. Discover how merchants developed sophisticated accounting practices to manage risk and information across distances.</p>
-                <div class="space-y-2">
-                    <a href="act-3/act-3-welcome.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">W</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">Welcome to the Trading World</span>
-                            <span class="text-xs text-gray-500 ml-2">~5 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="act-3/tutorial-3-1.html" class="tutorial-link block p-3 rounded-lg border flex items-center gap-3" style="border-color: var(--earth-light);">
-                        <span class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background-color: var(--sand); color: var(--earth-dark);">3.1</span>
-                        <div class="flex-1">
-                            <span class="font-medium" style="color: var(--earth-dark);">The Merchant's Craft</span>
-                            <span class="text-xs text-gray-500 ml-2">~15 min</span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </a>
-                </div>
-                <div class="mt-4 p-3 rounded-lg text-sm" style="background-color: var(--sand);">
-                    <p class="text-gray-600 italic">More tutorials coming soon...</p>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="text-center py-8 text-sm text-gray-500">
-                <p class="mb-2">Accounting Origins</p>
-                <p>An educational resource exploring the history of accounting through interactive tutorials.</p>
-                <p class="mt-4">
-                    <a href="https://github.com/rick50antle/Accounting_Origins" class="text-blue-600 hover:underline" target="_blank">View on GitHub</a>
-                </p>
+            <h1>Accounting Origins</h1>
+            <p class="hero-subtitle">An Imagined Journey Through the History of Accounting</p>
+            <div class="hero-quote">
+                <p>The double-entry system that accountants use today wasn't delivered gift-wrapped and ready to use. It emerged piece by piece, as people confronted practical problems and discovered—often by accident—how flexible and powerful a simple balancing discipline could be.</p>
             </div>
         </div>
-    </div>
+    </section>
+
+    <div class="cuneiform-border"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Why History Section -->
+        <section class="content-section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4"/>
+                    <path d="M12 8h.01"/>
+                </svg>
+                Why Learn Through History?
+            </h2>
+            <p>The same underlying architecture serves as the backbone for systems tracking inventory at Amazon, intangible assets at Google, derivative positions at Goldman Sachs, pension obligations at General Motors, endowment funds at Yale, donor-restricted grants at the Red Cross, and infrastructure maintenance at the City of New York. Retailers, banks, hospitals, school districts, sovereign wealth funds, churches—all rely on the same fundamental logic.</p>
+            <p>When you understand the problems the system was built to solve, you recognize those same problems more quickly when they reappear in modern dress. The vocabulary changes; the underlying tensions do not. A merchant in ancient Babylon worrying about how to verify a shipment of barley was wrestling with the same uncertainty that confronts a CFO today booking the value of a biotech startup's drug pipeline.</p>
+            <p class="signature-line">History, in this sense, is diagnostic equipment. It helps you see what is actually going on.</p>
+        </section>
+
+        <!-- How to Use Section -->
+        <section class="content-section how-to-use">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                How to Use These Tutorials
+            </h2>
+            <ul>
+                <li><strong>Dive right in.</strong> These tutorials are meant to be <em>experienced</em>, not studied. You'll learn by confronting the same problems that ancient peoples faced—and discovering why their solutions still matter.</li>
+                <li><strong>Stay thoughtful.</strong> When you're asked a question, pause and wrestle with it before moving on. The insights come from the struggle, not from clicking through quickly.</li>
+                <li><strong>Trust the journey.</strong> Each tutorial builds on what came before. Concepts that seem simple early on become the foundation for deeper understanding.</li>
+            </ul>
+            <div class="time-note">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+                Each tutorial takes 10–15 minutes. Works on any device.
+            </div>
+            <div class="fiction-note">
+                <strong>A note on historical fiction:</strong> These tutorials use imagined characters and scenarios to illuminate real concepts. We take creative liberties with settings and events—the specific people and conversations are invented, though the accounting problems they face are authentic. This is historical fiction in service of teaching accounting, not a history lesson.
+            </div>
+        </section>
+
+        <!-- Act I -->
+        <section class="act-section">
+            <div class="act-header">
+                <div class="act-number act-1">I</div>
+                <div class="act-title-block">
+                    <h3>Before the Markets</h3>
+                    <span class="act-setting">A River Valley, circa 3500 BCE</span>
+                </div>
+            </div>
+            <p class="act-description">Before markets existed, trade was costly and uncertain. How do you find someone who has what you need—and wants what you have? How do you know if terms are fair when every exchange is negotiated in isolation? Experience the information problems that made markets necessary.</p>
+            <div class="tutorial-list">
+                <a href="act-1/act-1-welcome.html" class="tutorial-link">
+                    <span class="tutorial-badge welcome">W</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">Welcome to the Valley</span>
+                        <span class="tutorial-duration">~5 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-1/tutorial-1-1.html" class="tutorial-link">
+                    <span class="tutorial-badge">1.1</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">The Search</span>
+                        <span class="tutorial-duration">~15 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-1/tutorial-1-2.html" class="tutorial-link">
+                    <span class="tutorial-badge">1.2</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">The Negotiation</span>
+                        <span class="tutorial-duration">~12 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-1/tutorial-1-3.html" class="tutorial-link">
+                    <span class="tutorial-badge">1.3</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">The Marketplace</span>
+                        <span class="tutorial-duration">~15 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-1/tutorial-1-4.html" class="tutorial-link">
+                    <span class="tutorial-badge">1.4</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">The Common Standard</span>
+                        <span class="tutorial-duration">~12 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-1/act-1-review.html" class="tutorial-link">
+                    <span class="tutorial-badge review">R</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">Act I Review</span>
+                        <span class="tutorial-duration">~10 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+        </section>
+
+        <!-- Act II -->
+        <section class="act-section">
+            <div class="act-header">
+                <div class="act-number act-2">II</div>
+                <div class="act-title-block">
+                    <h3>The Scribes of Babylon</h3>
+                    <span class="act-setting">Babylon, circa 1800 BCE</span>
+                </div>
+            </div>
+            <p class="act-description">With cities came scale—thousands of transactions, dozens of officials, resources flowing across an empire. Memory was no longer enough. Learn how scribes invented writing itself to solve accounting problems, and discover why records that verify themselves became essential to civilization.</p>
+            <div class="tutorial-list">
+                <a href="act-2/act-2-welcome.html" class="tutorial-link">
+                    <span class="tutorial-badge welcome">W</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">Welcome to Babylon</span>
+                        <span class="tutorial-duration">~5 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-2/tutorial-2-1.html" class="tutorial-link">
+                    <span class="tutorial-badge">2.1</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">The Scribe's Craft</span>
+                        <span class="tutorial-duration">~12 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-2/tutorial-2-2.html" class="tutorial-link">
+                    <span class="tutorial-badge">2.2</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">Inconsistent Reports</span>
+                        <span class="tutorial-duration">~15 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-2/tutorial-2-3.html" class="tutorial-link">
+                    <span class="tutorial-badge">2.3</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">The Investigation</span>
+                        <span class="tutorial-duration">~15 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-2/tutorial-2-4.html" class="tutorial-link">
+                    <span class="tutorial-badge">2.4</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">Tablets That Speak with One Voice</span>
+                        <span class="tutorial-duration">~15 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-2/tutorial-2-5.html" class="tutorial-link">
+                    <span class="tutorial-badge">2.5</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">The Discipline of Balance</span>
+                        <span class="tutorial-duration">~12 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-2/tutorial-2-6.html" class="tutorial-link">
+                    <span class="tutorial-badge">2.6</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">The King's Dilemma</span>
+                        <span class="tutorial-duration">~15 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+                <a href="act-2/act-2-review.html" class="tutorial-link">
+                    <span class="tutorial-badge review">R</span>
+                    <div class="tutorial-info">
+                        <span class="tutorial-title">Act II Review</span>
+                        <span class="tutorial-duration">~10 min</span>
+                    </div>
+                    <svg class="tutorial-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+        </section>
+
+        <!-- Act III -->
+        <section class="act-section">
+            <div class="act-header">
+                <div class="act-number act-3">III</div>
+                <div class="act-title-block">
+                    <h3>The Trading Networks</h3>
+                    <span class="act-setting">Coming Soon</span>
+                </div>
+            </div>
+            <p class="act-description">Trade expands across regions and cultures. How do merchants manage risk and information when goods travel for months, partners are strangers, and values shift between markets? Discover how accounting evolved to handle uncertainty across distance and time.</p>
+            <div class="coming-soon">
+                More tutorials coming soon...
+            </div>
+        </section>
+    </main>
+
+    <!-- Credits Footer -->
+    <footer class="credits">
+        <div class="credits-content">
+            <h3>Created by</h3>
+            <div class="authors">
+                <div class="author">
+                    <span class="author-name">Rick Antle</span><br>
+                    <span class="author-title">William S. Beinecke Professor of Accounting</span>
+                </div>
+                <div class="author">
+                    <span class="author-name">Stanley J. Garstka</span><br>
+                    <span class="author-title">Professor in the Practice Emeritus of Management</span>
+                </div>
+                <div class="author">
+                    <span class="author-name">Claude</span><br>
+                    <span class="author-title">Anthropic</span>
+                </div>
+            </div>
+            <div class="credits-footer">
+                <p>For students beginning their study of accounting</p>
+                <p><a href="https://github.com/rick50antle/Accounting_Origins" target="_blank">View on GitHub</a></p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
