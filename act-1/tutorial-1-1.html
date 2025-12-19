@@ -187,6 +187,7 @@
           const [devMode, setDevMode] = useState(false);
           const [attemptCount, setAttemptCount] = useState(0);
           const [showIncorrectFeedback, setShowIncorrectFeedback] = useState(false);
+          const [feedbackMessage, setFeedbackMessage] = useState('');
           const [currentLocation, setCurrentLocation] = useState(null);
           const [locationsVisited1, setLocationsVisited1] = useState([]);
           const [locationsVisited2, setLocationsVisited2] = useState([]);
@@ -205,6 +206,7 @@
             setHintIndex(0);
             setAttemptCount(0);
             setShowIncorrectFeedback(false);
+            setFeedbackMessage('');
             setCurrentLocation(null);
             setLocationsVisited1([]);
             setLocationsVisited2([]);
@@ -321,14 +323,155 @@
             { term: 'Value', definition: 'Information about transformation possibilities—what your stuff could become through exchange, and at what rates.' }
           ];
 
+          // Helper function: Get discovered target traders from travel log (scenario 1)
+          const getDiscoveredTargetTraders = () => {
+            // Find all people in travelLog1 who have wool AND want barley
+            return travelLog1.filter(entry => 
+              entry.has.toLowerCase() === 'wool' && 
+              entry.wants.toLowerCase() === 'barley'
+            ).map(entry => entry.name.toLowerCase());
+          };
+
+          // Helper function: Parse names from answer string
+          const parseNamesFromAnswer = (answerText) => {
+            // Normalize the answer: lowercase, remove common separators
+            const normalized = answerText.toLowerCase()
+              .replace(/\band\b/g, ' ')  // "asha and meren" -> "asha   meren"
+              .replace(/[,;\/\-&]/g, ' ') // various separators
+              .replace(/\s+/g, ' ')       // collapse whitespace
+              .trim();
+            
+            // Split into potential names
+            const potentialNames = normalized.split(' ').filter(s => s.length > 0);
+            
+            // Valid target names for scenario 1
+            const validTargetNames = ['asha', 'meren'];
+            
+            // Find which valid names appear in the answer
+            const foundNames = [];
+            for (const targetName of validTargetNames) {
+              // Check if the target name appears anywhere in the normalized string
+              if (normalized.includes(targetName)) {
+                foundNames.push(targetName);
+              }
+            }
+            
+            return [...new Set(foundNames)]; // Remove duplicates
+          };
+
+          // All target traders for scenario 1 (the complete list they must find)
+          const allTargetTraders = ['asha', 'meren'];
+          
+          // All people in the hills (must talk to all of them)
+          const allHillsPeople = ['asha', 'corra', 'meren', 'old tobias', 'young pell'];
+
+          // Check if student has talked to everyone in the hills
+          const hasSpokenToAllInHills = () => {
+            const spokenLower = peopleSpokenTo1.map(name => name.toLowerCase());
+            return allHillsPeople.every(person => spokenLower.includes(person));
+          };
+
+          // Validation function for search1
+          const validateSearch1Answer = (answerText) => {
+            const discovered = getDiscoveredTargetTraders();
+            const submitted = parseNamesFromAnswer(answerText);
+            
+            // If nothing discovered yet
+            if (discovered.length === 0) {
+              return {
+                isCorrect: false,
+                feedback: "You haven't discovered anyone who has wool AND wants barley yet. Keep exploring and talking to people!"
+              };
+            }
+            
+            // Check if student entered names of people they talked to but who don't meet criteria
+            const allSpokenNames = travelLog1.map(entry => entry.name.toLowerCase());
+            const answerLower = answerText.toLowerCase();
+            
+            // Look for any name from travelLog1 that appears in the answer but isn't a target
+            for (const entry of travelLog1) {
+              const nameLower = entry.name.toLowerCase();
+              if (answerLower.includes(nameLower) && !allTargetTraders.includes(nameLower)) {
+                // They mentioned someone who doesn't meet the criteria
+                return {
+                  isCorrect: false,
+                  feedback: `${entry.name} has ${entry.has} and wants ${entry.wants}—that doesn't match what you need. You're looking for someone who has wool AND wants barley.`
+                };
+              }
+            }
+            
+            // If student submitted names they haven't discovered (valid targets but not yet found)
+            const undiscoveredSubmissions = submitted.filter(name => allTargetTraders.includes(name) && !discovered.includes(name));
+            if (undiscoveredSubmissions.length > 0) {
+              return {
+                isCorrect: false,
+                feedback: `You entered "${undiscoveredSubmissions.join(', ')}" but you haven't discovered that person yet. Only enter names of people you've actually talked to.`
+              };
+            }
+            
+            // If student submitted something that isn't a recognized name at all
+            if (submitted.length === 0 && answerText.trim().length > 0) {
+              return {
+                isCorrect: false,
+                feedback: "That doesn't match anyone you've talked to. Check your travel log and enter the names of people who have wool AND want barley."
+              };
+            }
+            
+            // KEY CHECK: Have they talked to everyone in the hills?
+            if (!hasSpokenToAllInHills()) {
+              return {
+                isCorrect: false,
+                feedback: "You found potential partners in the hills, but have you talked to everyone there? A thorough search means checking with all the people at a location before moving on."
+              };
+            }
+            
+            // They've talked to everyone in hills - now check if they listed all target traders
+            if (submitted.length < allTargetTraders.length) {
+              return {
+                isCorrect: false,
+                feedback: "You've discovered multiple traders who have wool and want barley. Make sure to list all of them!"
+              };
+            }
+            
+            // Check if they submitted all the correct names
+            const allCorrect = allTargetTraders.every(target => submitted.includes(target));
+            if (allCorrect) {
+              return {
+                isCorrect: true,
+                feedback: "complete",
+                discoveredNames: discovered
+              };
+            }
+            
+            // Default: something's not right
+            return {
+              isCorrect: false,
+              feedback: "Check your answer. Make sure you're entering the names of people who have wool AND want barley."
+            };
+          };
+
           const questions = [
-            { id: 0, narrative: "Your mother pulls you aside as the morning fog lifts.\n\n\"We have barley to spare, but we need wool before the cold comes. Find someone to trade with.\"\n\nYou know of settlements in six areas of the valley. Where will you start?", question: "How many locations do you expect to visit before getting the information you need—finding someone who has wool AND wants barley? (1-6)", type: "prediction", hints: ["Shepherds in the hills probably have wool—but do they want barley? You won't know until you go.", "Any number is reasonable—just your prediction."], evaluate: (a) => { const n = parseInt(a.replace(/[^0-9]/g, '')); return !isNaN(n) && n >= 1 && n <= 6; }, answer: "1-6", explanation: "You have a hunch about who might have wool. But hunches aren't information. The only way to know for sure is to travel there and talk to people." },
-            { id: 1, narrative: "You set out from your family's plot. The valley stretches before you.", question: "Choose destinations and travel there. When you arrive, you'll see who is present—but you won't know what they have or want until you talk to them.\n\nGather information until you find someone who has wool AND wants barley. Enter their name:", type: "search1", hints: ["Shepherds tend flocks in the hills...", "Keep gathering information. There may be more than one potential partner."], evaluate: (a) => { const lower = a.toLowerCase(); return lower.includes('asha') || lower.includes('meren'); }, answer: "Asha or Meren", explanation: "" },
+            { id: 0, narrative: "Your mother pulls you aside as the morning fog lifts.\n\n\"We have barley to spare, but we need wool before the cold comes. Find someone to trade with.\"\n\nYou know of settlements in six areas of the valley. Where will you start?", question: "How many locations do you expect to visit before getting the information you need—finding someone who has wool AND wants barley? (1-6)", type: "prediction", hints: ["Shepherds in the hills probably have wool—but do they want barley? You won't know until you go.", "Any number is reasonable—just your prediction."], evaluate: (a) => { 
+              const lower = a.toLowerCase().trim();
+              // Map of written numbers to digits
+              const wordToNum = { 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'all': 6, 'every': 6, 'everywhere': 6 };
+              // Check for digit
+              const digitMatch = a.match(/[1-6]/);
+              if (digitMatch) return true;
+              // Check for written number
+              for (const word of Object.keys(wordToNum)) {
+                if (lower.includes(word)) return true;
+              }
+              // Check for location-based answers like "just the hills" or "only one"
+              if (lower.includes('hill') || lower.includes('just') || lower.includes('only') || lower.includes('single') || lower.includes('few') || lower.includes('several') || lower.includes('many') || lower.includes('most') || lower.includes('half') || lower.includes('couple')) return true;
+              return false;
+            }, answer: "1-6", explanation: "You have a hunch about who might have wool. But hunches aren't information. The only way to know for sure is to travel there and talk to people." },
+            { id: 1, narrative: "You set out from your family's plot. The valley stretches before you.", question: "Choose destinations and travel there. When you arrive, you'll see who is present—but you won't know what they have or want until you talk to them.\n\nGather information until you find everyone who has wool AND wants barley. Enter their name(s):", type: "search1", hints: ["Shepherds tend flocks in the hills...", "Have you talked to everyone at the location? There might be more than one potential partner."], evaluate: null, answer: "Discovery-based", explanation: "" },
             { id: 2, narrative: "You return home with good news—you found potential trading partners in the hills. But your neighbor has a harder problem.\n\n\"I have dried fish, but I need spices. No one at the river camps has spices, and the traders I've talked to who have spices don't want fish.\"\n\nHe sighs. \"I'll need two trades. Fish for something, then that for spices.\"", question: "Would finding a two-trade chain require visiting more locations and talking to more people than finding a direct trade? Why?", type: "prediction2", hints: ["You need to gather information about TWO people whose trades connect...", "More trades = more information to gather."], evaluate: (a) => a.toLowerCase().length > 10 && (a.toLowerCase().includes('more') || a.toLowerCase().includes('yes') || a.toLowerCase().includes('harder') || a.toLowerCase().includes('longer')), answer: "Yes, more locations and conversations expected", explanation: "A two-trade chain typically requires gathering more information. You need to find two people whose trades connect—which could mean visiting several locations and talking to many people to piece together the chain." },
             { id: 3, narrative: "Your neighbor sets out. He has dried fish. He needs spices.\n\nHe needs information about two people:\n1. Someone who wants fish → and what they have\n2. Someone who wants THAT and has spices\n\n\"This could take all day,\" he mutters. \"Maybe two.\"", question: "Travel to locations and talk to people to gather information. Piece together a chain.\n\nYour travel log records the information you've gathered. Use it to find connections.\n\nList both people IN ORDER (First, Second):", type: "search2", hints: ["Gather information: who wants fish? Talk to people to find out.", "Ravi at the clay beds wants fish. Who wants what Ravi has?"], evaluate: (a) => { const clean = a.toLowerCase().replace(/[^a-z,]/g, ''); return clean.includes('ravi') && clean.includes('ulric'); }, answer: "Ravi, Ulric", explanation: "" },
             { id: 4, narrative: "That evening, you compare notes.", question: "Compare your two searches. What pattern emerges as trading chains get longer?", type: "pattern", hints: ["Look at the numbers: locations visited, time spent, people talked to.", "Each additional trade = more information to gather..."], evaluate: (a) => a.toLowerCase().length > 10 && (a.toLowerCase().includes('more') || a.toLowerCase().includes('increase') || a.toLowerCase().includes('longer') || a.toLowerCase().includes('harder') || a.toLowerCase().includes('escal') || a.toLowerCase().includes('worse')), answer: "Costs increase with chain length", explanation: "The cost of producing information escalates as chains get longer. More trades mean more people to identify, more locations to visit, more conversations to have, more time spent traveling and talking.\n\nA two-trade chain might take a day or two. A three-trade chain could take a week. A five-trade chain? Most people would give up.\n\nThis is why complex trades so often fail—not because they're impossible, but because the information costs are overwhelming." },
             { id: 5, narrative: "That night, you lie awake.\n\nThe problem is clear: to identify potential trading partners, you travel location by location, then talk to each person individually to learn what they have and want. The information exists—but it's scattered across the valley, held by people you have to find and question one by one.", question: "What would reduce the time and effort needed to gather information about potential trading partners?", type: "whatif", hints: ["Information is scattered across locations and people. What would concentrate it?", "All that traveling and talking. What would reduce it?"], evaluate: (a) => a.toLowerCase().length > 10, answer: "Any reasonable suggestion", explanation: "The most direct solution: a central place where traders gather—a marketplace.\n\nIf everyone who wanted to trade came to the same location, you wouldn't have to travel the whole valley. And if people announced what they have and want, you wouldn't have to talk to each one individually. You could see who's there, learn what they have and want, and find matches in hours instead of days.\n\nThe information would be concentrated instead of scattered.\n\nThis is exactly what markets do. But that's a story for Tutorial 1.3..." },
-            { id: 6, narrative: "You've completed your search. You have information now that you didn't have this morning.\n\nTomorrow you'll walk back to the hills with barley. But here's something you noticed: both Asha and Meren have wool and want barley. You have two potential trading partners.\n\nWhich one should you trade with?", question: "Your search produced information. What information do you now HAVE that you didn't have before? And what information do you still LACK?", type: "bridge", hints: ["Think about what information you gathered: who, where, what they have, what they want...", "Think about what information is still missing: how much, what rate, who offers better terms..."], evaluate: (a) => { const lower = a.toLowerCase(); const hasKnow = lower.includes('asha') || lower.includes('meren') || lower.includes('wool') || lower.includes('hill') || lower.includes('who') || lower.includes('where') || lower.includes('exist'); const hasNotKnow = lower.includes('how much') || lower.includes('rate') || lower.includes('worth') || lower.includes('price') || lower.includes('amount') || lower.includes('terms') || lower.includes('accept') || lower.includes('offer') || lower.includes('better') || lower.includes('which'); return lower.length > 20 && (hasKnow || hasNotKnow); }, answer: "Have: who, where, has/wants. Lack: how much, terms, which partner is better", explanation: "Your search produced crucial information:\n\n**Information you now have:**\n• Asha and Meren are both potential trading partners\n• They're both in the hills\n• They both have wool available\n• They both want barley\n\n**Information you still lack:**\n• How much barley for how much wool (from either of them)\n• What terms each will accept\n• Which one will give you a better deal\n• What your barley is \"worth\"\n\nProducing information about *who* and *where* required costly search. But producing information about *terms*—about which partner offers better value—requires something else: negotiation. And that's a different information problem entirely." }
+            { id: 6, narrative: "You've completed your search. You have information now that you didn't have this morning.\n\nTomorrow you'll walk back to the hills with barley. But you noticed something: you found potential trading partners.\n\nWhich one should you trade with?", question: "Your search produced information. What information do you now HAVE that you didn't have before? And what information do you still LACK?", type: "bridge", hints: ["Think about what information you gathered: who, where, what they have, what they want...", "Think about what information is still missing: how much, what rate, who offers better terms..."], evaluate: (a) => { const lower = a.toLowerCase(); const hasKnow = lower.includes('asha') || lower.includes('meren') || lower.includes('wool') || lower.includes('hill') || lower.includes('who') || lower.includes('where') || lower.includes('exist'); const hasNotKnow = lower.includes('how much') || lower.includes('rate') || lower.includes('worth') || lower.includes('price') || lower.includes('amount') || lower.includes('terms') || lower.includes('accept') || lower.includes('offer') || lower.includes('better') || lower.includes('which'); return lower.length > 20 && (hasKnow || hasNotKnow); }, answer: "Have: who, where, has/wants. Lack: how much, terms, which partner is better", explanation: "" }
           ];
 
           const formatTime = (hours) => {
@@ -383,7 +526,25 @@
 
           const handleSubmit = () => {
             const q = questions.find(q => q.id === step);
-            if (q && q.evaluate(answer)) {
+            if (!q) return;
+            
+            // Special handling for search1 (discovery-based validation, no attempt limit)
+            if (q.type === 'search1') {
+              const result = validateSearch1Answer(answer);
+              if (result.isCorrect) {
+                setShowExplanation(true);
+                setShowIncorrectFeedback(false);
+                setFeedbackMessage('');
+              } else {
+                // No attempt limit for search1 - just show feedback
+                setFeedbackMessage(result.feedback);
+                setShowIncorrectFeedback(true);
+              }
+              return;
+            }
+            
+            // Standard evaluation for other question types
+            if (q && q.evaluate && q.evaluate(answer)) {
               setShowExplanation(true);
               setShowIncorrectFeedback(false);
             } else {
@@ -404,6 +565,7 @@
             setHintIndex(0);
             setAttemptCount(0);
             setShowIncorrectFeedback(false);
+            setFeedbackMessage('');
             setCurrentLocation(null);
             if (step === 3) {
               setStep('note');
@@ -414,17 +576,37 @@
             } else {
               setPhase('complete');
             }
+            // Scroll to top of page
+            window.scrollTo(0, 0);
           };
 
           const getExplanation = () => {
             const q = questions.find(q => q.id === step);
             if (!q) return '';
             let explanation = q.explanation;
+            
             if (q.type === 'search1') {
-              const partnerFound = answer.toLowerCase().trim();
-              explanation = `You found the information you needed. ${partnerFound.charAt(0).toUpperCase() + partnerFound.slice(1)} has wool and wants barley—a potential trading partner!\n\nYou visited ${locationsVisited1.length} location(s), traveled ${formatTime(totalTime1)}, and talked to ${peopleSpokenTo1.length} people. Each trip produced information about who was there. Each conversation produced information about what they have and want.\n\nBut notice: in the Hills, there's more than one person with wool who wants barley. Asha and Meren are both potential partners.\n\n**Which one should you trade with?** That depends on who will give you better terms—and you don't have that information yet. That's a problem for the negotiation tutorial.\n\nFor now, you've identified potential partners. That alone was costly.`;
+              const discovered = getDiscoveredTargetTraders();
+              const discoveredFormatted = discovered.map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' and ');
+              
+              if (discovered.length < 2) {
+                // They gave up without finding everyone (hit 3 attempts)
+                explanation = `You needed to find all traders who have wool AND want barley. In the hills, both Asha and Meren fit this criteria—you needed to discover both of them.\n\nYou visited ${locationsVisited1.length} location(s), traveled ${formatTime(totalTime1)}, and talked to ${peopleSpokenTo1.length} people. The lesson: thorough search means checking everywhere and talking to everyone who might be relevant.`;
+              } else {
+                // Found both traders
+                explanation = `Excellent work! You discovered that both ${discoveredFormatted} have wool and want barley—two potential trading partners!\n\nYou visited ${locationsVisited1.length} location(s), traveled ${formatTime(totalTime1)}, and talked to ${peopleSpokenTo1.length} people. Each trip produced information about who was there. Each conversation produced information about what they have and want.\n\n**Which one should you trade with?** That depends on who will give you better terms—and you don't have that information yet. That's a problem for the negotiation tutorial.\n\nFor now, you've identified potential partners. That alone was costly.`;
+              }
             } else if (q.type === 'search2') {
               explanation = `The chain: Fish → Ravi (pottery) → Ulric (spices).\n\nYou visited ${locationsVisited2.length} location(s), traveled ${formatTime(totalTime2)}, and talked to ${peopleSpokenTo2.length} people gathering information. That's a lot of effort just to produce the information needed to identify a trading chain—before any actual trading happens.`;
+            } else if (q.type === 'bridge') {
+              const discovered = getDiscoveredTargetTraders();
+              const discoveredFormatted = discovered.map(n => n.charAt(0).toUpperCase() + n.slice(1));
+              const partnerList = discoveredFormatted.length > 1 
+                ? discoveredFormatted.slice(0, -1).join(', ') + ' and ' + discoveredFormatted.slice(-1)
+                : discoveredFormatted[0] || 'your trading partner(s)';
+              const isOrAre = discoveredFormatted.length > 1 ? 'are' : 'is';
+              
+              explanation = `Your search produced crucial information:\n\n**Information you now have:**\n• ${partnerList} ${isOrAre} potential trading partner(s)\n• They're in the hills\n• They have wool available\n• They want barley\n\n**Information you still lack:**\n• How much barley for how much wool (from any of them)\n• What terms each will accept\n• Which one will give you a better deal\n• What your barley is "worth"\n\nProducing information about *who* and *where* required costly search. But producing information about *terms*—about which partner offers better value—requires something else: negotiation. And that's a different information problem entirely.`;
             }
             return explanation;
           };
@@ -559,6 +741,23 @@
             </div>
           );
 
+          // Discovery status indicator for search1
+          const DiscoveryStatus = () => {
+            const discovered = getDiscoveredTargetTraders();
+            const discoveredFormatted = discovered.map(n => n.charAt(0).toUpperCase() + n.slice(1));
+            
+            return (
+              <div className="mb-3 p-2 rounded-lg border" style={{ backgroundColor: '#f0f9ff', borderColor: '#bae6fd' }}>
+                <div className="flex items-center gap-2">
+                  <Info className="w-4 h-4 text-blue-600" />
+                  <span className="text-xs font-medium text-blue-800">
+                    Potential partners found (wool + wants barley): {discovered.length === 0 ? 'None yet' : discoveredFormatted.join(', ')}
+                  </span>
+                </div>
+              </div>
+            );
+          };
+
           const SearchStats = () => (
             <div className="grid grid-cols-2 gap-3 my-4 p-3 rounded-lg" style={{ backgroundColor: colors.sand }}>
               <div className="text-center">
@@ -613,7 +812,7 @@
                       <p className="font-medium" style={{ color: colors.earthDark }}>In this tutorial, you won't learn about transaction costs.</p>
                       <p className="font-bold" style={{ color: colors.primary }}>You'll live them.</p>
                     </div>
-                    <button onClick={() => setPhase('tutorial')} className="w-full mt-5 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
+                    <button onClick={() => { setPhase('tutorial'); window.scrollTo(0, 0); }} className="w-full mt-5 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
                       Continue <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -650,29 +849,38 @@
                     </div>
                     <div className="mb-4">
                       <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>What You'll Discover</h3>
-                      {["Producing information requires travel and conversation", "Information costs are measured in hours and days", "These costs escalate with longer trading chains", "Finding a partner isn't enough—you want the best terms"].map((t, i) => (
-                        <div key={i} className="flex items-start gap-2 p-2 rounded border mb-1 text-xs" style={{ backgroundColor: '#f8f9fa', borderColor: colors.earthLight }}>
-                          <span className="font-bold" style={{ color: colors.primary }}>{i+1}</span>
-                          <span className="text-gray-700">{t}</span>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <span><strong>Information has costs</strong>—travel time, conversation effort</span>
                         </div>
-                      ))}
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <span><strong>Costs escalate</strong>—more complex trades need more information</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <span><strong>Finding isn't enough</strong>—you also need to know who offers better terms</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex gap-2 mb-4 pt-3 border-t" style={{ borderColor: colors.earthLight }}>
-                      <button onClick={() => setDevMode(!devMode)} className={`${devMode ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'} px-3 py-1.5 rounded text-xs font-medium`}>
-                        Dev: {devMode ? 'ON' : 'OFF'}
-                      </button>
-                      <button onClick={() => setShowGlossary(true)} className="px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
-                        <Book className="w-3 h-3" /> Glossary
-                      </button>
-                      <span className="text-xs text-gray-500 ml-auto self-center">~15 min • 7 questions</span>
+                    <div className="p-3 rounded-lg" style={{ backgroundColor: colors.sand }}>
+                      <h3 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>How This Works</h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <p>You'll choose locations to visit. Each location takes time to reach.</p>
+                        <p>At each location, you'll see people—but you won't know what they have or want until you talk to them.</p>
+                        <p>Your goal: find everyone who has wool AND wants barley. The search itself is the lesson.</p>
+                      </div>
+                      <div className="p-3 rounded-lg mt-4" style={{ backgroundColor: '#f0f7ff', borderLeft: `4px solid ${colors.primary}` }}>
+                        <p className="text-sm" style={{ color: colors.primary }}>This hints at why writing will matter so much when it finally arrives.</p>
+                      </div>
                     </div>
-                    <button onClick={() => setStep(0)} className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.earth }}>
-                      Begin Your Search <ChevronRight className="w-4 h-4" />
+                    <button onClick={nextStep} className="w-full mt-5 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
+                      Continue <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
               </div>
-              {showGlossary && <GlossaryModal terms={glossaryTerms} colors={colors} onClose={() => setShowGlossary(false)} />}
               {/* Navigation Footer */}
               <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
                 <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
@@ -686,7 +894,7 @@
             </div>
           );
 
-          // ABOUT THE TRAVEL LOG (Note screen after Q3)
+          // NOTE - About the Travel Log (shown after search2)
           if (phase === 'tutorial' && step === 'note') return (
             <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
               <Header />
@@ -856,6 +1064,7 @@
                             <span style={{ color: colors.earth }}>{formatTime(scenario === 1 ? totalTime1 : totalTime2)}</span>
                             <span style={{ color: colors.earthDark }}>{(scenario === 1 ? peopleSpokenTo1 : peopleSpokenTo2).length} conversations</span>
                           </div>
+                          {scenario === 1 && <DiscoveryStatus />}
                           {scenario === 2 && <TravelLog log={log} scenario={scenario} />}
                         </div>
                       )}
@@ -874,7 +1083,9 @@
                           )}
                           {showIncorrectFeedback && (
                             <div className="p-3 rounded-lg border-l-4 mb-3" style={{ backgroundColor: '#fef3c7', borderColor: '#f59e0b' }}>
-                              <p className="text-amber-800 text-sm">Not quite. Try again! ({3 - attemptCount} attempt{3 - attemptCount !== 1 ? 's' : ''} remaining)</p>
+                              <p className="text-amber-800 text-sm">
+                                {feedbackMessage || `Not quite. Try again! (${3 - attemptCount} attempt${3 - attemptCount !== 1 ? 's' : ''} remaining)`}
+                              </p>
                             </div>
                           )}
                           <div className="flex gap-2">
