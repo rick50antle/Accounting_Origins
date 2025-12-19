@@ -200,6 +200,13 @@
           const [partnerResponse, setPartnerResponse] = useState(null);
           const [showBelowMinWarning, setShowBelowMinWarning] = useState(false);
 
+          // Partner states: null (available), 'pending', 'declined', or { rate, rounds } (dealt)
+          const [ashaState, setAshaState] = useState(null);
+          const [merenState, setMerenState] = useState(null);
+          const [ashaPendingOffer, setAshaPendingOffer] = useState(null); // { rate, rounds }
+          const [merenPendingOffer, setMerenPendingOffer] = useState(null);
+          
+          // Legacy result tracking (for compatibility with existing code)
           const [ashaResult, setAshaResult] = useState(null);
           const [merenResult, setMerenResult] = useState(null);
           const [firstPartner, setFirstPartner] = useState(null);
@@ -219,6 +226,10 @@
             setNegotiationPhase('select');
             setPartnerResponse(null);
             setShowBelowMinWarning(false);
+            setAshaState(null);
+            setMerenState(null);
+            setAshaPendingOffer(null);
+            setMerenPendingOffer(null);
             setAshaResult(null);
             setMerenResult(null);
             setFirstPartner(null);
@@ -253,7 +264,7 @@
               location: 'eastern slope',
               floor: ASHA_FLOOR,
               description: 'Older shepherd, weathered hands, watchful eyes. She\'s traded wool for decades and gives nothing away.',
-              personality: 'Patient and unreadable. Her responses are measured, her face reveals nothing.',
+              personality: 'Patient and deliberate. Her responses are measured.',
               getResponse: (offer, round) => {
                 const gap = offer - ASHA_FLOOR;
                 if (offer <= ASHA_FLOOR) {
@@ -281,8 +292,8 @@
               name: 'Meren',
               location: 'stone pens',
               floor: MEREN_FLOOR,
-              description: 'Younger, eager to prove himself. He\'s more reactive—you can see emotion flash across his face.',
-              personality: 'Easier to read, but quicker to frustration. His counter-offers feel personal, defensive.',
+              description: 'Younger shepherd, eager to prove himself.',
+              personality: 'More expressive. His counter-offers come quickly.',
               getResponse: (offer, round) => {
                 const gap = offer - MEREN_FLOOR;
                 if (offer <= MEREN_FLOOR) {
@@ -321,11 +332,16 @@
             },
             {
               id: 1,
-              narrative: "You arrive at the hills. Asha is tending her flock near the eastern slope. Meren is by the stone pens to the west. Both notice you and your basket of barley.\n\nYou can only negotiate with one at a time. Each negotiation takes time and energy—and might fail entirely.",
-              question: "Choose a trading partner and negotiate. Make offers until you reach a deal or the negotiation fails.\n\n🎯 Your goal: Get the most wool per sila of barley.\n⚠️ Your constraint: At least 2 mina per sila.",
+              narrative: "You arrive at the hills. Asha is tending her flock near the eastern slope. Meren is by the stone pens to the west. Both notice you and your basket of barley.\n\nYou can negotiate with either one. Each negotiation takes time and energy—and might fail entirely.",
+              question: "Choose a trading partner and negotiate. Make offers until you reach a deal.\n\n🎯 Your goal: Get the most wool per sila of barley.\n⚠️ Your constraint: At least 2 mina per sila.",
               type: "negotiation1",
               hints: ["You don't know their maximum. They're not going to tell you.", "Each counter-offer tells you something: at least they won't give more than that.", "Think about what you're learning with each exchange."],
-              evaluate: () => negotiationPhase === 'complete' || negotiationPhase === 'failed',
+              evaluate: () => {
+                // Only complete when we have an actual accepted deal (not pending, not failed)
+                const hasAshaDealt = ashaState && typeof ashaState === 'object' && ashaState.rate;
+                const hasMerenDealt = merenState && typeof merenState === 'object' && merenState.rate;
+                return hasAshaDealt || hasMerenDealt;
+              },
               answer: "Complete negotiation",
               explanation: ""
             },
@@ -370,7 +386,7 @@
                 return (lower.includes('4') || lower.includes('asha') || lower.includes('best') || lower.includes('most') || lower.includes('higher') || lower.includes('maximum'));
               },
               answer: "The best available rate (Asha's rate of 4 mina per sila)",
-              explanation: "Your barley is worth whatever gets you the most wool. That's Asha's rate: 4 mina per sila.\n\nThe \"value\" of your barley isn't some number attached to the grain itself. It's determined by the best exchange available to you. If you only knew about Meren, you'd think your barley was worth 3 mina per sila. Finding Asha—and negotiating successfully—revealed that it's actually worth more.\n\nThis is why search mattered in Tutorial 1.1. The more potential partners you find, the more likely you are to find the best terms. And the best terms determine the value of what you have.\n\n**But here's the twist:** Meren was easier to read. His reactions told you something. Asha gave nothing away. Yet Asha offered better terms. The \"easier\" negotiation wasn't the better deal."
+              explanation: "Your barley is worth whatever gets you the most wool. That's Asha's rate: 4 mina per sila.\n\nThe \"value\" of your barley isn't some number attached to the grain itself. It's determined by the best exchange available to you. If you only knew about Meren, you'd think your barley was worth 3 mina per sila. Finding Asha—and negotiating successfully—revealed that it's actually worth more.\n\nThis is why search mattered in Tutorial 1.1. The more potential partners you find, the more likely you are to find the best terms. And the best terms determine the value of what you have."
             }
           ];
 
@@ -394,8 +410,12 @@
             const result = { rate, rounds: negotiationRound };
             if (selectedPartner === 'asha') {
               setAshaResult(result);
+              setAshaState(result);
+              setAshaPendingOffer(null);
             } else {
               setMerenResult(result);
+              setMerenState(result);
+              setMerenPendingOffer(null);
             }
             setNegotiationPhase('complete');
           };
@@ -403,10 +423,47 @@
           const handleWalkAway = () => {
             if (selectedPartner === 'asha') {
               setAshaResult('failed');
+              setAshaState('declined');
             } else {
               setMerenResult('failed');
+              setMerenState('declined');
             }
             setNegotiationPhase('failed');
+          };
+          
+          const handleThinkAboutIt = (rate) => {
+            // Store this as a pending offer
+            const pendingOffer = { rate, rounds: negotiationRound };
+            if (selectedPartner === 'asha') {
+              setAshaPendingOffer(pendingOffer);
+              setAshaState('pending');
+            } else {
+              setMerenPendingOffer(pendingOffer);
+              setMerenState('pending');
+            }
+            // Return to partner selection
+            setSelectedPartner(null);
+            setNegotiationPhase('select');
+            setCurrentOffer('');
+            setPartnerResponse(null);
+            setNegotiationRound(1);
+          };
+          
+          const handleAcceptPendingOffer = (partner) => {
+            const pendingOffer = partner === 'asha' ? ashaPendingOffer : merenPendingOffer;
+            if (!pendingOffer) return;
+            
+            const result = { rate: pendingOffer.rate, rounds: pendingOffer.rounds };
+            if (partner === 'asha') {
+              setAshaResult(result);
+              setAshaState(result);
+              setAshaPendingOffer(null);
+            } else {
+              setMerenResult(result);
+              setMerenState(result);
+              setMerenPendingOffer(null);
+            }
+            setNegotiationPhase('complete');
           };
 
           const handleMakeAnother = () => {
@@ -470,23 +527,10 @@
             setShowIncorrectFeedback(false);
 
             if (step === 1) {
-              setStep(2);
+              // Skip Q2 (choice) and Q3 (negotiation2) - go straight to Q4 (reveal)
+              setStep(4);
               setNegotiationPhase('select');
               setSelectedPartner(null);
-            } else if (step === 2) {
-              if (wantsSecondNegotiation) {
-                const otherPartner = firstPartner === 'asha' ? 'meren' : 'asha';
-                setSelectedPartner(otherPartner);
-                setNegotiationRound(1);
-                setCurrentOffer('');
-                setPartnerResponse(null);
-                setNegotiationPhase('offer');
-                setStep(3);
-              } else {
-                setStep(4);
-              }
-            } else if (step === 3) {
-              setStep(4);
             } else if (step < 5) {
               setStep(step + 1);
             } else {
@@ -499,13 +543,18 @@
             if (!q) return '';
 
             if (q.type === 'negotiation1') {
-              const result = firstPartner === 'asha' ? ashaResult : merenResult;
-              const partner = characterProfiles[firstPartner];
-              if (result === 'failed') {
-                return `The negotiation failed. You learned something—${partner.name}'s final offer was ${partner.floor} mina per sila—but you walked away without a deal.\n\nYou've used time and energy. And there's still another potential partner...`;
-              } else {
-                return `You negotiated a deal: ${result.rate} mina of wool per sila of barley.\n\nBut was this the best you could do? You learned that ${partner.name} would accept ${result.rate}—but would they have given more? You can't know for certain. That information remained hidden.\n\nYou've used time and energy. And there's still another potential partner...`;
+              // Find the deal that was made
+              const hasAshaDeal = ashaState && typeof ashaState === 'object' && ashaState.rate;
+              const hasMerenDeal = merenState && typeof merenState === 'object' && merenState.rate;
+              
+              if (hasAshaDeal) {
+                const result = ashaState;
+                return `You made a deal with Asha: ${result.rate} mina of wool per sila of barley.\n\nBut was this the best you could do? The negotiation revealed that Asha would accept ${result.rate}—but would she have given more? That information remained hidden.`;
+              } else if (hasMerenDeal) {
+                const result = merenState;
+                return `You made a deal with Meren: ${result.rate} mina of wool per sila of barley.\n\nBut was this the best you could do? The negotiation revealed that Meren would accept ${result.rate}—but would he have given more? That information remained hidden.`;
               }
+              return "The negotiation is complete.";
             }
 
             if (q.type === 'choice') {
@@ -543,18 +592,53 @@
             }
 
             if (q.type === 'reveal') {
-              let explanation = '**The core insight:** The gap between what you got and what was possible represents the cost of information asymmetry. Neither party would reveal their true limits, so both had to spend rounds of offers and counter-offers—and sometimes fail entirely—just to produce information about acceptable terms.';
-
-              if (ashaResult && ashaResult !== 'failed' && ashaResult !== 'skipped' && ashaResult.rate === ASHA_FLOOR) {
-                explanation = `You achieved the best possible deal with Asha. But how many rounds did it take? Each round was a cost—time, energy, the risk of failure. And her unreadable face made it hard to know how you were doing.\n\n` + explanation;
-              } else if (ashaResult && ashaResult !== 'failed' && ashaResult !== 'skipped' && ashaResult.rate < ASHA_FLOOR) {
-                explanation = `You could have gotten ${ASHA_FLOOR - ashaResult.rate} more mina per sila from Asha. That information—that she would have given ${ASHA_FLOOR}—was hidden from you. And she had every incentive to keep it hidden.\n\n` + explanation;
-              } else if (merenResult && merenResult !== 'failed' && merenResult !== 'skipped' && merenResult.rate === MEREN_FLOOR && (ashaResult === 'failed' || ashaResult === 'skipped')) {
-                explanation = `You got Meren's best offer, but Asha would have given you more. Meren was easier to read—but that didn't mean he was offering better terms.\n\n` + explanation;
-              } else if (ashaResult === 'skipped' || merenResult === 'skipped') {
-                explanation = `You only negotiated with one partner. Without trying the other, you couldn't know who offered better terms.\n\n` + explanation;
+              // Get the actual deal
+              const hasAshaDeal = ashaState && typeof ashaState === 'object' && ashaState.rate;
+              const hasMerenDeal = merenState && typeof merenState === 'object' && merenState.rate;
+              const dealPartner = hasAshaDeal ? 'Asha' : (hasMerenDeal ? 'Meren' : null);
+              const dealResult = hasAshaDeal ? ashaState : (hasMerenDeal ? merenState : null);
+              const yourWool = dealResult ? dealResult.rate : 0;
+              const bestWool = ASHA_FLOOR;
+              
+              // Calculate total rounds
+              let totalRounds = 0;
+              if (ashaState === 'pending' && ashaPendingOffer) totalRounds += ashaPendingOffer.rounds;
+              else if (ashaState === 'declined') totalRounds += 3;
+              else if (hasAshaDeal) totalRounds += ashaState.rounds;
+              if (merenState === 'pending' && merenPendingOffer) totalRounds += merenPendingOffer.rounds;
+              else if (merenState === 'declined') totalRounds += 3;
+              else if (hasMerenDeal) totalRounds += merenState.rounds;
+              if (totalRounds === 0 && dealResult) totalRounds = dealResult.rounds;
+              
+              let explanation = `**The Cost of Hidden Information**\n\nLet's count what this negotiation cost you:\n\n`;
+              
+              // 1. Outcome Cost
+              explanation += `**1. Outcome Cost — the wool you didn't get**\n`;
+              explanation += `• You got: **${yourWool} mina of wool**\n`;
+              explanation += `• Best possible: **${bestWool} mina of wool** (Asha's true maximum)\n`;
+              if (yourWool >= bestWool) {
+                explanation += `• **You achieved the best possible outcome!**\n\n`;
+              } else {
+                explanation += `• Gap: ${bestWool - yourWool} mina of wool your family won't have\n\n`;
               }
-
+              
+              // 2. Process Cost
+              explanation += `**2. Process Cost — the time and energy spent negotiating**\n`;
+              explanation += `• Total rounds: **${totalRounds}**\n`;
+              explanation += `• Each round: offers, counter-offers, reading reactions, second-guessing\n`;
+              explanation += `• All to discover information each party was actively hiding\n\n`;
+              
+              // 3. Uncertainty Cost
+              explanation += `**3. Uncertainty Cost — you still don't know**\n`;
+              if (dealPartner === 'Asha') {
+                explanation += `• Was 4 really Asha's limit? Or would she have gone higher?\n`;
+              } else {
+                explanation += `• Was ${yourWool} really ${dealPartner}'s limit? Or would they have gone higher?\n`;
+              }
+              explanation += `• You'll never know for certain. They had every reason to hide it.\n\n`;
+              
+              explanation += `---\n\nThis is the **cost of information asymmetry**. Not just worse outcomes—but the exhausting process of extracting information that others are strategically concealing.`;
+              
               return explanation;
             }
 
@@ -613,39 +697,138 @@
             </div>
           );
 
-          const PartnerSelector = ({ onSelect }) => (
-            <div className="space-y-3">
-              <p className="text-sm text-gray-600 mb-3">Who do you want to negotiate with?</p>
-              {['asha', 'meren'].map(id => {
-                const p = characterProfiles[id];
-                const alreadyNegotiated = (id === 'asha' && ashaResult) || (id === 'meren' && merenResult);
-                return (
-                  <button
-                    key={id}
-                    onClick={() => onSelect(id)}
-                    disabled={alreadyNegotiated}
-                    className={`w-full p-4 rounded-lg border text-left transition-all ${alreadyNegotiated ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-blue-300 hover:bg-blue-50'}`}
-                    style={{ borderColor: colors.earthLight }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.sand }}>
-                        <Users className="w-6 h-6" style={{ color: colors.earth }} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-bold" style={{ color: colors.earthDark }}>{p.name}</div>
-                        <div className="text-xs text-gray-500">{p.location}</div>
-                        <div className="text-xs text-gray-600 mt-1">{p.description}</div>
-                      </div>
-                      {alreadyNegotiated && <CheckCircle className="w-5 h-5 text-green-500" />}
+          const PartnerSelector = ({ onSelect }) => {
+            const getPartnerStatus = (partner) => {
+              const state = partner === 'asha' ? ashaState : merenState;
+              const pendingOffer = partner === 'asha' ? ashaPendingOffer : merenPendingOffer;
+              
+              if (state === 'declined') return { label: 'Walked away', color: 'bg-gray-100 text-gray-500', disabled: true };
+              if (state === 'pending') return { label: `Pending: ${pendingOffer?.rate} mina`, color: 'bg-yellow-100 text-yellow-800', disabled: false, isPending: true };
+              if (state && typeof state === 'object') return { label: `Deal: ${state.rate} mina`, color: 'bg-green-100 text-green-800', disabled: true };
+              return { label: 'Available', color: 'bg-blue-100 text-blue-800', disabled: false };
+            };
+
+            const ashaStatus = getPartnerStatus('asha');
+            const merenStatus = getPartnerStatus('meren');
+            
+            const handlePartnerClick = (partnerId, status) => {
+              if (status.isPending) {
+                setSelectedPartner(partnerId);
+                setNegotiationPhase('pendingOffer');
+              } else {
+                onSelect(partnerId);
+              }
+            };
+
+            return (
+              <div className="space-y-3">
+                <p className="text-sm text-gray-600 mb-3">Who do you want to negotiate with?</p>
+                
+                {/* Asha */}
+                <button
+                  onClick={() => handlePartnerClick('asha', ashaStatus)}
+                  disabled={ashaStatus.disabled}
+                  className={`w-full p-4 rounded-lg border text-left transition-all ${ashaStatus.disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-blue-300 hover:bg-blue-50'}`}
+                  style={{ borderColor: colors.earthLight }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.sand }}>
+                      <Users className="w-6 h-6" style={{ color: colors.earth }} />
                     </div>
-                  </button>
-                );
-              })}
-            </div>
-          );
+                    <div className="flex-1">
+                      <div className="font-bold" style={{ color: colors.earthDark }}>{characterProfiles.asha.name}</div>
+                      <div className="text-xs text-gray-500">{characterProfiles.asha.location}</div>
+                      <div className="text-xs text-gray-600 mt-1">{characterProfiles.asha.description}</div>
+                      <span className={`inline-block mt-2 text-xs px-2 py-1 rounded-full ${ashaStatus.color}`}>
+                        {ashaStatus.label}
+                      </span>
+                      {ashaStatus.isPending && (
+                        <p className="text-xs mt-1 text-yellow-700">Click to accept or check other partner</p>
+                      )}
+                    </div>
+                    {ashaStatus.disabled && !ashaStatus.isPending && <CheckCircle className="w-5 h-5 text-green-500" />}
+                  </div>
+                </button>
+
+                {/* Meren */}
+                <button
+                  onClick={() => handlePartnerClick('meren', merenStatus)}
+                  disabled={merenStatus.disabled}
+                  className={`w-full p-4 rounded-lg border text-left transition-all ${merenStatus.disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-blue-300 hover:bg-blue-50'}`}
+                  style={{ borderColor: colors.earthLight }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: colors.sand }}>
+                      <Users className="w-6 h-6" style={{ color: colors.earth }} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-bold" style={{ color: colors.earthDark }}>{characterProfiles.meren.name}</div>
+                      <div className="text-xs text-gray-500">{characterProfiles.meren.location}</div>
+                      <div className="text-xs text-gray-600 mt-1">{characterProfiles.meren.description}</div>
+                      <span className={`inline-block mt-2 text-xs px-2 py-1 rounded-full ${merenStatus.color}`}>
+                        {merenStatus.label}
+                      </span>
+                      {merenStatus.isPending && (
+                        <p className="text-xs mt-1 text-yellow-700">Click to accept or check other partner</p>
+                      )}
+                    </div>
+                    {merenStatus.disabled && !merenStatus.isPending && <CheckCircle className="w-5 h-5 text-green-500" />}
+                  </div>
+                </button>
+              </div>
+            );
+          };
 
           const NegotiationInterface = () => {
             const partner = characterProfiles[selectedPartner];
+            
+            // Get other partner's status for context
+            const otherPartner = selectedPartner === 'asha' ? 'meren' : 'asha';
+            const otherState = otherPartner === 'asha' ? ashaState : merenState;
+            const otherPending = otherPartner === 'asha' ? ashaPendingOffer : merenPendingOffer;
+            const otherName = characterProfiles[otherPartner].name;
+
+            // Pending offer interface
+            if (negotiationPhase === 'pendingOffer') {
+              const pendingOffer = selectedPartner === 'asha' ? ashaPendingOffer : merenPendingOffer;
+              return (
+                <div className="space-y-4">
+                  <div className="p-4 rounded-xl" style={{ backgroundColor: colors.sand }}>
+                    <p className="italic text-gray-700">
+                      {partner.name} is still here, waiting. The offer of <strong>{pendingOffer.rate} mina</strong> still stands.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => handleAcceptPendingOffer(selectedPartner)}
+                      className="w-full py-3 rounded-lg font-medium text-white"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Accept {pendingOffer.rate} mina from {partner.name}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedPartner(null);
+                        setNegotiationPhase('select');
+                      }}
+                      className="w-full py-3 rounded-lg font-medium border-2 flex items-center justify-center gap-2"
+                      style={{ borderColor: colors.earthLight, color: colors.earthDark }}
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Return to Partner Selection
+                    </button>
+                  </div>
+                  
+                  {/* Other partner status */}
+                  {otherState === 'pending' && (
+                    <div className="p-3 rounded-lg text-sm bg-yellow-50 border border-yellow-200">
+                      <p className="text-yellow-800">💡 {otherName} also has a pending offer of <strong>{otherPending?.rate} mina</strong></p>
+                    </div>
+                  )}
+                </div>
+              );
+            }
 
             if (showBelowMinWarning) {
               return (
@@ -702,20 +885,43 @@
                       />
                       <span className="text-sm text-gray-600">mina of wool.</span>
                     </div>
-                    <button
-                      onClick={handleMakeOffer}
-                      disabled={!currentOffer || parseInt(currentOffer) < 1}
-                      className="mt-3 w-full text-white py-2 rounded-lg text-sm font-medium disabled:opacity-50"
-                      style={{ backgroundColor: colors.primary }}
-                    >
-                      Submit Offer
-                    </button>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => {
+                          setSelectedPartner(null);
+                          setNegotiationPhase('select');
+                          setCurrentOffer('');
+                        }}
+                        className="px-4 py-2 rounded-lg text-sm flex items-center gap-1"
+                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      >
+                        <ArrowLeft className="w-4 h-4" /> Back
+                      </button>
+                      <button
+                        onClick={handleMakeOffer}
+                        disabled={!currentOffer || parseInt(currentOffer) < 1}
+                        className="flex-1 text-white py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Submit Offer
+                      </button>
+                    </div>
                   </div>
 
                   <div className="text-xs text-gray-500 flex items-center gap-2">
                     <Target className="w-4 h-4" />
                     Remember: Your family needs at least 2 mina per sila
                   </div>
+                  
+                  {/* Show pending offer reminder if other partner has one */}
+                  {otherState === 'pending' && (
+                    <div className="p-3 rounded-lg text-sm bg-yellow-50 border border-yellow-200">
+                      <p className="text-yellow-800">
+                        💡 Remember: {otherName} has a pending offer of <strong>{otherPending?.rate} mina</strong>. 
+                        You can go back to accept it anytime.
+                      </p>
+                    </div>
+                  )}
                 </div>
               );
             }
@@ -723,6 +929,7 @@
             if (negotiationPhase === 'response' && partnerResponse) {
               const isAccept = partnerResponse.type === 'eager_accept' || partnerResponse.type === 'reluctant_accept';
               const isFinal = partnerResponse.type === 'final';
+              const isRejection = partnerResponse.type === 'counter';
 
               return (
                 <div className="space-y-4">
@@ -734,65 +941,118 @@
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-lg border-l-4" style={{
-                    backgroundColor: isAccept ? '#f0fff4' : '#fef3c7',
-                    borderColor: isAccept ? '#22c55e' : colors.accent
-                  }}>
-                    <p className="text-gray-700 italic">{partnerResponse.text}</p>
-                  </div>
+                  {/* Status banner - Rejection or Acceptance */}
+                  {isRejection ? (
+                    <div className="p-4 rounded-lg border-l-4" style={{ backgroundColor: '#fef2f2', borderColor: '#dc2626' }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-bold text-red-800">✗ OFFER REJECTED</span>
+                      </div>
+                      <p className="text-gray-700 italic">{partnerResponse.text}</p>
+                      {partnerResponse.counter && (
+                        <p className="mt-2 font-medium text-gray-800">
+                          Counter-offer: <strong>{partnerResponse.counter} mina</strong>
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-lg border-l-4" style={{
+                      backgroundColor: isAccept ? '#f0fff4' : '#fef3c7',
+                      borderColor: isAccept ? '#22c55e' : colors.accent
+                    }}>
+                      {isAccept && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <span className="font-bold text-green-800">✓ OFFER ACCEPTED</span>
+                        </div>
+                      )}
+                      <p className="text-gray-700 italic">{partnerResponse.text}</p>
+                    </div>
+                  )}
 
                   {isAccept ? (
                     <div className="p-4 rounded-lg bg-green-50 border border-green-200">
-                      <p className="font-bold text-green-800 mb-2">✓ Deal Reached!</p>
-                      <p className="text-green-700">Rate: {partnerResponse.rate} mina wool per sila barley</p>
-                      <button
-                        onClick={() => handleAccept(partnerResponse.rate)}
-                        className="mt-3 w-full py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700"
-                      >
-                        Confirm Deal
-                      </button>
+                      <p className="font-bold text-green-800 mb-2">Deal Available: {partnerResponse.rate} mina/sila</p>
+                      <div className="space-y-2">
+                        <button
+                          onClick={() => handleAccept(partnerResponse.rate)}
+                          className="w-full py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                        >
+                          Accept Deal
+                        </button>
+                        <button
+                          onClick={() => handleThinkAboutIt(partnerResponse.rate)}
+                          className="w-full py-2 rounded-lg text-sm font-medium border-2 flex items-center justify-center gap-2"
+                          style={{ borderColor: colors.accent, color: colors.earthDark }}
+                        >
+                          "Let me think about it" (check other partner)
+                        </button>
+                      </div>
                     </div>
                   ) : isFinal ? (
                     <div className="space-y-2">
                       <p className="text-sm font-medium" style={{ color: colors.earthDark }}>
                         Final offer: {partnerResponse.counter} mina per sila
                       </p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleAccept(partnerResponse.counter)}
-                          className="flex-1 py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700"
-                        >
-                          Accept ({partnerResponse.counter} mina/sila)
-                        </button>
-                        <button
-                          onClick={handleWalkAway}
-                          className="flex-1 py-2 rounded-lg text-sm font-medium bg-gray-200 hover:bg-gray-300"
-                          style={{ color: colors.earthDark }}
-                        >
-                          Walk Away
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => handleAccept(partnerResponse.counter)}
+                        className="w-full py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                      >
+                        Accept ({partnerResponse.counter} mina/sila)
+                      </button>
+                      <button
+                        onClick={() => handleThinkAboutIt(partnerResponse.counter)}
+                        className="w-full py-2 rounded-lg text-sm font-medium border-2 flex items-center justify-center gap-2"
+                        style={{ borderColor: colors.accent, color: colors.earthDark }}
+                      >
+                        "Let me think about it" (check other partner)
+                      </button>
+                      <button
+                        onClick={handleWalkAway}
+                        className="w-full py-2 rounded-lg text-sm font-medium bg-gray-200 hover:bg-gray-300"
+                        style={{ color: colors.earthDark }}
+                      >
+                        Walk Away (decline permanently)
+                      </button>
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <p className="text-sm font-medium" style={{ color: colors.earthDark }}>
-                        Counter-offer: {partnerResponse.counter} mina per sila
+                      <button
+                        onClick={() => handleAccept(partnerResponse.counter)}
+                        className="w-full py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                      >
+                        Accept ({partnerResponse.counter} mina/sila)
+                      </button>
+                      <button
+                        onClick={handleMakeAnother}
+                        className="w-full py-2 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      >
+                        Make New Offer
+                      </button>
+                      {/* Show return option if other partner has pending offer */}
+                      {otherState === 'pending' && (
+                        <button
+                          onClick={() => {
+                            setSelectedPartner(null);
+                            setNegotiationPhase('select');
+                            setCurrentOffer('');
+                            setPartnerResponse(null);
+                          }}
+                          className="w-full py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-300 flex items-center justify-center gap-2"
+                        >
+                          <ArrowLeft className="w-4 h-4" />
+                          Return to Partner Selection ({otherName} has {otherPending?.rate} mina pending)
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Pending offer reminder */}
+                  {otherState === 'pending' && !isFinal && !isAccept && (
+                    <div className="p-3 rounded-lg text-sm bg-yellow-50 border border-yellow-200">
+                      <p className="text-yellow-800">
+                        💡 Remember: {otherName} has a pending offer of <strong>{otherPending?.rate} mina</strong>.
                       </p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleAccept(partnerResponse.counter)}
-                          className="flex-1 py-2 rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700"
-                        >
-                          Accept ({partnerResponse.counter} mina/sila)
-                        </button>
-                        <button
-                          onClick={handleMakeAnother}
-                          className="flex-1 py-2 rounded-lg text-sm font-medium"
-                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                        >
-                          Make New Offer
-                        </button>
-                      </div>
                     </div>
                   )}
                 </div>
@@ -802,17 +1062,26 @@
             if (negotiationPhase === 'complete') {
               const result = selectedPartner === 'asha' ? ashaResult : merenResult;
               return (
-                <div className="p-4 rounded-lg bg-green-50 border border-green-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
-                    <span className="font-bold text-green-800">Deal Complete!</span>
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-green-50 border border-green-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle className="w-6 h-6 text-green-600" />
+                      <span className="font-bold text-green-800">Deal Complete!</span>
+                    </div>
+                    <p className="text-green-700">
+                      You agreed to trade at {result.rate} mina of wool per sila of barley with {partner.name}.
+                    </p>
+                    <p className="text-green-600 text-sm mt-1">
+                      Negotiation took {result.rounds} round{result.rounds > 1 ? 's' : ''}.
+                    </p>
                   </div>
-                  <p className="text-green-700">
-                    You agreed to trade at {result.rate} mina of wool per sila of barley with {partner.name}.
-                  </p>
-                  <p className="text-green-600 text-sm mt-1">
-                    Negotiation took {result.rounds} round{result.rounds > 1 ? 's' : ''}.
-                  </p>
+                  <button
+                    onClick={() => setShowExplanation(true)}
+                    className="w-full text-white py-2 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue
+                  </button>
                 </div>
               );
             }
@@ -871,61 +1140,106 @@
             );
           };
 
-          const RevealTable = () => (
-            <div className="space-y-4">
-              <div className="p-4 rounded-lg border-l-4" style={{ backgroundColor: '#fef3c7', borderColor: colors.accent }}>
-                <p className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>What they would have actually given you:</p>
-                <div className="space-y-1 text-sm">
-                  <p><strong>Asha's true maximum:</strong> <span className="text-green-700 font-bold">4 mina per sila</span></p>
-                  <p><strong>Meren's true maximum:</strong> <span className="text-orange-700 font-bold">3 mina per sila</span></p>
+          const RevealTable = () => {
+            // Get the actual deal that was made
+            const hasAshaDeal = ashaState && typeof ashaState === 'object' && ashaState.rate;
+            const hasMerenDeal = merenState && typeof merenState === 'object' && merenState.rate;
+            const dealPartner = hasAshaDeal ? 'asha' : (hasMerenDeal ? 'meren' : null);
+            const dealResult = hasAshaDeal ? ashaState : (hasMerenDeal ? merenState : null);
+            
+            // Calculate total rounds spent across all negotiations
+            const getTotalRounds = () => {
+              let total = 0;
+              if (ashaState === 'pending' && ashaPendingOffer) total += ashaPendingOffer.rounds;
+              else if (ashaState === 'declined') total += 3;
+              else if (hasAshaDeal) total += ashaState.rounds;
+              
+              if (merenState === 'pending' && merenPendingOffer) total += merenPendingOffer.rounds;
+              else if (merenState === 'declined') total += 3;
+              else if (hasMerenDeal) total += merenState.rounds;
+              
+              return total || (dealResult ? dealResult.rounds : 0);
+            };
+            
+            const totalRounds = getTotalRounds();
+            const bestPossible = ASHA_FLOOR; // 4 mina
+            const yourResult = dealResult ? dealResult.rate : 0;
+            
+            return (
+              <div className="space-y-4">
+                {/* Partner True Maximums Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b-2" style={{ borderColor: colors.earthLight }}>
+                        <th className="text-left p-3" style={{ color: colors.earthDark }}>Partner</th>
+                        <th className="text-left p-3" style={{ color: colors.earthDark }}>True Maximum</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b" style={{ borderColor: colors.earthLight }}>
+                        <td className="p-3 font-medium">Asha</td>
+                        <td className="p-3">
+                          <span className="inline-block px-3 py-1 rounded text-white font-bold text-sm" style={{ backgroundColor: '#22c55e' }}>4 mina</span>
+                          <span className="text-gray-500 text-xs ml-2">(Best available)</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-medium">Meren</td>
+                        <td className="p-3">
+                          <span className="inline-block px-3 py-1 rounded text-white font-bold text-sm" style={{ backgroundColor: '#f97316' }}>3 mina</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-                <p className="text-sm mt-2 italic text-gray-600">The best possible deal was with Asha—4 mina of wool for each sila of barley.</p>
+                
+                {/* Your Result Card */}
+                {dealResult && (
+                  <div className="p-4 rounded-lg border" style={{ borderColor: colors.earthLight }}>
+                    <h4 className="font-bold mb-2" style={{ color: colors.primary }}>Your Result</h4>
+                    <p className="text-sm"><strong>Partner:</strong> {dealPartner === 'asha' ? 'Asha' : 'Meren'}</p>
+                    <p className="text-sm"><strong>Wool received:</strong> {yourResult} mina</p>
+                    <p className="text-sm"><strong>Total rounds:</strong> {totalRounds}</p>
+                  </div>
+                )}
+                
+                {/* Outcome Comparison Bar */}
+                <div>
+                  <h4 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>Outcome Comparison</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs w-16 text-gray-600">Best:</span>
+                      <div className="flex-1 h-6 rounded overflow-hidden bg-gray-100">
+                        <div className="h-full rounded" style={{ width: '100%', backgroundColor: '#22c55e' }}></div>
+                      </div>
+                      <span className="text-sm font-bold w-16">{bestPossible} mina</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs w-16 text-gray-600">You got:</span>
+                      <div className="flex-1 h-6 rounded overflow-hidden bg-gray-100">
+                        <div className="h-full rounded" style={{ width: `${(yourResult / bestPossible) * 100}%`, backgroundColor: yourResult >= bestPossible ? '#22c55e' : '#f97316' }}></div>
+                      </div>
+                      <span className="text-sm font-bold w-16">{yourResult} mina</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Rounds Spent */}
+                <div>
+                  <h4 className="font-bold text-sm mb-2" style={{ color: colors.earthDark }}>Rounds Spent</h4>
+                  <div className="flex gap-1 mb-2">
+                    {Array.from({ length: totalRounds }, (_, i) => (
+                      <div key={i} className="w-8 h-8 rounded flex items-center justify-center text-white text-sm font-bold" style={{ backgroundColor: colors.primary }}>
+                        {i + 1}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs italic text-gray-600">With perfect information: 1 round. Walk to Asha, offer 4, done.</p>
+                </div>
               </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse">
-                  <thead>
-                    <tr className="border-b-2" style={{ borderColor: colors.earthLight }}>
-                      <th className="text-left p-2" style={{ color: colors.earthDark }}>Partner</th>
-                      <th className="text-center p-2" style={{ color: colors.earthDark }}>Best Possible</th>
-                      <th className="text-center p-2" style={{ color: colors.earthDark }}>Your Result</th>
-                      <th className="text-center p-2" style={{ color: colors.earthDark }}>Gap</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b" style={{ borderColor: colors.earthLight }}>
-                      <td className="p-2 font-medium">Asha</td>
-                      <td className="p-2 text-center text-green-700 font-bold">4 mina/sila</td>
-                      <td className="p-2 text-center">
-                        {ashaResult === 'failed' ? <span className="text-red-600">Failed</span> :
-                         ashaResult === 'skipped' ? <span className="text-gray-400">Not tried</span> :
-                         <span>{ashaResult.rate} mina/sila</span>}
-                      </td>
-                      <td className="p-2 text-center">
-                        {ashaResult === 'failed' || ashaResult === 'skipped' ? '—' :
-                         ASHA_FLOOR - ashaResult.rate === 0 ? <span className="text-green-600">✓ Best</span> :
-                         <span className="text-red-600">-{ASHA_FLOOR - ashaResult.rate}</span>}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="p-2 font-medium">Meren</td>
-                      <td className="p-2 text-center text-orange-700 font-bold">3 mina/sila</td>
-                      <td className="p-2 text-center">
-                        {merenResult === 'failed' ? <span className="text-red-600">Failed</span> :
-                         merenResult === 'skipped' ? <span className="text-gray-400">Not tried</span> :
-                         <span>{merenResult.rate} mina/sila</span>}
-                      </td>
-                      <td className="p-2 text-center">
-                        {merenResult === 'failed' || merenResult === 'skipped' ? '—' :
-                         MEREN_FLOOR - merenResult.rate === 0 ? <span className="text-green-600">✓ Best</span> :
-                         <span className="text-red-600">-{MEREN_FLOOR - merenResult.rate}</span>}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          );
+            );
+          };
 
           if (phase === 'intro') return (
             <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
@@ -1016,7 +1330,7 @@
                       <button onClick={() => setShowGlossary(true)} className="px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
                         <Book className="w-3 h-3" /> Glossary
                       </button>
-                      <span className="text-xs text-gray-500 ml-auto self-center">~12 min • 6 questions</span>
+                      <span className="text-xs text-gray-500 ml-auto self-center">~10 min • 4 questions</span>
                     </div>
 
                     <button onClick={() => setStep(0)} className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.earth }}>
@@ -1133,10 +1447,10 @@
               <div className="p-4 max-w-2xl mx-auto">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
                   <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
-                    <span className="text-xs font-medium text-gray-600">Question {step + 1} of 6</span>
+                    <span className="text-xs font-medium text-gray-600">Question {step <= 1 ? step + 1 : step - 1} of 4</span>
                     <div className="flex gap-1">
-                      {[0,1,2,3,4,5].map(i => (
-                        <div key={i} className={`w-6 h-1.5 rounded ${i < step ? 'bg-green-500' : i === step ? 'bg-blue-500' : 'bg-gray-200'}`} style={i === step ? { backgroundColor: colors.primary } : {}} />
+                      {[0,1,4,5].map((qId, i) => (
+                        <div key={qId} className={`w-6 h-1.5 rounded ${qId < step ? 'bg-green-500' : qId === step ? 'bg-blue-500' : 'bg-gray-200'}`} style={qId === step ? { backgroundColor: colors.primary } : {}} />
                       ))}
                     </div>
                     <div className="flex items-center gap-2">
