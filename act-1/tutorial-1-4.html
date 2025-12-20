@@ -461,6 +461,26 @@
         window.scrollTo(0, 0);
       };
 
+      // Navigate to previous step
+      const prevStep = () => {
+        playContinueClick();
+        const currentIndex = phaseOrder.indexOf(phase);
+        if (currentIndex > 0) {
+          setPhase(phaseOrder[currentIndex - 1]);
+        }
+        window.scrollTo(0, 0);
+      };
+
+      // Navigate to next step
+      const nextStep = () => {
+        playContinueClick();
+        const currentIndex = phaseOrder.indexOf(phase);
+        if (currentIndex < phaseOrder.length - 1) {
+          setPhase(phaseOrder[currentIndex + 1]);
+        }
+        window.scrollTo(0, 0);
+      };
+
       // Kira trade animation
       const startKiraAnimation = () => {
         playContinueClick();
@@ -917,9 +937,13 @@
               )}
             </div>
             
-            <ContinueButton onClick={() => setPhase('phase1')}>
-              Begin Tutorial
-            </ContinueButton>
+            <button
+              onClick={() => { playContinueClick(); setPhase('phase1'); window.scrollTo(0, 0); }}
+              className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all"
+              style={{ backgroundColor: colors.primary }}
+            >
+              Begin Tutorial <ChevronRightIcon />
+            </button>
           </div>
         </div>
       );
@@ -987,15 +1011,24 @@
                     className="w-full p-3 border rounded-lg text-sm resize-none mb-3"
                     style={{ borderColor: colors.earthLight }}
                   />
-                  <button
-                    onClick={evaluateQ1}
-                    disabled={q1Answer.trim().length < 2}
-                    className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
-                    style={{ backgroundColor: colors.primary }}
-                  >
-                    Check
-                  </button>
-                  
+                  <div className="flex gap-3">
+                    <button
+                      onClick={prevStep}
+                      className="px-4 py-2 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      onClick={evaluateQ1}
+                      disabled={q1Answer.trim().length < 2}
+                      className="flex-1 py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Submit
+                    </button>
+                  </div>
+
                   {!q1Submitted && <HintDisplay attempts={q1Attempts} hints={q1Hints} />}
                 </>
               )}
@@ -1022,10 +1055,23 @@
                     Maybe someone who trades here every day can see patterns you can't. Let's watch and find out.
                   </p>
                 </InsightPanel>
-                
-                <ContinueButton onClick={() => setPhase('phase2')}>
-                  Continue
-                </ContinueButton>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={nextStep}
+                    className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue <ChevronRightIcon />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -1051,13 +1097,22 @@
             
             {/* Watch Kira's Trades */}
             {!showKiraTrades && (
-              <button
-                onClick={startKiraAnimation}
-                className="w-full py-4 rounded-lg font-bold text-white mb-4 flex items-center justify-center gap-2 btn-primary transition-all"
-                style={{ backgroundColor: colors.primary }}
-              >
-                Watch Kira's Trades <ArrowRightIcon />
-              </button>
+              <>
+                <button
+                  onClick={startKiraAnimation}
+                  className="w-full py-4 rounded-lg font-bold text-white mb-4 flex items-center justify-center gap-2 btn-primary transition-all"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Watch Kira's Trades <ArrowRightIcon />
+                </button>
+                <button
+                  onClick={prevStep}
+                  className="w-full py-3 rounded-lg text-sm font-medium mb-4"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                >
+                  ← Back
+                </button>
+              </>
             )}
             
             {showKiraTrades && (
@@ -1167,15 +1222,24 @@
                       className="w-full p-3 border rounded-lg text-sm resize-none mb-3"
                       style={{ borderColor: colors.earthLight }}
                     />
-                    <button
-                      onClick={evaluateQ2}
-                      disabled={q2Answer.trim().length < 5}
-                      className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
-                      style={{ backgroundColor: colors.primary }}
-                    >
-                      Check
-                    </button>
-                    
+                    <div className="flex gap-3">
+                      <button
+                        onClick={prevStep}
+                        className="px-4 py-2 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        onClick={evaluateQ2}
+                        disabled={q2Answer.trim().length < 5}
+                        className="flex-1 py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Submit
+                      </button>
+                    </div>
+
                     <HintDisplay attempts={q2Attempts} hints={q2Hints} />
                   </>
                 )}
@@ -1206,10 +1270,23 @@
                     Kira notices you watching. She gives a slight nod.
                   </p>
                 </InsightPanel>
-                
-                <ContinueButton onClick={() => setPhase('phase3')}>
-                  Continue
-                </ContinueButton>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={nextStep}
+                    className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue <ChevronRightIcon />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -1353,15 +1430,24 @@
                 {/* Submit */}
                 {!q3Submitted && (
                   <>
-                    <button
-                      onClick={evaluateQ3}
-                      disabled={!giveValue || !receiveValue || !dealAssessment}
-                      className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
-                      style={{ backgroundColor: colors.primary }}
-                    >
-                      Check
-                    </button>
-                    
+                    <div className="flex gap-3">
+                      <button
+                        onClick={prevStep}
+                        className="px-4 py-2 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        onClick={evaluateQ3}
+                        disabled={!giveValue || !receiveValue || !dealAssessment}
+                        className="flex-1 py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Submit
+                      </button>
+                    </div>
+
                     <HintDisplay attempts={q3Attempts} hints={q3Hints} />
                   </>
                 )}
@@ -1389,10 +1475,23 @@
                     "The common standard doesn't change what things can get you," Kira says. "It just lets you see what was always there."
                   </p>
                 </InsightPanel>
-                
-                <ContinueButton onClick={() => setPhase('phase4')}>
-                  Continue
-                </ContinueButton>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={nextStep}
+                    className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue <ChevronRightIcon />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -1449,15 +1548,24 @@
                     className="w-full p-3 border rounded-lg text-sm resize-none mb-3"
                     style={{ borderColor: colors.earthLight }}
                   />
-                  <button
-                    onClick={evaluateQ4}
-                    disabled={q4Answer.trim().length < 10}
-                    className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
-                    style={{ backgroundColor: colors.primary }}
-                  >
-                    Check
-                  </button>
-                  
+                  <div className="flex gap-3">
+                    <button
+                      onClick={prevStep}
+                      className="px-4 py-2 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      onClick={evaluateQ4}
+                      disabled={q4Answer.trim().length < 10}
+                      className="flex-1 py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Submit
+                    </button>
+                  </div>
+
                   <HintDisplay attempts={q4Attempts} hints={q4Hints} />
                 </>
               )}
@@ -1484,16 +1592,29 @@
                     Arbitrage knits all the exchange rates together into a consistent structure. The common standard lets you see that structure — but arbitrage is what creates and maintains it.
                   </p>
                 </InsightPanel>
-                
+
                 <KeyInsightBox>
                   <p>
                     The rates <em>have</em> to line up because if they don't, someone will exploit the gap until they do. That's why we can talk about "the" exchange relationship between any two goods — because if multiple inconsistent rates existed, they'd collapse into one.
                   </p>
                 </KeyInsightBox>
-                
-                <ContinueButton onClick={() => setPhase('phase5')}>
-                  Continue
-                </ContinueButton>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={nextStep}
+                    className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue <ChevronRightIcon />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -1604,15 +1725,24 @@
               
               {!q5Submitted && q5Choice && (
                 <>
-                  <button
-                    onClick={evaluateQ5}
-                    disabled={!q5Choice || q5Explanation.trim().length < 5}
-                    className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
-                    style={{ backgroundColor: colors.primary }}
-                  >
-                    Check
-                  </button>
-                  
+                  <div className="flex gap-3">
+                    <button
+                      onClick={prevStep}
+                      className="px-4 py-2 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      onClick={evaluateQ5}
+                      disabled={!q5Choice || q5Explanation.trim().length < 5}
+                      className="flex-1 py-3 rounded-lg font-bold text-white disabled:opacity-50 transition-all"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Submit
+                    </button>
+                  </div>
+
                   <HintDisplay attempts={q5Attempts} hints={q5Hints} />
                 </>
               )}
@@ -1640,7 +1770,7 @@
                     Those are different trades, not one number.
                   </p>
                 </InsightPanel>
-                
+
                 <KeyInsightBox>
                   <p className="mb-2">
                     Every good's "worth" is relative — what can this get me in terms of <em>that</em>?
@@ -1649,10 +1779,23 @@
                     The common standard is conventional, not fundamental. It picks one good as the reference point so comparisons are easier. But the underlying exchange relationships exist independently of which standard you choose.
                   </p>
                 </KeyInsightBox>
-                
-                <ContinueButton onClick={() => setPhase('coda')}>
-                  Continue
-                </ContinueButton>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={nextStep}
+                    className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue <ChevronRightIcon />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -1690,10 +1833,23 @@
                 She doesn't say more. But you're left wondering: what happens when the standard itself moves?
               </p>
             </NarrativeBlock>
-            
-            <ContinueButton onClick={() => setPhase('complete')}>
-              Complete Tutorial
-            </ContinueButton>
+
+            <div className="flex gap-3">
+              <button
+                onClick={prevStep}
+                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+              >
+                ← Back
+              </button>
+              <button
+                onClick={nextStep}
+                className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Complete Tutorial <ChevronRightIcon />
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -1791,13 +1947,13 @@
               Next Tutorial: The Bountiful Harvest <ChevronRightIcon />
             </a>
             
-            {/* Restart */}
+            {/* Back button */}
             <button
-              onClick={handleRestart}
+              onClick={prevStep}
               className="w-full py-3 rounded-lg font-bold border-2 flex items-center justify-center gap-2 transition-all hover:bg-gray-50"
               style={{ borderColor: colors.primary, color: colors.primary }}
             >
-              <RefreshIcon /> Restart Tutorial
+              <ChevronLeftIcon /> Back
             </button>
           </div>
         </div>

@@ -608,6 +608,40 @@
         }
       };
 
+      // Previous question/section handler
+      const handlePrev = () => {
+        playContinueClick();
+        if (showFeedback) {
+          // If showing feedback, go back to answer input
+          setShowFeedback(false);
+          setAttempts(0);
+        } else if (currentQuestion > 0) {
+          // Go to previous question
+          setCurrentQuestion(currentQuestion - 1);
+          setAnswer('');
+          setShowFeedback(false);
+          setAttempts(0);
+          setShowHint(0);
+        } else {
+          // Go back to intro
+          setPhase('intro');
+        }
+      };
+
+      // Back from bridge handler
+      const handleBackFromBridge = () => {
+        playContinueClick();
+        setPhase('questions');
+        setCurrentQuestion(questions.length - 1);
+        setShowFeedback(true);
+      };
+
+      // Back from complete handler
+      const handleBackFromComplete = () => {
+        playContinueClick();
+        setPhase('bridge');
+      };
+
       // Dev skip handler
       const handleDevSkip = () => {
         const questionData = questions[currentQuestion];
@@ -701,13 +735,22 @@
             </p>
           </div>
 
-          <button
-            className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-white"
-            style={{ backgroundColor: colors.primary }}
-            onClick={() => { playContinueClick(); setPhase('questions'); }}
-          >
-            Begin Review <ChevronRight className="w-5 h-5" />
-          </button>
+          <div className="flex gap-3">
+            <button
+              className="flex-1 py-3 rounded-lg text-sm font-medium"
+              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+              onClick={() => { playContinueClick(); window.history.back(); }}
+            >
+              ← Back
+            </button>
+            <button
+              className="flex-1 py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-white"
+              style={{ backgroundColor: colors.primary }}
+              onClick={() => { playContinueClick(); setPhase('questions'); }}
+            >
+              Begin Review <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       );
 
@@ -787,7 +830,14 @@
                   style={{ borderColor: colors.earthLight }}
                 />
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 mb-3">
+                  <button
+                    onClick={handlePrev}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
                   <button
                     onClick={handleSubmit}
                     disabled={answer.length < 10}
@@ -796,18 +846,18 @@
                   >
                     Submit Answer
                   </button>
-
-                  {showHint < q.hints.length && (
-                    <button
-                      onClick={() => setShowHint(showHint + 1)}
-                      className="px-4 py-3 rounded-lg border-2 flex items-center gap-2"
-                      style={{ borderColor: colors.earthLight, color: colors.earth }}
-                    >
-                      <HelpCircle className="w-5 h-5" />
-                      Hint
-                    </button>
-                  )}
                 </div>
+
+                {showHint < q.hints.length && (
+                  <button
+                    onClick={() => setShowHint(showHint + 1)}
+                    className="w-full py-3 rounded-lg border-2 flex items-center justify-center gap-2"
+                    style={{ borderColor: colors.earthLight, color: colors.earth }}
+                  >
+                    <HelpCircle className="w-5 h-5" />
+                    Hint
+                  </button>
+                )}
 
                 {attempts > 0 && !showFeedback && (
                   <p className="text-sm text-center mt-2" style={{ color: colors.earth }}>
@@ -850,14 +900,23 @@
                   </FlagPanel>
                 )}
 
-                <button
-                  onClick={handleNext}
-                  className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-white"
-                  style={{ backgroundColor: colors.primary }}
-                >
-                  {currentQuestion < questions.length - 1 ? 'Next Question' : 'Continue'}
-                  <ChevronRight className="w-5 h-5" />
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handlePrev}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="flex-1 py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-white"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    {currentQuestion < questions.length - 1 ? 'Next Question' : 'Continue'}
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -915,13 +974,22 @@
             </p>
           </div>
 
-          <button
-            onClick={() => { playContinueClick(); saveResults(); setPhase('complete'); }}
-            className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-white"
-            style={{ backgroundColor: colors.primary }}
-          >
-            Complete Act II <ChevronRight className="w-5 h-5" />
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleBackFromBridge}
+              className="flex-1 py-3 rounded-lg text-sm font-medium"
+              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+            >
+              ← Back
+            </button>
+            <button
+              onClick={() => { playContinueClick(); saveResults(); setPhase('complete'); }}
+              className="flex-1 py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-white"
+              style={{ backgroundColor: colors.primary }}
+            >
+              Complete Act II <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       );
 
@@ -1048,13 +1116,22 @@
               </p>
             </div>
 
-            <button
-              className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2"
-              style={{ backgroundColor: colors.earth, color: 'white' }}
-              onClick={handleRestart}
-            >
-              <RefreshCw className="w-5 h-5" /> Restart Review
-            </button>
+            <div className="flex gap-3">
+              <button
+                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                onClick={handleBackFromComplete}
+              >
+                ← Back
+              </button>
+              <button
+                className="flex-1 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.earth, color: 'white' }}
+                onClick={handleRestart}
+              >
+                <RefreshCw className="w-5 h-5" /> Restart Review
+              </button>
+            </div>
           </div>
         );
       };

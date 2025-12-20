@@ -594,6 +594,20 @@
         setShowHistoricalNote(false);
       };
 
+      const prevStep = () => {
+        if (step > 0) {
+          setStep(step - 1);
+          window.scrollTo(0, 0);
+        } else {
+          const currentIndex = phaseOrder.indexOf(phase);
+          if (currentIndex > 0) {
+            setPhase(phaseOrder[currentIndex - 1]);
+            setStep(0);
+            window.scrollTo(0, 0);
+          }
+        }
+      };
+
       // Q1: Planning calculation (3330)
       const handleQ1Submit = () => {
         const normalized = q1Answer.replace(/,/g, '').replace(/\s*garu\s*/gi, '').trim();
@@ -1108,9 +1122,22 @@
                 </div>
 
                 {q1Submitted && (
-                  <ContinueButton onClick={() => setStep(1)}>
-                    Continue
-                  </ContinueButton>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={prevStep}
+                      className="flex-1 py-3 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      onClick={() => { playContinueClick(); setStep(1); }}
+                      className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Continue <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
                 )}
               </>
             )}
@@ -1129,9 +1156,22 @@
                   </p>
                 </DialogueBlock>
 
-                <ContinueButton onClick={() => { setStep(0); setPhase('receivables'); }}>
-                  Continue
-                </ContinueButton>
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={() => { playContinueClick(); setStep(0); setPhase('receivables'); }}
+                    className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -1209,9 +1249,22 @@
                 </div>
 
                 {q2Submitted && (
-                  <ContinueButton onClick={() => setStep(1)}>
-                    Continue
-                  </ContinueButton>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={prevStep}
+                      className="flex-1 py-3 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      onClick={() => { playContinueClick(); setStep(1); }}
+                      className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Continue <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
                 )}
               </>
             )}
@@ -1249,9 +1302,22 @@
                   </p>
                 </InsightPanel>
 
-                <ContinueButton onClick={() => { setStep(0); setPhase('payables'); }}>
-                  Continue
-                </ContinueButton>
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={() => { playContinueClick(); setStep(0); setPhase('payables'); }}
+                    className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -1325,9 +1391,22 @@
                 </div>
 
                 {q3Submitted && (
-                  <ContinueButton onClick={() => setStep(1)}>
-                    Continue
-                  </ContinueButton>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={prevStep}
+                      className="flex-1 py-3 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      onClick={() => { playContinueClick(); setStep(1); }}
+                      className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Continue <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
                 )}
               </>
             )}
@@ -1368,9 +1447,22 @@
                   </p>
                 </InsightPanel>
 
-                <ContinueButton onClick={() => { setStep(0); setPhase('cross-collection'); }}>
-                  Continue
-                </ContinueButton>
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={() => { playContinueClick(); setStep(0); setPhase('cross-collection'); }}
+                    className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -1524,9 +1616,22 @@
                       </p>
                     </InsightPanel>
 
-                    <ContinueButton onClick={() => { setStep(0); setPhase('cross-payment'); }}>
-                      Continue
-                    </ContinueButton>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={prevStep}
+                        className="flex-1 py-3 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        onClick={() => { playContinueClick(); setStep(0); setPhase('cross-payment'); }}
+                        className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
                   </>
                 )}
               </>
@@ -1682,9 +1787,22 @@
                       </p>
                     </InsightPanel>
 
-                    <ContinueButton onClick={() => { setStep(0); setPhase('pattern'); }}>
-                      Continue
-                    </ContinueButton>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={prevStep}
+                        className="flex-1 py-3 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        onClick={() => { playContinueClick(); setStep(0); setPhase('pattern'); }}
+                        className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Continue <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
                   </>
                 )}
               </>
@@ -1810,9 +1928,22 @@
                   </p>
                 </InsightPanel>
 
-                <ContinueButton onClick={() => { setStep(0); setPhase('answer-king'); }}>
-                  Continue
-                </ContinueButton>
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={() => { playContinueClick(); setStep(0); setPhase('answer-king'); }}
+                    className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -1887,9 +2018,22 @@
               "The king can see at a glance: 3,000 garu now, plus 530 promised to us, minus 200 we've promised to others. And as each promise is kept, the tablets will show it—not as a calculation in someone's head, but as marks on clay that anyone can verify."
             </DialogueBlock>
 
-            <ContinueButton onClick={() => { setStep(0); setPhase('reflection'); }}>
-              Continue
-            </ContinueButton>
+            <div className="flex gap-3">
+              <button
+                onClick={prevStep}
+                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+              >
+                ← Back
+              </button>
+              <button
+                onClick={() => { playContinueClick(); setStep(0); setPhase('reflection'); }}
+                className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Continue <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -2013,9 +2157,22 @@
                   </ul>
                 </div>
 
-                <ContinueButton onClick={() => { setStep(0); setPhase('complete'); }}>
-                  Continue
-                </ContinueButton>
+                <div className="flex gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    onClick={() => { playContinueClick(); setStep(0); setPhase('complete'); }}
+                    className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                    style={{ backgroundColor: colors.primary }}
+                  >
+                    Continue <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -2067,9 +2224,22 @@
               </p>
             </div>
 
-            <ContinueButton onClick={() => window.location.href = 'act-2-review.html'}>
-              Continue to Act 2 Review
-            </ContinueButton>
+            <div className="flex gap-3">
+              <button
+                onClick={prevStep}
+                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+              >
+                ← Back
+              </button>
+              <button
+                onClick={() => { playContinueClick(); window.location.href = 'act-2-review.html'; }}
+                className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+              >
+                Continue to Act 2 Review <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       );

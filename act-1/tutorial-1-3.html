@@ -519,6 +519,31 @@
             window.scrollTo(0, 0);
           };
 
+          const prevStep = () => {
+            setAnswer('');
+            setShowExplanation(false);
+            setHintIndex(0);
+            setAttemptCount(0);
+            setShowIncorrectFeedback(false);
+
+            if (step === 2) {
+              // From pattern question, go back to observation
+              setStep('observe');
+            } else if (step === 'observe') {
+              // From observation, go back to interrupted negotiation
+              setStep(1);
+              setShowInterruption(true);
+            } else if (step === 0) {
+              // From first question, go back to welcome
+              setStep(-1);
+            } else if (step > 0) {
+              setStep(step - 1);
+            } else {
+              setPhase('intro');
+            }
+            window.scrollTo(0, 0);
+          };
+
           const getExplanation = () => {
             const q = questions.find(q => q.id === step);
             if (!q) return '';
@@ -826,9 +851,14 @@
                       <span className="text-xs text-gray-500 ml-auto self-center">~12 min • 6 questions</span>
                     </div>
 
-                    <button onClick={() => { setStep(0); window.scrollTo(0, 0); }} className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.earth }}>
-                      Enter the Market <ChevronRight className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={prevStep} className="flex-1 py-3 rounded-lg text-sm font-medium" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                        ← Back
+                      </button>
+                      <button onClick={() => { setStep(0); window.scrollTo(0, 0); }} className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.earth }}>
+                        Enter the Market <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -930,13 +960,22 @@
                               You didn't negotiate with anyone. You didn't even speak. But now you know what wool is trading for.
                             </p>
 
-                            <button
-                              onClick={nextStep}
-                              className="w-full mt-4 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2"
-                              style={{ backgroundColor: colors.primary }}
-                            >
-                              Continue <ChevronRight className="w-4 h-4" />
-                            </button>
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                onClick={prevStep}
+                                className="flex-1 py-2 rounded-lg text-sm font-medium"
+                                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                              >
+                                ← Back
+                              </button>
+                              <button
+                                onClick={nextStep}
+                                className="flex-1 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2"
+                                style={{ backgroundColor: colors.primary }}
+                              >
+                                Continue <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1016,13 +1055,22 @@
                         </p>
                       </div>
 
-                      <button
-                        onClick={handleRestart}
-                        className="w-full text-white font-bold py-3 rounded-lg hover:opacity-90"
-                        style={{ backgroundColor: colors.primary }}
-                      >
-                        Restart Tutorial
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { setPhase('tutorial'); setStep(5); window.scrollTo(0, 0); }}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </button>
+                        <button
+                          onClick={handleRestart}
+                          className="flex-1 text-white font-bold py-3 rounded-lg hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Restart Tutorial
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1178,6 +1226,13 @@
                           )}
 
                           <div className="flex gap-2">
+                            <button
+                              onClick={prevStep}
+                              className="px-4 py-2 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
                             {hintIndex < q.hints.length && (
                               <button
                                 onClick={() => setHintIndex(hintIndex + 1)}
@@ -1201,24 +1256,42 @@
 
                       {/* Submit for negotiate after interruption */}
                       {q.type === 'negotiate' && showInterruption && !showExplanation && (
-                        <button
-                          onClick={() => setShowExplanation(true)}
-                          className="w-full text-white py-2 rounded-lg text-sm font-medium mt-4"
-                          style={{ backgroundColor: colors.primary }}
-                        >
-                          Continue
-                        </button>
+                        <div className="flex gap-2 mt-4">
+                          <button
+                            onClick={prevStep}
+                            className="flex-1 py-2 rounded-lg text-sm font-medium"
+                            style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                          >
+                            ← Back
+                          </button>
+                          <button
+                            onClick={() => setShowExplanation(true)}
+                            className="flex-1 text-white py-2 rounded-lg text-sm font-medium"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Continue
+                          </button>
+                        </div>
                       )}
 
                       {/* Submit for choose */}
                       {q.type === 'choose' && selectedTrader && !showExplanation && (
-                        <button
-                          onClick={() => setShowExplanation(true)}
-                          className="w-full text-white py-2 rounded-lg text-sm font-medium"
-                          style={{ backgroundColor: colors.primary }}
-                        >
-                          Confirm Trade with {woolSellers.find(t => t.id === selectedTrader)?.name}
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={prevStep}
+                            className="flex-1 py-2 rounded-lg text-sm font-medium"
+                            style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                          >
+                            ← Back
+                          </button>
+                          <button
+                            onClick={() => setShowExplanation(true)}
+                            className="flex-1 text-white py-2 rounded-lg text-sm font-medium"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Confirm Trade with {woolSellers.find(t => t.id === selectedTrader)?.name}
+                          </button>
+                        </div>
                       )}
 
                       {/* Explanation */}
@@ -1239,13 +1312,22 @@
                             </p>
                             <p className="text-gray-700 text-sm">{renderMarkdown(getExplanation())}</p>
                           </div>
-                          <button
-                            onClick={nextStep}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Continue <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={nextStep}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Continue <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>

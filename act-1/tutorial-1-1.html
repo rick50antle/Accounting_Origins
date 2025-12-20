@@ -581,6 +581,31 @@
             window.scrollTo(0, 0);
           };
 
+          const prevStep = () => {
+            setAnswer('');
+            setShowExplanation(false);
+            setHintIndex(0);
+            setAttemptCount(0);
+            setShowIncorrectFeedback(false);
+            setFeedbackMessage('');
+            setCurrentLocation(null);
+            if (phase === 'complete') {
+              setPhase('tutorial');
+              setStep(6);
+            } else if (step === 4) {
+              setStep('note');
+            } else if (step === 'note') {
+              setStep(3);
+            } else if (step === 0) {
+              setStep(-1);
+            } else if (step === -1) {
+              setPhase('intro');
+            } else if (typeof step === 'number' && step > 0) {
+              setStep(step - 1);
+            }
+            window.scrollTo(0, 0);
+          };
+
           const getExplanation = () => {
             const q = questions.find(q => q.id === step);
             if (!q) return '';
@@ -866,9 +891,14 @@
                         <p className="text-sm" style={{ color: colors.primary }}>This hints at why writing will matter so much when it finally arrives.</p>
                       </div>
                     </div>
-                    <button onClick={nextStep} className="w-full mt-5 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
-                      Continue <ChevronRight className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-3 mt-5">
+                      <button onClick={prevStep} className="flex-1 py-3 rounded-lg text-sm font-medium" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                        ← Back
+                      </button>
+                      <button onClick={nextStep} className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -899,9 +929,14 @@
                         <p className="text-sm" style={{ color: colors.primary }}>This hints at why writing will matter so much when it finally arrives.</p>
                       </div>
                     </div>
-                    <button onClick={nextStep} className="w-full mt-5 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
-                      Continue <ChevronRight className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-3 mt-5">
+                      <button onClick={prevStep} className="flex-1 py-3 rounded-lg text-sm font-medium" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                        ← Back
+                      </button>
+                      <button onClick={nextStep} className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
+                        Continue <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -956,8 +991,8 @@
                       <p className="text-gray-700 text-xs">You have information about who and where. But you lack information about terms—how much barley for how much wool, and which partner will give you a better deal. You'll discover why producing that information requires a different process: negotiation.</p>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={handleRestart} className="flex-1 py-3 rounded-lg text-sm font-medium" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
-                        Restart
+                      <button onClick={prevStep} className="flex-1 py-3 rounded-lg text-sm font-medium" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                        ← Back
                       </button>
                       <a href="tutorial-1-2.html" className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 no-underline" style={{ backgroundColor: colors.primary }}>
                         Next Tutorial <ChevronRight className="w-4 h-4" />
@@ -1050,6 +1085,9 @@
                             </div>
                           )}
                           <div className="flex gap-2">
+                            <button onClick={prevStep} className="px-4 py-2 rounded-lg text-sm font-medium" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                              ← Back
+                            </button>
                             {hintIndex < q.hints.length && (
                               <button onClick={() => setHintIndex(hintIndex + 1)} className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
                                 <HelpCircle className="w-4 h-4" /> Hint
@@ -1070,9 +1108,14 @@
                             </p>
                             <div className="text-gray-700 text-sm">{renderMarkdown(getExplanation())}</div>
                           </div>
-                          <button onClick={nextStep} className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
-                            Continue <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button onClick={prevStep} className="flex-1 py-3 rounded-lg text-sm font-medium" style={{ backgroundColor: colors.sand, color: colors.earthDark }}>
+                              ← Back
+                            </button>
+                            <button onClick={nextStep} className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
+                              Continue <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>

@@ -348,6 +348,17 @@
                 window.scrollTo(0, 0);
             };
 
+            const goBackPhase = () => {
+                playContinueClick();
+                const currentIndex = phaseOrder.indexOf(phase);
+                if (currentIndex > 0) {
+                    const prevPhase = phaseOrder[currentIndex - 1];
+                    setStep(0);
+                    setPhase(prevPhase);
+                    window.scrollTo(0, 0);
+                }
+            };
+
             // Q1: How many pots can you buy?
             const handleQ1Submit = () => {
                 const answer = parseInt(q1Answer, 10);
@@ -638,9 +649,11 @@
 
                         <HistoricalNote />
 
-                        <ContinueButton onClick={() => advancePhase('arrival')}>
-                            Begin Tutorial
-                        </ContinueButton>
+                        <div className="flex gap-3">
+                            <ContinueButton onClick={() => advancePhase('arrival')}>
+                                Begin Tutorial
+                            </ContinueButton>
+                        </div>
                     </div>
                 </div>
             );
@@ -690,9 +703,18 @@
                             </p>
                         </NarrativeBlock>
 
-                        <ContinueButton onClick={() => advancePhase('excitement')}>
-                            Check Your Wool's Price
-                        </ContinueButton>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={goBackPhase}
+                                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                                ← Back
+                            </button>
+                            <ContinueButton onClick={() => advancePhase('excitement')}>
+                                Check Your Wool's Price
+                            </ContinueButton>
+                        </div>
                     </div>
                 </div>
             );
@@ -749,9 +771,18 @@
                             </p>
                         </div>
 
-                        <ContinueButton onClick={() => advancePhase('calculation')}>
-                            Head to the Pottery Seller
-                        </ContinueButton>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={goBackPhase}
+                                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                                ← Back
+                            </button>
+                            <ContinueButton onClick={() => advancePhase('calculation')}>
+                                Head to the Pottery Seller
+                            </ContinueButton>
+                        </div>
                     </div>
                 </div>
             );
@@ -800,28 +831,39 @@
                                 <strong>Question:</strong> How many pots can you actually buy?
                             </p>
 
-                            <div className="flex gap-2 items-center mb-3">
-                                <input
-                                    type="text"
-                                    inputMode="numeric"
-                                    pattern="[0-9]*"
-                                    value={q1Answer}
-                                    onChange={(e) => setQ1Answer(e.target.value)}
-                                    disabled={q1Submitted}
-                                    placeholder="?"
-                                    className="w-20 p-3 border rounded text-center font-mono text-lg"
-                                    style={{ borderColor: colors.earthLight }}
-                                />
-                                <span style={{ color: colors.earthDark }}>pots</span>
+                            <div className="space-y-3 mb-3">
+                                <div className="flex gap-2 items-center">
+                                    <input
+                                        type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        value={q1Answer}
+                                        onChange={(e) => setQ1Answer(e.target.value)}
+                                        disabled={q1Submitted}
+                                        placeholder="?"
+                                        className="w-20 p-3 border rounded text-center font-mono text-lg"
+                                        style={{ borderColor: colors.earthLight }}
+                                    />
+                                    <span style={{ color: colors.earthDark }}>pots</span>
+                                </div>
                                 {!q1Submitted && (
-                                    <button
-                                        onClick={handleQ1Submit}
-                                        disabled={!q1Answer}
-                                        className="px-4 py-3 rounded font-bold text-white disabled:opacity-50"
-                                        style={{ backgroundColor: colors.primary }}
-                                    >
-                                        Check
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={goBackPhase}
+                                            className="px-4 py-2 rounded-lg text-sm font-medium"
+                                            style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                        >
+                                            ← Back
+                                        </button>
+                                        <button
+                                            onClick={handleQ1Submit}
+                                            disabled={!q1Answer}
+                                            className="flex-1 px-4 py-3 rounded font-bold text-white disabled:opacity-50"
+                                            style={{ backgroundColor: colors.primary }}
+                                        >
+                                            Submit Answer
+                                        </button>
+                                    </div>
                                 )}
                             </div>
 
@@ -859,9 +901,18 @@
                         </div>
 
                         {q1Submitted && (
-                            <ContinueButton onClick={() => advancePhase('revelation')}>
-                                Continue
-                            </ContinueButton>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={goBackPhase}
+                                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                >
+                                    ← Back
+                                </button>
+                                <ContinueButton onClick={() => advancePhase('revelation')}>
+                                    Continue
+                                </ContinueButton>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -917,9 +968,18 @@
                             </p>
                         </NarrativeBlock>
 
-                        <ContinueButton onClick={() => advancePhase('explanation')}>
-                            Seek an Explanation
-                        </ContinueButton>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={goBackPhase}
+                                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                                ← Back
+                            </button>
+                            <ContinueButton onClick={() => advancePhase('explanation')}>
+                                Seek an Explanation
+                            </ContinueButton>
+                        </div>
                     </div>
                 </div>
             );
@@ -982,9 +1042,18 @@
                             everyone else has."</p>
                         </DialogueBlock>
 
-                        <ContinueButton onClick={() => advancePhase('comparison')}>
-                            Understand the Pattern
-                        </ContinueButton>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={goBackPhase}
+                                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                                ← Back
+                            </button>
+                            <ContinueButton onClick={() => advancePhase('comparison')}>
+                                Understand the Pattern
+                            </ContinueButton>
+                        </div>
                     </div>
                 </div>
             );
@@ -1086,9 +1155,18 @@
                             </p>
                         </InsightPanel>
 
-                        <ContinueButton onClick={() => advancePhase('reflection')}>
-                            Reflect on What Happened
-                        </ContinueButton>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={goBackPhase}
+                                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                                ← Back
+                            </button>
+                            <ContinueButton onClick={() => advancePhase('reflection')}>
+                                Reflect on What Happened
+                            </ContinueButton>
+                        </div>
                     </div>
                 </div>
             );
@@ -1119,14 +1197,23 @@
                             />
 
                             {!q2Submitted && (
-                                <button
-                                    onClick={handleQ2Submit}
-                                    disabled={q2Answer.trim().length < 10}
-                                    className="w-full py-3 rounded-lg font-bold text-white disabled:opacity-50"
-                                    style={{ backgroundColor: colors.primary }}
-                                >
-                                    Submit
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={goBackPhase}
+                                        className="px-4 py-2 rounded-lg text-sm font-medium"
+                                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                    >
+                                        ← Back
+                                    </button>
+                                    <button
+                                        onClick={handleQ2Submit}
+                                        disabled={q2Answer.trim().length < 10}
+                                        className="flex-1 py-3 rounded-lg font-bold text-white disabled:opacity-50"
+                                        style={{ backgroundColor: colors.primary }}
+                                    >
+                                        Submit Answer
+                                    </button>
+                                </div>
                             )}
 
                             {/* Hints */}
@@ -1170,9 +1257,18 @@
                         </div>
 
                         {q2Submitted && (
-                            <ContinueButton onClick={() => advancePhase('unease')}>
-                                Continue
-                            </ContinueButton>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={goBackPhase}
+                                    className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                >
+                                    ← Back
+                                </button>
+                                <ContinueButton onClick={() => advancePhase('unease')}>
+                                    Continue
+                                </ContinueButton>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -1240,9 +1336,18 @@
                             </div>
                         </div>
 
-                        <ContinueButton onClick={() => advancePhase('complete')}>
-                            Complete Tutorial
-                        </ContinueButton>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={goBackPhase}
+                                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                                ← Back
+                            </button>
+                            <ContinueButton onClick={() => advancePhase('complete')}>
+                                Complete Tutorial
+                            </ContinueButton>
+                        </div>
                     </div>
                 </div>
             );
@@ -1329,14 +1434,23 @@
                             </p>
                         </div>
 
-                        <button
-                            onClick={handleRestart}
-                            className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2"
-                            style={{ backgroundColor: colors.sand, color: colors.earthDark, border: `2px solid ${colors.earthLight}` }}
-                        >
-                            <RefreshCw className="w-4 h-4" />
-                            Restart Tutorial
-                        </button>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={goBackPhase}
+                                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                                ← Back
+                            </button>
+                            <button
+                                onClick={handleRestart}
+                                className="flex-1 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+                                style={{ backgroundColor: colors.sand, color: colors.earthDark, border: `2px solid ${colors.earthLight}` }}
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                                Restart Tutorial
+                            </button>
+                        </div>
                     </div>
                 </div>
             );

@@ -568,6 +568,30 @@ This is why Act I matters for accounting. Accounting is an information system—
         }
       };
 
+      const prevStep = () => {
+        if (phase === 'questions') {
+          if (showFeedback) {
+            setShowFeedback(false);
+          } else if (currentQuestion > 0) {
+            setCurrentQuestion(currentQuestion - 1);
+            setAnswer('');
+            setShowFeedback(false);
+            window.scrollTo(0, 0);
+          } else {
+            setPhase('intro');
+            window.scrollTo(0, 0);
+          }
+        } else if (phase === 'bridge') {
+          setPhase('questions');
+          setCurrentQuestion(questions.length - 1);
+          setShowFeedback(true);
+          window.scrollTo(0, 0);
+        } else if (phase === 'complete') {
+          setPhase('bridge');
+          window.scrollTo(0, 0);
+        }
+      };
+
       const saveResults = () => {
         try {
           const flaggedConcepts = Object.entries(flags)
@@ -705,13 +729,22 @@ This is why Act I matters for accounting. Accounting is an information system—
                     <span>About 10 minutes</span>
                   </div>
 
-                  <button
-                    onClick={() => { setPhase('questions'); window.scrollTo(0, 0); }}
-                    className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                    style={{ backgroundColor: colors.primary }}
-                  >
-                    Begin Review <ChevronRight className="w-4 h-4" />
-                  </button>
+                  <div className="flex gap-3">
+                    <a
+                      href="tutorial-1-5.html"
+                      className="flex-1 py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 no-underline"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                    >
+                      ← Back
+                    </a>
+                    <button
+                      onClick={() => { setPhase('questions'); window.scrollTo(0, 0); }}
+                      className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Begin Review <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -761,17 +794,26 @@ This is why Act I matters for accounting. Accounting is an information system—
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      saveResults();
-                      setPhase('complete');
-                      window.scrollTo(0, 0);
-                    }}
-                    className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                    style={{ backgroundColor: colors.primary }}
-                  >
-                    Complete Act I <ChevronRight className="w-4 h-4" />
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={prevStep}
+                      className="flex-1 py-3 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      onClick={() => {
+                        saveResults();
+                        setPhase('complete');
+                        window.scrollTo(0, 0);
+                      }}
+                      className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      Complete Act I <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -865,29 +907,38 @@ This is why Act I matters for accounting. Accounting is an information system—
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      setPhase('intro');
-                      setCurrentQuestion(0);
-                      setAnswers({});
-                      setFlags({
-                        q1_throughline: null,
-                        q2_negotiation: null,
-                        q3_markets: null,
-                        q4_arbitrage: null,
-                        q5_complementary: null,
-                        q6_moneyInfo: null,
-                        q7_foundation: null,
-                      });
-                      setAnswer('');
-                      setShowFeedback(false);
-                      window.scrollTo(0, 0);
-                    }}
-                    className="w-full py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
-                    style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                  >
-                    <RefreshCw className="w-5 h-5" style={{ color: 'white' }} /> Restart Review
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={prevStep}
+                      className="flex-1 py-3 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPhase('intro');
+                        setCurrentQuestion(0);
+                        setAnswers({});
+                        setFlags({
+                          q1_throughline: null,
+                          q2_negotiation: null,
+                          q3_markets: null,
+                          q4_arbitrage: null,
+                          q5_complementary: null,
+                          q6_moneyInfo: null,
+                          q7_foundation: null,
+                        });
+                        setAnswer('');
+                        setShowFeedback(false);
+                        window.scrollTo(0, 0);
+                      }}
+                      className="flex-1 py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                    >
+                      <RefreshCw className="w-5 h-5" /> Restart Review
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -939,14 +990,23 @@ This is why Act I matters for accounting. Accounting is an information system—
                       rows={4}
                       placeholder="Your answer..."
                     />
-                    <button
-                      onClick={handleSubmit}
-                      disabled={answer.trim().length < 10}
-                      className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50"
-                      style={{ backgroundColor: colors.primary }}
-                    >
-                      Submit <ChevronRight className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={prevStep}
+                        className="px-4 py-2 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        onClick={handleSubmit}
+                        disabled={answer.trim().length < 10}
+                        className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        Submit <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -972,13 +1032,22 @@ This is why Act I matters for accounting. Accounting is an information system—
                         {q.feedback[currentFlag]}
                       </p>
                     </div>
-                    <button
-                      onClick={nextQuestion}
-                      className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                      style={{ backgroundColor: colors.primary }}
-                    >
-                      {currentQuestion < questions.length - 1 ? 'Next Question' : 'Continue'} <ChevronRight className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={prevStep}
+                        className="px-4 py-2 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        onClick={nextQuestion}
+                        className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        {currentQuestion < questions.length - 1 ? 'Next Question' : 'Continue'} <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

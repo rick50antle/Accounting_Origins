@@ -225,6 +225,56 @@
             setShowReflectionHint([false, false]);
           };
 
+          // Previous step handler
+          const prevStep = () => {
+            if (phase === 'fields-investigation') {
+              if (fieldsStep > 0) {
+                setFieldsStep(fieldsStep - 1);
+              } else {
+                setPhase('welcome');
+              }
+            } else if (phase === 'tax-investigation') {
+              if (taxStep > 0) {
+                setTaxStep(taxStep - 1);
+                if (taxStep === 2) {
+                  // Reset interactive elements when going back from step 2
+                  setRevealedTablets([]);
+                  setRunningTotal(0);
+                  setSumAnswer(45);
+                  setSumSubmitted(false);
+                  setSumAttempts(0);
+                }
+              } else {
+                setPhase('fields-investigation');
+                setFieldsStep(1);
+              }
+            } else if (phase === 'report') {
+              if (reportStep > 0) {
+                setReportStep(reportStep - 1);
+              } else {
+                setPhase('tax-investigation');
+                setTaxStep(3);
+              }
+            } else if (phase === 'diagnosis') {
+              if (diagnosisStep > 0) {
+                setDiagnosisStep(diagnosisStep - 1);
+              } else {
+                setPhase('report');
+                setReportStep(1);
+              }
+            } else if (phase === 'reflection') {
+              if (reflectionStep > 0) {
+                setReflectionStep(reflectionStep - 1);
+              } else {
+                setPhase('diagnosis');
+                setDiagnosisStep(3);
+              }
+            } else if (phase === 'complete') {
+              setPhase('reflection');
+              setReflectionStep(1);
+            }
+          };
+
           const colors = {
             primary: '#00356b',
             sand: '#f5f1e8',
@@ -569,13 +619,22 @@
                         </ul>
                       </div>
 
-                      <button
-                        onClick={() => setPhase('fields-investigation')}
-                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                        style={{ backgroundColor: colors.primary }}
-                      >
-                        Begin the Investigation <ChevronRight className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-3">
+                        <a
+                          href="tutorial-2-2.html"
+                          className="flex-1 py-3 rounded-lg text-sm font-medium text-center no-underline"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </a>
+                        <button
+                          onClick={() => setPhase('fields-investigation')}
+                          className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Begin the Investigation <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -610,13 +669,22 @@
                             "Ah, you come from Master Nabu-rimanni? Yes, I heard about the discrepancy. Please, examine our records. Each field has its own section. Tablets for grain harvested are kept here, while tablets for grain sent to the Royal Granary are stored there. Our records follow every grain measure—when it comes in from the fields, and when it goes out to the Granary."
                           </DialogueBlock>
 
-                          <button
-                            onClick={() => setFieldsStep(1)}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Examine the Records <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => setFieldsStep(1)}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Examine the Records <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
 
@@ -685,13 +753,22 @@
                             <p className="mt-2 font-medium">The error must lie elsewhere.</p>
                           </InsightPanel>
 
-                          <button
-                            onClick={() => setPhase('tax-investigation')}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Proceed to Tax Assessor's Hall <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => setPhase('tax-investigation')}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Proceed to Tax Assessor's Hall <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
                     </div>
@@ -738,13 +815,22 @@
                             "We keep two kinds of tablets. Here are the daily summary tablets, where I record the total collections each day for Master Shamash-gamil to report to the King. And on those shelves are the individual taxpayer records—one tablet for each person showing their assessment and what they've paid."
                           </DialogueBlock>
 
-                          <button
-                            onClick={() => setTaxStep(1)}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Examine the Daily Summary Tablet <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => setTaxStep(1)}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Examine the Daily Summary Tablet <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
 
@@ -766,13 +852,22 @@
                             Forty garu—exactly what was reported to the King. But you want to verify this against the source records.
                           </NarrativeBlock>
 
-                          <button
-                            onClick={() => setTaxStep(2)}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Examine the Individual Taxpayer Tablets <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => setTaxStep(2)}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Examine the Individual Taxpayer Tablets <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
 
@@ -873,23 +968,32 @@
                                 </div>
                               )}
 
-                              <button
-                                onClick={() => {
-                                  if (sumAnswer === 50) {
-                                    setSumSubmitted(true);
-                                  } else {
-                                    setSumAttempts(sumAttempts + 1);
-                                    if (sumAttempts >= 2) {
-                                      setSumAnswer(50);
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={prevStep}
+                                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                >
+                                  ← Back
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (sumAnswer === 50) {
                                       setSumSubmitted(true);
+                                    } else {
+                                      setSumAttempts(sumAttempts + 1);
+                                      if (sumAttempts >= 2) {
+                                        setSumAnswer(50);
+                                        setSumSubmitted(true);
+                                      }
                                     }
-                                  }
-                                }}
-                                className="w-full text-white font-bold py-3 rounded-lg hover:opacity-90"
-                                style={{ backgroundColor: colors.primary }}
-                              >
-                                Submit Answer
-                              </button>
+                                  }}
+                                  className="flex-1 text-white font-bold py-3 rounded-lg hover:opacity-90"
+                                  style={{ backgroundColor: colors.primary }}
+                                >
+                                  Submit Answer
+                                </button>
+                              </div>
                             </>
                           )}
 
@@ -916,13 +1020,22 @@
                                 </div>
                               </div>
 
-                              <button
-                                onClick={() => setTaxStep(3)}
-                                className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                                style={{ backgroundColor: colors.primary }}
-                              >
-                                Continue <ChevronRight className="w-4 h-4" />
-                              </button>
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={prevStep}
+                                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                >
+                                  ← Back
+                                </button>
+                                <button
+                                  onClick={() => setTaxStep(3)}
+                                  className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                                  style={{ backgroundColor: colors.primary }}
+                                >
+                                  Continue <ChevronRight className="w-4 h-4" />
+                                </button>
+                              </div>
                             </>
                           )}
                         </>
@@ -951,13 +1064,22 @@
                             <p className="mt-2">The Granary received 50 garu from taxes (and recorded it correctly), but the Tax Assessor's summary said only 40—creating the 10 garu discrepancy that erupted at the morning reports.</p>
                           </InsightPanel>
 
-                          <button
-                            onClick={() => setPhase('report')}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Report to Master Nabu-rimanni <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => setPhase('report')}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Report to Master Nabu-rimanni <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
                     </div>
@@ -998,13 +1120,22 @@
                             "The Royal Fields' records are correct, Master. They sent exactly 150 garu, as reported. But the Tax Assessor's records... the individual taxpayer tablets sum to 50 garu, not 40. A calculation error."
                           </DialogueBlock>
 
-                          <button
-                            onClick={() => setReportStep(1)}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Continue <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => setReportStep(1)}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Continue <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
 
@@ -1026,13 +1157,22 @@
                             "But finding the error is only the beginning. The King will want to know how this happened—and how to prevent it from happening again."
                           </DialogueBlock>
 
-                          <button
-                            onClick={() => setPhase('diagnosis')}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Continue <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => setPhase('diagnosis')}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Continue <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
                     </div>
@@ -1112,26 +1252,35 @@
                                 </div>
                               )}
 
-                              <button
-                                onClick={() => {
-                                  if (whyHiddenAnswer.length < 20) {
-                                    // Too short
-                                    setWhyHiddenAttempts(whyHiddenAttempts + 1);
-                                  } else if (evaluateWhyHidden(whyHiddenAnswer)) {
-                                    setWhyHiddenSubmitted(true);
-                                  } else {
-                                    setWhyHiddenAttempts(whyHiddenAttempts + 1);
-                                    if (whyHiddenAttempts >= 2) {
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={prevStep}
+                                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                >
+                                  ← Back
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (whyHiddenAnswer.length < 20) {
+                                      // Too short
+                                      setWhyHiddenAttempts(whyHiddenAttempts + 1);
+                                    } else if (evaluateWhyHidden(whyHiddenAnswer)) {
                                       setWhyHiddenSubmitted(true);
+                                    } else {
+                                      setWhyHiddenAttempts(whyHiddenAttempts + 1);
+                                      if (whyHiddenAttempts >= 2) {
+                                        setWhyHiddenSubmitted(true);
+                                      }
                                     }
-                                  }
-                                }}
-                                className="w-full text-white font-bold py-3 rounded-lg hover:opacity-90"
-                                style={{ backgroundColor: colors.primary }}
-                                disabled={!whyHiddenAnswer.trim()}
-                              >
-                                Submit
-                              </button>
+                                  }}
+                                  className="flex-1 text-white font-bold py-3 rounded-lg hover:opacity-90"
+                                  style={{ backgroundColor: colors.primary }}
+                                  disabled={!whyHiddenAnswer.trim()}
+                                >
+                                  Submit
+                                </button>
+                              </div>
                             </>
                           )}
 
@@ -1152,13 +1301,22 @@
                                 </p>
                               </div>
 
-                              <button
-                                onClick={() => setDiagnosisStep(1)}
-                                className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                                style={{ backgroundColor: colors.primary }}
-                              >
-                                Continue <ChevronRight className="w-4 h-4" />
-                              </button>
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={prevStep}
+                                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                >
+                                  ← Back
+                                </button>
+                                <button
+                                  onClick={() => setDiagnosisStep(1)}
+                                  className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                                  style={{ backgroundColor: colors.primary }}
+                                >
+                                  Continue <ChevronRight className="w-4 h-4" />
+                                </button>
+                              </div>
                             </>
                           )}
                         </>
@@ -1174,13 +1332,22 @@
                             "The first time anyone compares what one department sent with what another received is at the morning reports—standing before the King. By then, the tablets have been filed, the scribes have gone home, and a discrepancy means a crisis."
                           </DialogueBlock>
 
-                          <button
-                            onClick={() => setDiagnosisStep(2)}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Continue <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => setDiagnosisStep(2)}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Continue <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
 
@@ -1199,13 +1366,22 @@
                                 <p className="mt-2">The records exist in isolation—never meeting until the King's morning reports, when it's too late to prevent problems.</p>
                               </InsightPanel>
 
-                              <button
-                                onClick={() => setDiagnosisStep(3)}
-                                className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                                style={{ backgroundColor: colors.primary }}
-                              >
-                                Continue <ChevronRight className="w-4 h-4" />
-                              </button>
+                              <div className="flex gap-3">
+                                <button
+                                  onClick={prevStep}
+                                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                                >
+                                  ← Back
+                                </button>
+                                <button
+                                  onClick={() => setDiagnosisStep(3)}
+                                  className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                                  style={{ backgroundColor: colors.primary }}
+                                >
+                                  Continue <ChevronRight className="w-4 h-4" />
+                                </button>
+                              </div>
                             </>
                           )}
                         </>
@@ -1233,13 +1409,22 @@
                             "Rest tonight, apprentice. Tomorrow, we think about solutions."
                           </DialogueBlock>
 
-                          <button
-                            onClick={() => setPhase('reflection')}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Continue to Reflection <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => setPhase('reflection')}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Continue to Reflection <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
                     </div>
@@ -1297,7 +1482,7 @@
                             </div>
                           )}
 
-                          <div className="flex gap-2 mt-3">
+                          <div className="flex gap-2 mt-3 mb-3">
                             <button
                               onClick={() => {
                                 const newHints = [...showReflectionHint];
@@ -1311,7 +1496,16 @@
                               <HelpCircle className="w-3 h-3" />
                               {showReflectionHint[reflectionStep] ? 'Hint shown' : 'Show hint'}
                             </button>
+                          </div>
 
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
                             <button
                               onClick={() => {
                                 const answer = reflectionAnswers[reflectionStep];
@@ -1330,7 +1524,7 @@
                                   }
                                 }
                               }}
-                              className="flex-1 text-white font-medium py-2 rounded-lg hover:opacity-90"
+                              className="flex-1 text-white font-medium py-3 rounded-lg hover:opacity-90"
                               style={{ backgroundColor: colors.primary }}
                               disabled={!reflectionAnswers[reflectionStep].trim()}
                             >
@@ -1363,19 +1557,28 @@
                             <p className="text-sm text-gray-700">{currentQuestion.answer}</p>
                           </div>
 
-                          <button
-                            onClick={() => {
-                              if (reflectionStep < 1) {
-                                setReflectionStep(reflectionStep + 1);
-                              } else {
-                                setPhase('complete');
-                              }
-                            }}
-                            className="w-full mt-4 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            {reflectionStep < 1 ? 'Next Question' : 'Complete Tutorial'} <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3 mt-4">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (reflectionStep < 1) {
+                                  setReflectionStep(reflectionStep + 1);
+                                } else {
+                                  setPhase('complete');
+                                }
+                              }}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              {reflectionStep < 1 ? 'Next Question' : 'Complete Tutorial'} <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
                     </div>
@@ -1461,13 +1664,22 @@
                         </p>
                       </div>
 
-                      <button
-                        onClick={handleRestart}
-                        className="w-full py-3 rounded-lg text-sm font-medium"
-                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                      >
-                        Restart Tutorial
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={prevStep}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </button>
+                        <button
+                          onClick={handleRestart}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          Restart Tutorial
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

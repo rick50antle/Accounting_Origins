@@ -154,6 +154,43 @@
         setShowReflectionHint([false, false, false]);
       };
 
+      // Navigate backwards through the tutorial
+      const prevStep = () => {
+        if (phase === 'complete') {
+          setPhase('reflection');
+          setReflectionStep(2);
+        } else if (phase === 'reflection') {
+          if (reflectionStep > 0) {
+            setReflectionStep(reflectionStep - 1);
+          } else {
+            setPhase('judgment');
+            setJudgmentStep(1);
+          }
+        } else if (phase === 'judgment') {
+          if (judgmentStep > 0) {
+            setJudgmentStep(judgmentStep - 1);
+          } else {
+            setPhase('verification');
+            setVerificationStep(2);
+          }
+        } else if (phase === 'verification') {
+          if (verificationStep > 0) {
+            setVerificationStep(verificationStep - 1);
+          } else {
+            setPhase('discrepancy');
+            setDiscrepancyStep(1);
+          }
+        } else if (phase === 'discrepancy') {
+          if (discrepancyStep > 0) {
+            setDiscrepancyStep(discrepancyStep - 1);
+          } else {
+            setPhase('morning-reports');
+          }
+        } else if (phase === 'morning-reports') {
+          setPhase('welcome');
+        }
+      };
+
       const colors = {
         primary: '#00356b',
         sand: '#f5f1e8',
@@ -631,20 +668,29 @@
                         Master Nabu-rimanni makes his marks with steady precision, recording the count on his tablet. You keep your own mental tally, a habit he has insisted upon.
                       </NarrativeBlock>
 
-                      <button
-                        onClick={() => {
-                          const newComplete = [...officialsComplete];
-                          newComplete[currentOfficial] = true;
-                          setOfficialsComplete(newComplete);
-                          if (currentOfficial < 3) {
-                            setCurrentOfficial(currentOfficial + 1);
-                          }
-                        }}
-                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                        style={{ backgroundColor: colors.primary }}
-                      >
-                        {currentOfficial < 3 ? 'Next Official' : 'Reports Complete'} <ChevronRight className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={prevStep}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </button>
+                        <button
+                          onClick={() => {
+                            const newComplete = [...officialsComplete];
+                            newComplete[currentOfficial] = true;
+                            setOfficialsComplete(newComplete);
+                            if (currentOfficial < 3) {
+                              setCurrentOfficial(currentOfficial + 1);
+                            }
+                          }}
+                          className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          {currentOfficial < 3 ? 'Next Official' : 'Reports Complete'} <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </>
                   )}
 
@@ -663,13 +709,22 @@
                         He glances back at you briefly, and you understand. He is checking if you, too, have caught that the counts do not agree. You give the slightest nod.
                       </NarrativeBlock>
 
-                      <button
-                        onClick={() => setPhase('discrepancy')}
-                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                        style={{ backgroundColor: colors.primary }}
-                      >
-                        Continue <ChevronRight className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={prevStep}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </button>
+                        <button
+                          onClick={() => setPhase('discrepancy')}
+                          className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Continue <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </>
                   )}
                 </div>
@@ -735,13 +790,22 @@
                       </div>
 
                       {!calculationSubmitted ? (
-                        <button
-                          onClick={() => setCalculationSubmitted(true)}
-                          className="w-full text-white font-bold py-3 rounded-lg hover:opacity-90"
-                          style={{ backgroundColor: colors.primary }}
-                        >
-                          Submit Answer
-                        </button>
+                        <div className="flex gap-3">
+                          <button
+                            onClick={prevStep}
+                            className="flex-1 py-3 rounded-lg text-sm font-medium"
+                            style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                          >
+                            ← Back
+                          </button>
+                          <button
+                            onClick={() => setCalculationSubmitted(true)}
+                            className="flex-1 text-white font-bold py-3 rounded-lg hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                          >
+                            Submit Answer
+                          </button>
+                        </div>
                       ) : (
                         <>
                           {calculationAnswer === 190 ? (
@@ -757,13 +821,22 @@
                               </p>
                             </div>
                           )}
-                          <button
-                            onClick={() => setDiscrepancyStep(1)}
-                            className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            Continue <ChevronRight className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={prevStep}
+                              className="flex-1 py-3 rounded-lg text-sm font-medium"
+                              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            >
+                              ← Back
+                            </button>
+                            <button
+                              onClick={() => setDiscrepancyStep(1)}
+                              className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              Continue <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </>
                       )}
                     </>
@@ -816,13 +889,22 @@
                         Master Nabu-rimanni continues: "The Royal Granary reports receiving three sixties and twenty garu of barley today. Yet the Royal Fields reported two sixties and thirty delivered, and the Tax Collector reported forty delivered. The sum is three sixties and ten garu—not three sixties and twenty."
                       </NarrativeBlock>
 
-                      <button
-                        onClick={() => setPhase('verification')}
-                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                        style={{ backgroundColor: colors.primary }}
-                      >
-                        Continue <ChevronRight className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={prevStep}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </button>
+                        <button
+                          onClick={() => setPhase('verification')}
+                          className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Continue <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </>
                   )}
                 </div>
@@ -864,13 +946,22 @@
                         The tablet is clear: they claim to have received 200 garu today. Their math is perfect—yesterday's balance plus receipts minus distributions equals today's balance exactly.
                       </NarrativeBlock>
 
-                      <button
-                        onClick={() => setVerificationStep(1)}
-                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                        style={{ backgroundColor: colors.primary }}
-                      >
-                        Now Count the Grain <ChevronRight className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={prevStep}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </button>
+                        <button
+                          onClick={() => setVerificationStep(1)}
+                          className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Now Count the Grain <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </>
                   )}
 
@@ -892,13 +983,22 @@
                         You run back to the receiving hall, gasping. "Fifty buru, Master. The granary's records match their physical stores exactly."
                       </NarrativeBlock>
 
-                      <button
-                        onClick={() => setVerificationStep(2)}
-                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                        style={{ backgroundColor: colors.primary }}
-                      >
-                        Continue <ChevronRight className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={prevStep}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </button>
+                        <button
+                          onClick={() => setVerificationStep(2)}
+                          className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Continue <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </>
                   )}
 
@@ -921,13 +1021,22 @@
                         </p>
                       </InsightPanel>
 
-                      <button
-                        onClick={() => setPhase('judgment')}
-                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                        style={{ backgroundColor: colors.primary }}
-                      >
-                        Continue <ChevronRight className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={prevStep}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </button>
+                        <button
+                          onClick={() => setPhase('judgment')}
+                          className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Continue <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </>
                   )}
                 </div>
@@ -975,13 +1084,22 @@
                         All three officials—Marduk-nasir, Shamash-gamil, and Ili-ippalsam—fall to their knees, sweat beading on their foreheads despite the morning cool.
                       </NarrativeBlock>
 
-                      <button
-                        onClick={() => setJudgmentStep(1)}
-                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                        style={{ backgroundColor: colors.primary }}
-                      >
-                        Continue <ChevronRight className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={prevStep}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </button>
+                        <button
+                          onClick={() => setJudgmentStep(1)}
+                          className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Continue <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </>
                   )}
 
@@ -1026,13 +1144,22 @@
                         </p>
                       </InsightPanel>
 
-                      <button
-                        onClick={() => setPhase('reflection')}
-                        className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                        style={{ backgroundColor: colors.primary }}
-                      >
-                        Continue to Reflection <ChevronRight className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={prevStep}
+                          className="flex-1 py-3 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                        >
+                          ← Back
+                        </button>
+                        <button
+                          onClick={() => setPhase('reflection')}
+                          className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                          style={{ backgroundColor: colors.primary }}
+                        >
+                          Continue to Reflection <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </>
                   )}
                 </div>
@@ -1080,32 +1207,41 @@
                     />
 
                     {!reflectionSubmitted[reflectionStep] && (
-                      <div className="flex gap-2 mt-3">
-                        <button
-                          onClick={() => {
-                            const newHints = [...showReflectionHint];
-                            newHints[reflectionStep] = true;
-                            setShowReflectionHint(newHints);
-                          }}
-                          className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg"
-                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                          disabled={showReflectionHint[reflectionStep]}
-                        >
-                          <HelpCircle className="w-3 h-3" />
-                          {showReflectionHint[reflectionStep] ? 'Hint shown' : 'Show hint'}
-                        </button>
+                      <div className="space-y-2 mt-3">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              const newHints = [...showReflectionHint];
+                              newHints[reflectionStep] = true;
+                              setShowReflectionHint(newHints);
+                            }}
+                            className="flex items-center gap-1 text-xs px-3 py-2 rounded-lg"
+                            style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                            disabled={showReflectionHint[reflectionStep]}
+                          >
+                            <HelpCircle className="w-3 h-3" />
+                            {showReflectionHint[reflectionStep] ? 'Hint shown' : 'Show hint'}
+                          </button>
 
+                          <button
+                            onClick={() => {
+                              const newSubmitted = [...reflectionSubmitted];
+                              newSubmitted[reflectionStep] = true;
+                              setReflectionSubmitted(newSubmitted);
+                            }}
+                            className="flex-1 text-white font-medium py-2 rounded-lg hover:opacity-90"
+                            style={{ backgroundColor: colors.primary }}
+                            disabled={!reflectionAnswers[reflectionStep].trim()}
+                          >
+                            Submit
+                          </button>
+                        </div>
                         <button
-                          onClick={() => {
-                            const newSubmitted = [...reflectionSubmitted];
-                            newSubmitted[reflectionStep] = true;
-                            setReflectionSubmitted(newSubmitted);
-                          }}
-                          className="flex-1 text-white font-medium py-2 rounded-lg hover:opacity-90"
-                          style={{ backgroundColor: colors.primary }}
-                          disabled={!reflectionAnswers[reflectionStep].trim()}
+                          onClick={prevStep}
+                          className="w-full py-2 rounded-lg text-sm font-medium"
+                          style={{ backgroundColor: colors.sand, color: colors.earthDark }}
                         >
-                          Submit
+                          ← Back
                         </button>
                       </div>
                     )}
@@ -1128,19 +1264,28 @@
                   </div>
 
                   {reflectionSubmitted[reflectionStep] && (
-                    <button
-                      onClick={() => {
-                        if (reflectionStep < 2) {
-                          setReflectionStep(reflectionStep + 1);
-                        } else {
-                          setPhase('complete');
-                        }
-                      }}
-                      className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
-                      style={{ backgroundColor: colors.primary }}
-                    >
-                      {reflectionStep < 2 ? 'Next Question' : 'Complete Tutorial'} <ChevronRight className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={prevStep}
+                        className="flex-1 py-3 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (reflectionStep < 2) {
+                            setReflectionStep(reflectionStep + 1);
+                          } else {
+                            setPhase('complete');
+                          }
+                        }}
+                        className="flex-1 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
+                        style={{ backgroundColor: colors.primary }}
+                      >
+                        {reflectionStep < 2 ? 'Next Question' : 'Complete Tutorial'} <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -1210,11 +1355,11 @@
                   </div>
 
                   <button
-                    onClick={handleRestart}
+                    onClick={prevStep}
                     className="w-full py-3 rounded-lg text-sm font-medium"
                     style={{ backgroundColor: colors.sand, color: colors.earthDark }}
                   >
-                    Restart Tutorial
+                    ← Back
                   </button>
                 </div>
               </div>

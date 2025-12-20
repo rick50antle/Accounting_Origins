@@ -727,6 +727,51 @@
         }
       };
 
+      const prevStep = () => {
+        playContinueClick();
+
+        // Navigate backwards through the tutorial
+        if (phase === 'report') {
+          if (reportStep > 0) {
+            setReportStep(reportStep - 1);
+          } else {
+            setPhase('welcome');
+          }
+        } else if (phase === 'calculation') {
+          setPhase('report');
+          setReportStep(1);
+        } else if (phase === 'investigation') {
+          if (investigationStep > 0) {
+            setInvestigationStep(investigationStep - 1);
+          } else {
+            setPhase('calculation');
+          }
+        } else if (phase === 'discipline') {
+          if (choseWrongPath) {
+            if (wrongPathStep > 0) {
+              setWrongPathStep(wrongPathStep - 1);
+            } else {
+              setChoseWrongPath(false);
+              setDisciplineStep(1);
+            }
+          } else {
+            if (disciplineStep > 0) {
+              setDisciplineStep(disciplineStep - 1);
+            } else {
+              setPhase('investigation');
+              setInvestigationStep(2);
+            }
+          }
+        } else if (phase === 'patterns') {
+          setPhase('discipline');
+          setDisciplineStep(4);
+        } else if (phase === 'reflection') {
+          setPhase('patterns');
+        } else if (phase === 'complete') {
+          setPhase('reflection');
+        }
+      };
+
       // Progress calculation
       const phaseOrder = ['welcome', 'report', 'calculation', 'investigation', 'discipline', 'patterns', 'reflection', 'complete'];
       const currentPhaseIndex = phaseOrder.indexOf(phase);
@@ -803,13 +848,22 @@
                 But something is wrong.
               </DialogueBlock>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setReportStep(1); }}
-              >
-                Show Me <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setReportStep(1); }}
+                >
+                  Show Me <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
 
@@ -875,13 +929,22 @@
                 <p className="mt-2 font-bold">The grain itself is missing.</p>
               </WarningPanel>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setPhase('calculation'); }}
-              >
-                Calculate the Missing Amount <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setPhase('calculation'); }}
+                >
+                  Calculate the Missing Amount <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
         </div>
@@ -907,26 +970,33 @@
             <label className="block font-bold mb-2" style={{ color: colors.primary }}>
               How many sila are missing?
             </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={missingAnswer}
-                onChange={(e) => setMissingAnswer(e.target.value)}
-                disabled={missingSubmitted}
-                placeholder="Enter your answer..."
-                className="flex-1 p-2 border rounded"
-                style={{ borderColor: colors.earthLight }}
-              />
-              {!missingSubmitted && (
+            <input
+              type="text"
+              value={missingAnswer}
+              onChange={(e) => setMissingAnswer(e.target.value)}
+              disabled={missingSubmitted}
+              placeholder="Enter your answer..."
+              className="w-full p-2 border rounded mb-2"
+              style={{ borderColor: colors.earthLight }}
+            />
+            {!missingSubmitted && (
+              <div className="flex gap-2">
+                <button
+                  onClick={prevStep}
+                  className="px-4 py-2 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                >
+                  ← Back
+                </button>
                 <button
                   onClick={handleMissingSubmit}
-                  className="px-4 py-2 rounded font-bold text-white"
+                  className="flex-1 px-4 py-2 rounded font-bold text-white"
                   style={{ backgroundColor: colors.primary }}
                 >
                   Check
                 </button>
-              )}
-            </div>
+              </div>
+            )}
 
             {missingAttempts > 0 && !missingSubmitted && (
               <p className="text-sm mt-2" style={{ color: colors.warning }}>
@@ -961,13 +1031,22 @@
                 The transactions all agree. The grain simply... isn't there.</p>
               </InsightPanel>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setPhase('investigation'); }}
-              >
-                Investigate the Granary <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setPhase('investigation'); }}
+                >
+                  Investigate the Granary <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
         </div>
@@ -1034,13 +1113,22 @@
                     <p className="mt-2 font-bold">Rats. They've found a way into the storehouse.</p>
                   </WarningPanel>
 
-                  <button
-                    className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                    style={{ backgroundColor: colors.primary }}
-                    onClick={() => { playContinueClick(); setInvestigationStep(1); }}
-                  >
-                    Continue <ChevronRight className="w-5 h-5" />
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      className="flex-1 py-3 rounded-lg text-sm font-medium"
+                      style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                      onClick={prevStep}
+                    >
+                      ← Back
+                    </button>
+                    <button
+                      className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                      style={{ backgroundColor: colors.primary }}
+                      onClick={() => { playContinueClick(); setInvestigationStep(1); }}
+                    >
+                      Continue <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
                 </>
               )}
 
@@ -1073,13 +1161,22 @@
                 But something about this makes you uneasy. You can't quite say why.
               </NarrativeBlock>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setInvestigationStep(2); }}
-              >
-                Consider This Carefully <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setInvestigationStep(2); }}
+                >
+                  Consider This Carefully <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
 
@@ -1107,13 +1204,22 @@
                 Mustn't they?
               </NarrativeBlock>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setPhase('discipline'); }}
-              >
-                Ponder the Problem <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setPhase('discipline'); }}
+                >
+                  Ponder the Problem <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
         </div>
@@ -1139,13 +1245,22 @@
                 instead of solving it.</p>
               </InsightPanel>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setDisciplineStep(1); }}
-              >
-                Continue <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setDisciplineStep(1); }}
+                >
+                  Continue <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
 
@@ -1222,13 +1337,22 @@
                 One month passes...
               </p>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setWrongPathStep(1); }}
-              >
-                Continue <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setWrongPathStep(1); }}
+                >
+                  Continue <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
 
@@ -1247,13 +1371,22 @@
                 Three months pass...
               </p>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setWrongPathStep(2); }}
-              >
-                Continue <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setWrongPathStep(2); }}
+                >
+                  Continue <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
 
@@ -1274,13 +1407,22 @@
                 or where.
               </DialogueBlock>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setWrongPathStep(3); }}
-              >
-                Continue <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setWrongPathStep(3); }}
+                >
+                  Continue <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
 
@@ -1335,13 +1477,22 @@
                 but as an outflow — to a destination called "Losses"?</p>
               </InsightPanel>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setDisciplineStep(3); }}
-              >
-                Develop This Idea <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setDisciplineStep(3); }}
+                >
+                  Develop This Idea <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
 
@@ -1418,13 +1569,22 @@
                 Information, not mystery.
               </DialogueBlock>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setDisciplineStep(4); }}
-              >
-                Continue <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setDisciplineStep(4); }}
+                >
+                  Continue <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
 
@@ -1462,13 +1622,22 @@
                 erased is now preserved.
               </DialogueBlock>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setPhase('patterns'); }}
-              >
-                See the Power of Patterns <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setPhase('patterns'); }}
+                >
+                  See the Power of Patterns <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
         </div>
@@ -1589,13 +1758,22 @@
             )}
 
             {Object.keys(patternAssignments).length === 4 && !patternSubmitted && (
-              <button
-                className="w-full mt-4 py-3 rounded-lg font-bold text-white"
-                style={{ backgroundColor: colors.primary }}
-                onClick={handlePatternSubmit}
-              >
-                Check Matches
-              </button>
+              <div className="flex gap-3 mt-4">
+                <button
+                  className="px-4 py-2 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={handlePatternSubmit}
+                >
+                  Check Matches
+                </button>
+              </div>
             )}
 
             {patternSubmitted && (
@@ -1626,13 +1804,22 @@
                 <p className="mt-2">None of this would exist if you'd simply erased each discrepancy.</p>
               </InsightPanel>
 
-              <button
-                className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-                style={{ backgroundColor: colors.primary }}
-                onClick={() => { playContinueClick(); setPhase('reflection'); }}
-              >
-                Continue to Reflection <ChevronRight className="w-5 h-5" />
-              </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 py-3 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                  onClick={prevStep}
+                >
+                  ← Back
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                  style={{ backgroundColor: colors.primary }}
+                  onClick={() => { playContinueClick(); setPhase('reflection'); }}
+                >
+                  Continue to Reflection <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </>
           )}
         </div>
@@ -1670,13 +1857,22 @@
             )}
 
             {!reflectionSubmitted && (
-              <button
-                onClick={handleReflectionSubmit}
-                className="mt-3 px-6 py-2 rounded-lg font-bold text-white"
-                style={{ backgroundColor: colors.primary }}
-              >
-                Submit Reflection
-              </button>
+              <div className="flex gap-3 mt-3">
+                <button
+                  onClick={prevStep}
+                  className="px-4 py-2 rounded-lg text-sm font-medium"
+                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                >
+                  ← Back
+                </button>
+                <button
+                  onClick={handleReflectionSubmit}
+                  className="flex-1 px-6 py-2 rounded-lg font-bold text-white"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  Submit Reflection
+                </button>
+              </div>
             )}
 
             {reflectionSubmitted && (
@@ -1696,13 +1892,22 @@
           </div>
 
           {reflectionSubmitted && (
-            <button
-              className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
-              style={{ backgroundColor: colors.primary }}
-              onClick={() => { playContinueClick(); setPhase('complete'); }}
-            >
-              Complete Tutorial <ChevronRight className="w-5 h-5" />
-            </button>
+            <div className="flex gap-3">
+              <button
+                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+                onClick={prevStep}
+              >
+                ← Back
+              </button>
+              <button
+                className="flex-1 py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2"
+                style={{ backgroundColor: colors.primary }}
+                onClick={() => { playContinueClick(); setPhase('complete'); }}
+              >
+                Complete Tutorial <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           )}
         </div>
       );
@@ -1773,13 +1978,22 @@
             </p>
           </div>
 
-          <button
-            className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2"
-            style={{ backgroundColor: colors.earth, color: 'white' }}
-            onClick={handleRestart}
-          >
-            <RefreshCw className="w-5 h-5" /> Restart Tutorial
-          </button>
+          <div className="flex gap-3">
+            <button
+              className="flex-1 py-3 rounded-lg text-sm font-medium"
+              style={{ backgroundColor: colors.sand, color: colors.earthDark }}
+              onClick={prevStep}
+            >
+              ← Back
+            </button>
+            <button
+              className="flex-1 py-3 rounded-lg font-bold flex items-center justify-center gap-2"
+              style={{ backgroundColor: colors.earth, color: 'white' }}
+              onClick={handleRestart}
+            >
+              <RefreshCw className="w-5 h-5" /> Restart Tutorial
+            </button>
+          </div>
         </div>
       );
 
