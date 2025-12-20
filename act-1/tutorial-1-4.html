@@ -284,6 +284,12 @@
       </svg>
     );
 
+    const ChevronLeftIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+    );
+
     const ChevronDownIcon = () => (
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="m6 9 6 6 6-6"/>
@@ -452,6 +458,7 @@
         setQ5Attempts(0);
         setQ5Submitted(false);
         setShowHistoricalNote(false);
+        window.scrollTo(0, 0);
       };
 
       // Kira trade animation
@@ -668,7 +675,7 @@
                 {phaseOrder.map(p => (
                   <button
                     key={p}
-                    onClick={() => setPhase(p)}
+                    onClick={() => { setPhase(p); window.scrollTo(0, 0); }}
                     className={`px-2 py-1 rounded text-xs transition-colors ${
                       phase === p ? 'bg-white text-blue-900' : 'bg-white/20 text-white hover:bg-white/30'
                     }`}
@@ -720,13 +727,30 @@
       // Continue Button
       const ContinueButton = ({ onClick, children = "Continue" }) => (
         <button
-          onClick={() => { playContinueClick(); onClick(); }}
+          onClick={() => { playContinueClick(); onClick(); window.scrollTo(0, 0); }}
           className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all"
           style={{ backgroundColor: colors.primary }}
         >
           {children} <ChevronRightIcon />
         </button>
       );
+
+      // Previous Page Button
+      const PreviousPageButton = ({ onClick }) => (
+        <button
+          onClick={() => { playContinueClick(); onClick(); window.scrollTo(0, 0); }}
+          className="mb-4 py-2 px-4 rounded-lg font-medium flex items-center gap-2 transition-all hover:bg-gray-100"
+          style={{ color: colors.primary, backgroundColor: 'white', border: `1px solid ${colors.earthLight}` }}
+        >
+          <ChevronLeftIcon /> Previous Page
+        </button>
+      );
+
+      // Get previous phase
+      const getPreviousPhase = () => {
+        const idx = phaseOrder.indexOf(phase);
+        return idx > 0 ? phaseOrder[idx - 1] : null;
+      };
 
       // Insight Panel
       const InsightPanel = ({ title, children }) => (
@@ -815,7 +839,7 @@
       // WELCOME
       const renderWelcome = () => (
         <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
-          <div className="p-4 max-w-2xl mx-auto">
+          <div className="p-4 max-w-2xl mx-auto pb-20">
             <Header />
             
             <NarrativeBlock>
@@ -898,9 +922,11 @@
       // PHASE 1: The Complexity Problem
       const renderPhase1 = () => (
         <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
-          <div className="p-4 max-w-2xl mx-auto">
+          <div className="p-4 max-w-2xl mx-auto pb-20">
             <Header />
-            
+
+            <PreviousPageButton onClick={() => setPhase('welcome')} />
+
             <NarrativeBlock>
               <p className="mb-3">
                 You watch the market. Three goods. Three exchange rates:
@@ -1004,9 +1030,11 @@
       // PHASE 2: Watch Kira
       const renderPhase2 = () => (
         <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
-          <div className="p-4 max-w-2xl mx-auto">
+          <div className="p-4 max-w-2xl mx-auto pb-20">
             <Header />
-            
+
+            <PreviousPageButton onClick={() => setPhase('phase1')} />
+
             <NarrativeBlock>
               <p className="mb-3">
                 You watch the old trader more closely. Her name, you learn, is Kira. She's from somewhere downstream — been trading longer than anyone can remember.
@@ -1186,9 +1214,11 @@
       // PHASE 3: The Common Standard (Gap Calculator)
       const renderPhase3 = () => (
         <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
-          <div className="p-4 max-w-2xl mx-auto">
+          <div className="p-4 max-w-2xl mx-auto pb-20">
             <Header />
-            
+
+            <PreviousPageButton onClick={() => setPhase('phase2')} />
+
             <NarrativeBlock>
               <p className="mb-3">
                 "You're curious," Kira says. It's not a question.
@@ -1367,9 +1397,11 @@
       // PHASE 4: Why Rates Line Up
       const renderPhase4 = () => (
         <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
-          <div className="p-4 max-w-2xl mx-auto">
+          <div className="p-4 max-w-2xl mx-auto pb-20">
             <Header />
-            
+
+            <PreviousPageButton onClick={() => setPhase('phase3')} />
+
             <NarrativeBlock>
               <p className="mb-3">
                 You sit with this for a moment.
@@ -1466,9 +1498,11 @@
       // PHASE 5: Is Barley Special?
       const renderPhase5 = () => (
         <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
-          <div className="p-4 max-w-2xl mx-auto">
+          <div className="p-4 max-w-2xl mx-auto pb-20">
             <Header />
-            
+
+            <PreviousPageButton onClick={() => setPhase('phase4')} />
+
             <NarrativeBlock>
               <p className="mb-3">
                 "Why barley?" you ask.
@@ -1623,9 +1657,11 @@
       // CODA
       const renderCoda = () => (
         <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
-          <div className="p-4 max-w-2xl mx-auto">
+          <div className="p-4 max-w-2xl mx-auto pb-20">
             <Header />
-            
+
+            <PreviousPageButton onClick={() => setPhase('phase5')} />
+
             <NarrativeBlock>
               <p className="mb-3">
                 That evening, Kira finds you by the river.
@@ -1660,9 +1696,11 @@
       // COMPLETE
       const renderComplete = () => (
         <div className="min-h-screen fade-in" style={{ backgroundColor: colors.sand }}>
-          <div className="p-4 max-w-2xl mx-auto">
+          <div className="p-4 max-w-2xl mx-auto pb-20">
             <Header />
-            
+
+            <PreviousPageButton onClick={() => setPhase('coda')} />
+
             {/* Trophy */}
             <div className="text-center mb-6">
               <div 
@@ -1739,13 +1777,14 @@
             </div>
             
             {/* Next Tutorial Button */}
-            <button
-              onClick={() => { playContinueClick(); /* Link will be added later */ }}
-              className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all mb-3"
+            <a
+              href="tutorial-1-5.html"
+              onClick={() => playContinueClick()}
+              className="w-full py-3 rounded-lg font-bold text-white flex items-center justify-center gap-2 btn-primary transition-all mb-3 no-underline"
               style={{ backgroundColor: colors.primary }}
             >
-              Next Tutorial <ChevronRightIcon />
-            </button>
+              Next Tutorial: The Bountiful Harvest <ChevronRightIcon />
+            </a>
             
             {/* Restart */}
             <button
@@ -1785,14 +1824,16 @@
     <!-- Navigation Footer -->
     <div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,53,107,0.95), rgba(0,53,107,0.85)); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; z-index: 40;">
         <div style="max-width: 42rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
-            <a href="tutorial-1-3.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                <span style="font-size: 16px;">←</span> Previous
+            <a href="tutorial-1-3.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="font-size: 16px;">←</span> Previous</span>
+                <span style="font-size: 11px; opacity: 0.8;">Tutorial 1.3</span>
             </a>
             <a href="../index.html" style="flex: 1; padding: 10px 16px; background: rgba(201,162,39,0.9); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; text-align: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(201,162,39,1)'" onmouseout="this.style.background='rgba(201,162,39,0.9)'">
                 Hub
             </a>
-            <a href="tutorial-1-5.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                Next <span style="font-size: 16px;">→</span>
+            <a href="tutorial-1-5.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;">Next <span style="font-size: 16px;">→</span></span>
+                <span style="font-size: 11px; opacity: 0.8;">Tutorial 1.5</span>
             </a>
         </div>
     </div>
