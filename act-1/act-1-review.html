@@ -561,8 +561,10 @@ This is why Act I matters for accounting. Accounting is an information system—
 
         if (currentQuestion < questions.length - 1) {
           setCurrentQuestion(currentQuestion + 1);
+          window.scrollTo(0, 0);
         } else {
           setPhase('bridge');
+          window.scrollTo(0, 0);
         }
       };
 
@@ -704,7 +706,7 @@ This is why Act I matters for accounting. Accounting is an information system—
                   </div>
 
                   <button
-                    onClick={() => setPhase('questions')}
+                    onClick={() => { setPhase('questions'); window.scrollTo(0, 0); }}
                     className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
                     style={{ backgroundColor: colors.primary }}
                   >
@@ -763,6 +765,7 @@ This is why Act I matters for accounting. Accounting is an information system—
                     onClick={() => {
                       saveResults();
                       setPhase('complete');
+                      window.scrollTo(0, 0);
                     }}
                     className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90"
                     style={{ backgroundColor: colors.primary }}
@@ -878,11 +881,12 @@ This is why Act I matters for accounting. Accounting is an information system—
                       });
                       setAnswer('');
                       setShowFeedback(false);
+                      window.scrollTo(0, 0);
                     }}
                     className="w-full py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
                     style={{ backgroundColor: colors.sand, color: colors.earthDark }}
                   >
-                    <RefreshCw className="w-4 h-4" /> Restart Review
+                    <RefreshCw className="w-5 h-5" style={{ color: 'white' }} /> Restart Review
                   </button>
                 </div>
               </div>
@@ -989,31 +993,21 @@ This is why Act I matters for accounting. Accounting is an information system—
     root.render(<ActIReview />);
   </script>
 
-  <!-- Navigation Footer -->
-  <nav style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to right, #00356b, #004080); padding: 1rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);">
-    <div style="max-width: 48rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
-      <a href="tutorial-1-5.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem; transition: background 0.2s;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-        <span style="font-size: 0.875rem;">Previous</span>
-      </a>
-
-      <a href="../index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.15); border-radius: 0.5rem; transition: background 0.2s; font-weight: 600;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-        <span style="font-size: 0.875rem;">Tutorial Hub</span>
-      </a>
-
-      <a href="../act-2/act-2-welcome.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem; transition: background 0.2s;">
-        <span style="font-size: 0.875rem;">Next</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-      </a>
+    <!-- Navigation Footer -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,53,107,0.95), rgba(0,53,107,0.85)); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; z-index: 40;">
+        <div style="max-width: 42rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+            <a href="tutorial-1-5.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="font-size: 16px;">←</span> Previous</span>
+                <span style="font-size: 11px; opacity: 0.8;">Tutorial 1.5</span>
+            </a>
+            <a href="../index.html" style="flex: 1; padding: 10px 16px; background: rgba(201,162,39,0.9); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; text-align: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(201,162,39,1)'" onmouseout="this.style.background='rgba(201,162,39,0.9)'">
+                Hub
+            </a>
+            <a href="../act-2/act-2-welcome.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;">Next <span style="font-size: 16px;">→</span></span>
+                <span style="font-size: 11px; opacity: 0.8;">Act 2 Welcome</span>
+            </a>
+        </div>
     </div>
-  </nav>
 </body>
 </html>

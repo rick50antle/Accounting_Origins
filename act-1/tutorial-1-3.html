@@ -252,6 +252,7 @@
             if (observationTimerRef.current) {
               clearTimeout(observationTimerRef.current);
             }
+            window.scrollTo(0, 0);
           };
 
           const colors = {
@@ -515,6 +516,7 @@
               saveResults();
               setPhase('complete');
             }
+            window.scrollTo(0, 0);
           };
 
           const getExplanation = () => {
@@ -585,6 +587,13 @@
                   title={soundEnabled ? 'Sound on' : 'Sound off'}
                 >
                   {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                </button>
+                <button
+                  onClick={handleRestart}
+                  className="p-1.5 rounded bg-white/10 hover:bg-white/20"
+                  title="Restart tutorial"
+                >
+                  <RefreshCw className="w-5 h-5 text-white" />
                 </button>
                 <div className="flex items-center gap-1 text-xs">
                   <Clock className="w-4 h-4" />
@@ -715,43 +724,12 @@
             </div>
           );
 
-          // Navigation Footer
-          const NavigationFooter = () => (
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg" style={{ borderColor: colors.earthLight }}>
-              <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-                <a
-                  href="tutorial-1-2.html"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium hover:opacity-80 transition-opacity"
-                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Previous</span>
-                </a>
-                <a
-                  href="../index.html"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium hover:opacity-80 transition-opacity"
-                  style={{ backgroundColor: colors.sand, color: colors.earthDark }}
-                >
-                  <Home className="w-4 h-4" />
-                  <span>Hub</span>
-                </a>
-                <a
-                  href="tutorial-1-4.html"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white hover:opacity-80 transition-opacity"
-                  style={{ backgroundColor: colors.primary }}
-                >
-                  <span>Next</span>
-                  <ArrowRight className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-          );
 
           // INTRO SCREEN
           if (phase === 'intro') return (
-            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="min-h-screen pb-20" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
               <Header />
-              <div className="p-4 max-w-2xl mx-auto">
+              <div className="p-4 max-w-2xl mx-auto pb-20">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
                   <div className="p-5 text-white" style={{ background: `linear-gradient(to right, ${colors.primary}, #004080)` }}>
                     <h1 className="text-xl font-bold mb-1">Why We Start Here</h1>
@@ -784,21 +762,20 @@
                       <p className="font-bold" style={{ color: colors.primary }}>how markets reduce the cost of gathering information.</p>
                     </div>
 
-                    <button onClick={() => setPhase('tutorial')} className="w-full mt-5 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
+                    <button onClick={() => { setPhase('tutorial'); window.scrollTo(0, 0); }} className="w-full mt-5 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.primary }}>
                       Continue <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
               </div>
-              <NavigationFooter />
             </div>
           );
 
           // WELCOME SCREEN
           if (phase === 'tutorial' && step === -1) return (
-            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="min-h-screen pb-20" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
               <Header />
-              <div className="p-4 max-w-2xl mx-auto">
+              <div className="p-4 max-w-2xl mx-auto pb-20">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
                   <div className="p-5" style={{ background: `linear-gradient(to right, ${colors.earth}, ${colors.earthDark})` }}>
                     <h1 className="text-xl font-bold text-white mb-1">The Marketplace Emerges</h1>
@@ -849,22 +826,21 @@
                       <span className="text-xs text-gray-500 ml-auto self-center">~12 min • 6 questions</span>
                     </div>
 
-                    <button onClick={() => setStep(0)} className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.earth }}>
+                    <button onClick={() => { setStep(0); window.scrollTo(0, 0); }} className="w-full text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: colors.earth }}>
                       Enter the Market <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
               </div>
               {showGlossary && <GlossaryModal />}
-              <NavigationFooter />
             </div>
           );
 
           // OBSERVATION PHASE
           if (phase === 'tutorial' && step === 'observe') return (
-            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="min-h-screen pb-20" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
               <Header />
-              <div className="p-4 max-w-2xl mx-auto">
+              <div className="p-4 max-w-2xl mx-auto pb-20">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
                   <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
                     <div className="flex items-center gap-2">
@@ -969,7 +945,6 @@
                 </div>
               </div>
               {showGlossary && <GlossaryModal />}
-              <NavigationFooter />
             </div>
           );
 
@@ -978,9 +953,9 @@
             const finalTrader = woolSellers.find(t => t.id === selectedTrader);
 
             return (
-              <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+              <div className="min-h-screen pb-20" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
                 <Header />
-                <div className="p-4 max-w-2xl mx-auto">
+                <div className="p-4 max-w-2xl mx-auto pb-20">
                   <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
                     <div className="p-5 text-white text-center" style={{ background: 'linear-gradient(to right, #2d6a4f, #40916c)' }}>
                       <Trophy className="w-12 h-12 mx-auto mb-2 text-yellow-300" />
@@ -1052,8 +1027,7 @@
                   </div>
                 </div>
                 {showGlossary && <GlossaryModal />}
-                <NavigationFooter />
-              </div>
+                </div>
             );
           }
 
@@ -1062,9 +1036,9 @@
           if (!q) return null;
 
           return (
-            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="min-h-screen pb-20" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
               <Header />
-              <div className="p-4 max-w-2xl mx-auto">
+              <div className="p-4 max-w-2xl mx-auto pb-20">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
                   {/* Progress */}
                   <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: colors.earthLight, backgroundColor: '#f8f9fa' }}>
@@ -1080,9 +1054,8 @@
                     </div>
                     <div className="flex items-center gap-2">
                       {devMode && <button onClick={nextStep} className="text-xs bg-purple-600 text-white px-2 py-1 rounded">Skip</button>}
-                      <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
-                        <RefreshCw className="w-3 h-3" />
-                        <span>Restart</span>
+                      <button onClick={handleRestart} className="text-white hover:opacity-80 flex items-center gap-1" title="Restart tutorial">
+                        <RefreshCw className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
@@ -1280,7 +1253,6 @@
                 </div>
               </div>
               {showGlossary && <GlossaryModal />}
-              <NavigationFooter />
             </div>
           );
         };
@@ -1288,5 +1260,22 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<Tutorial13 />);
     </script>
+
+    <!-- Navigation Footer -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,53,107,0.95), rgba(0,53,107,0.85)); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; z-index: 40;">
+        <div style="max-width: 42rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+            <a href="tutorial-1-2.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="font-size: 16px;">←</span> Previous</span>
+                <span style="font-size: 11px; opacity: 0.8;">Tutorial 1.2</span>
+            </a>
+            <a href="../index.html" style="flex: 1; padding: 10px 16px; background: rgba(201,162,39,0.9); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; text-align: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(201,162,39,1)'" onmouseout="this.style.background='rgba(201,162,39,0.9)'">
+                Hub
+            </a>
+            <a href="tutorial-1-4.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;">Next <span style="font-size: 16px;">→</span></span>
+                <span style="font-size: 11px; opacity: 0.8;">Tutorial 1.4</span>
+            </a>
+        </div>
+    </div>
 </body>
 </html>

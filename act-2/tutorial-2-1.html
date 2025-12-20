@@ -19,69 +19,10 @@
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     }
-
-    /* Navigation Footer Styles */
-    .nav-footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      border-top: 2px solid #e5e7eb;
-      padding: 0.75rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-      z-index: 100;
-    }
-
-    .nav-footer a {
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      transition: all 0.2s;
-      font-size: 0.875rem;
-    }
-
-    .nav-footer .nav-prev {
-      background-color: #f3f4f6;
-      color: #374151;
-    }
-
-    .nav-footer .nav-prev:hover {
-      background-color: #e5e7eb;
-    }
-
-    .nav-footer .nav-hub {
-      background-color: #00356b;
-      color: white;
-    }
-
-    .nav-footer .nav-hub:hover {
-      opacity: 0.9;
-    }
-
-    .nav-footer .nav-next {
-      background-color: #00356b;
-      color: white;
-    }
-
-    .nav-footer .nav-next:hover {
-      opacity: 0.9;
-    }
   </style>
 </head>
 <body>
   <div id="root"></div>
-
-  <!-- Navigation Footer -->
-  <div class="nav-footer">
-    <a href="act-2-welcome.html" class="nav-prev">← Previous</a>
-    <a href="../index.html" class="nav-hub">Hub</a>
-    <a href="tutorial-2-2.html" class="nav-next">Next →</a>
-  </div>
 
   <script type="text/babel">
     const { useState } = React;
@@ -318,6 +259,13 @@
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={handleRestart}
+              className="flex items-center gap-1 text-xs hover:text-blue-200"
+              title="Restart tutorial"
+            >
+              <RefreshCw className="w-5 h-5" />
+            </button>
             <button
               onClick={() => setShowGlossary(true)}
               className="flex items-center gap-1 text-xs hover:text-blue-200"
@@ -1845,5 +1793,22 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<Tutorial21 />);
   </script>
+
+    <!-- Navigation Footer -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,53,107,0.95), rgba(0,53,107,0.85)); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; z-index: 40;">
+        <div style="max-width: 42rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+            <a href="act-2-welcome.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="font-size: 16px;">←</span> Previous</span>
+                <span style="font-size: 11px; opacity: 0.8;">Act 2 Welcome</span>
+            </a>
+            <a href="../index.html" style="flex: 1; padding: 10px 16px; background: rgba(201,162,39,0.9); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; text-align: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(201,162,39,1)'" onmouseout="this.style.background='rgba(201,162,39,0.9)'">
+                Hub
+            </a>
+            <a href="tutorial-2-2.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;">Next <span style="font-size: 16px;">→</span></span>
+                <span style="font-size: 11px; opacity: 0.8;">Tutorial 2.2</span>
+            </a>
+        </div>
+    </div>
 </body>
 </html>

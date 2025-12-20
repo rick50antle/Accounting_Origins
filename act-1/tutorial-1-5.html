@@ -338,12 +338,14 @@
                 setQ2Attempts(0);
                 setQ2Submitted(false);
                 setShowHistoricalNote(false);
+                window.scrollTo(0, 0);
             };
 
             const advancePhase = (nextPhase) => {
                 playContinueClick();
                 setStep(0);
                 setPhase(nextPhase);
+                window.scrollTo(0, 0);
             };
 
             // Q1: How many pots can you buy?
@@ -450,7 +452,7 @@
                                 {phaseOrder.map(p => (
                                     <button
                                         key={p}
-                                        onClick={() => { setStep(0); setPhase(p); }}
+                                        onClick={() => { setStep(0); setPhase(p); window.scrollTo(0, 0); }}
                                         className={`px-2 py-1 rounded text-xs ${phase === p ? 'bg-white text-blue-900' : 'bg-white/20 text-white'}`}
                                     >
                                         {p}
@@ -1368,14 +1370,16 @@
     <!-- Navigation Footer -->
     <div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,53,107,0.95), rgba(0,53,107,0.85)); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; z-index: 40;">
         <div style="max-width: 42rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
-            <a href="tutorial-1-4.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                <span style="font-size: 16px;">←</span> Previous
+            <a href="tutorial-1-4.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="font-size: 16px;">←</span> Previous</span>
+                <span style="font-size: 11px; opacity: 0.8;">Tutorial 1.4</span>
             </a>
             <a href="../index.html" style="flex: 1; padding: 10px 16px; background: rgba(201,162,39,0.9); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; text-align: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(201,162,39,1)'" onmouseout="this.style.background='rgba(201,162,39,0.9)'">
                 Hub
             </a>
-            <a href="act-1-review.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                Next <span style="font-size: 16px;">→</span>
+            <a href="act-1-review.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;">Next <span style="font-size: 16px;">→</span></span>
+                <span style="font-size: 11px; opacity: 0.8;">Act 1 Review</span>
             </a>
         </div>
     </div>

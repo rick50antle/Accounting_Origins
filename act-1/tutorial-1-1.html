@@ -216,6 +216,7 @@
             setTravelLog2([]);
             setPeopleSpokenTo1([]);
             setPeopleSpokenTo2([]);
+            window.scrollTo(0, 0);
           };
 
           const colors = {
@@ -790,7 +791,7 @@
 
           // INTRO
           if (phase === 'intro') return (
-            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="min-h-screen pb-20" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
               <Header />
               <div className="p-4 max-w-2xl mx-auto">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
@@ -818,22 +819,12 @@
                   </div>
                 </div>
               </div>
-              {/* Navigation Footer */}
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
-                <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg> Prev
-                </a>
-                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
-                <a href="tutorial-1-2.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
-                  Next <ChevronRight className="w-4 h-4" />
-                </a>
-              </div>
             </div>
           );
 
           // WELCOME
           if (phase === 'tutorial' && step === -1) return (
-            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="min-h-screen pb-20" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
               <Header />
               <div className="p-4 max-w-2xl mx-auto">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
@@ -881,22 +872,12 @@
                   </div>
                 </div>
               </div>
-              {/* Navigation Footer */}
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
-                <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg> Prev
-                </a>
-                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
-                <a href="tutorial-1-2.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
-                  Next <ChevronRight className="w-4 h-4" />
-                </a>
-              </div>
             </div>
           );
 
           // NOTE - About the Travel Log (shown after search2)
           if (phase === 'tutorial' && step === 'note') return (
-            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="min-h-screen pb-20" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
               <Header />
               <div className="p-4 max-w-2xl mx-auto">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
@@ -924,22 +905,12 @@
                   </div>
                 </div>
               </div>
-              {/* Navigation Footer */}
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
-                <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg> Prev
-                </a>
-                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
-                <a href="tutorial-1-2.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
-                  Next <ChevronRight className="w-4 h-4" />
-                </a>
-              </div>
             </div>
           );
 
           // COMPLETE
           if (phase === 'complete') return (
-            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="min-h-screen pb-20" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
               <Header />
               <div className="p-4 max-w-2xl mx-auto">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
@@ -995,16 +966,6 @@
                   </div>
                 </div>
               </div>
-              {/* Navigation Footer */}
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
-                <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg> Prev
-                </a>
-                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
-                <a href="tutorial-1-2.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
-                  Next <ChevronRight className="w-4 h-4" />
-                </a>
-              </div>
             </div>
           );
 
@@ -1018,7 +979,7 @@
           const log = scenario === 1 ? travelLog1 : travelLog2;
 
           return (
-            <div className="min-h-screen pb-16" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
+            <div className="min-h-screen pb-20" style={{ background: `linear-gradient(to br, ${colors.sand}, #fff, ${colors.sand})` }}>
               <Header />
               <div className="p-4 max-w-2xl mx-auto">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden border" style={{ borderColor: colors.earthLight }}>
@@ -1032,7 +993,7 @@
                     <div className="flex items-center gap-2">
                       {devMode && <button onClick={nextStep} className="text-xs bg-purple-600 text-white px-2 py-1 rounded">Skip</button>}
                       <button onClick={handleRestart} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1" title="Restart tutorial">
-                        <RefreshCw className="w-3 h-3" />
+                        <RefreshCw className="w-5 h-5 text-white" />
                         <span>Restart</span>
                       </button>
                     </div>
@@ -1119,16 +1080,6 @@
                 </div>
               </div>
               {showGlossary && <GlossaryModal terms={glossaryTerms} colors={colors} onClose={() => setShowGlossary(false)} />}
-              {/* Navigation Footer */}
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-between items-center">
-                <a href="act-1-welcome.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M15 19l-7-7 7-7" /></svg> Prev
-                </a>
-                <a href="../index.html" className="text-sm text-gray-500 hover:text-gray-700 no-underline">Hub</a>
-                <a href="tutorial-1-2.html" className="text-sm font-medium no-underline flex items-center gap-1" style={{ color: '#00356b' }}>
-                  Next <ChevronRight className="w-4 h-4" />
-                </a>
-              </div>
             </div>
           );
         };
@@ -1136,5 +1087,22 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<Tutorial11 />);
     </script>
+
+    <!-- Navigation Footer -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,53,107,0.95), rgba(0,53,107,0.85)); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; z-index: 40;">
+        <div style="max-width: 42rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+            <a href="act-1-welcome.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="font-size: 16px;">←</span> Previous</span>
+                <span style="font-size: 11px; opacity: 0.8;">Act 1 Welcome</span>
+            </a>
+            <a href="../index.html" style="flex: 1; padding: 10px 16px; background: rgba(201,162,39,0.9); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; text-align: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(201,162,39,1)'" onmouseout="this.style.background='rgba(201,162,39,0.9)'">
+                Hub
+            </a>
+            <a href="tutorial-1-2.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;">Next <span style="font-size: 16px;">→</span></span>
+                <span style="font-size: 11px; opacity: 0.8;">Tutorial 1.2</span>
+            </a>
+        </div>
+    </div>
 </body>
 </html>

@@ -25,49 +25,11 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    .nav-footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #00356b;
-      border-top: 3px solid #c9a227;
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-      z-index: 100;
-    }
-
-    .nav-footer a {
-      color: white;
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
-      transition: background-color 0.2s;
-      font-weight: 600;
-    }
-
-    .nav-footer a:hover {
-      background-color: rgba(255,255,255,0.1);
-    }
-
-    .nav-footer .nav-center {
-      color: #f5f1e8;
-      font-size: 0.875rem;
-    }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
-  <!-- Navigation Footer -->
-  <div class="nav-footer">
-    <a href="tutorial-2-4.html">← Previous</a>
-    <div class="nav-center">Tutorial 2.5</div>
-    <a href="tutorial-2-6.html">Next →</a>
-  </div>
 
   <script type="text/babel">
     const { useState } = React;
@@ -1894,7 +1856,7 @@
                   className="flex items-center gap-1 text-sm px-3 py-1 rounded"
                   style={{ color: colors.earth }}
                 >
-                  <RefreshCw className="w-4 h-4" /> Restart
+                  <RefreshCw className="w-5 h-5 text-white" /> Restart
                 </button>
               </div>
             )}
@@ -1946,5 +1908,22 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<Tutorial25DisciplineOfBalance />);
   </script>
+
+    <!-- Navigation Footer -->
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,53,107,0.95), rgba(0,53,107,0.85)); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; z-index: 40;">
+        <div style="max-width: 42rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+            <a href="tutorial-2-4.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;"><span style="font-size: 16px;">←</span> Previous</span>
+                <span style="font-size: 11px; opacity: 0.8;">Tutorial 2.4</span>
+            </a>
+            <a href="../index.html" style="flex: 1; padding: 10px 16px; background: rgba(201,162,39,0.9); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; text-align: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(201,162,39,1)'" onmouseout="this.style.background='rgba(201,162,39,0.9)'">
+                Hub
+            </a>
+            <a href="tutorial-2-6.html" style="flex: 1; padding: 10px 16px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span style="display: flex; align-items: center; gap: 4px;">Next <span style="font-size: 16px;">→</span></span>
+                <span style="font-size: 11px; opacity: 0.8;">Tutorial 2.6</span>
+            </a>
+        </div>
+    </div>
 </body>
 </html>
