@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three Fair Trades - Arbitrage and Price Adjustment</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Source Sans Pro', sans-serif; background: #111827; min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const ArbitrageFullExperience = () => {
+      // Phases:
+      // 'trade1', 'trade2', 'trade3' - 2D individual trades
+      // 'original3d' - original 3D arbitrage cycle (+4 profit)
+      // 'whyAdjust' - explanation screen
+      // 'reduced3d' - reduced arbitrage cycle (+2 profit)
+      // 'continues' - explanation that process continues
+      // 'zero3d' - no arbitrage cycle (0 profit)
+      const [phase, setPhase] = useState('trade1');
+      const [step, setStep] = useState(0);
+      const [animProgress, setAnimProgress] = useState(0);
+      const [lineProgress, setLineProgress] = useState(0);
+      const [animPhase, setAnimPhase] = useState('idle');
+      const animationRef = useRef(null);
+      
+      const [rotation, setRotation] = useState({ x: -25, y: -45 });
+      const [isDragging, setIsDragging] = useState(false);
+      const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+      // Current scenario rates
+      const scenarios = {
+        original: { potsToBarley: '1 Pot = 4 Barley', endBarley: 16, profit: 4, percent: 33 },
+        reduced: { potsToBarley: '2 Pots = 7 Barley', endBarley: 14, profit: 2, percent: 17 },
+        zero: { potsToBarley: '1 Pot = 3 Barley', endBarley: 12, profit: 0, percent: 0 }
+      };
+
+      const getScenario = () => {
+        if (phase === 'reduced3d') return scenarios.reduced;
+        if (phase === 'zero3d') return scenarios.zero;
+        return scenarios.original;
+      };
+
+      const easeInOutCubic = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+      const animateLine = (callback) => {
+        const duration = 500;
+        const startTime = Date.now();
+        setAnimPhase('line');
+        const animate = () => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          setLineProgress(easeInOutCubic(progress));
+          if (progress < 1) {
+            animationRef.current = requestAnimationFrame(animate);
+          } else {
+            setLineProgress(1);
+            setAnimPhase('idle');
+            if (callback) callback();
+          }
+        };
+        animationRef.current = requestAnimationFrame(animate);
+      };
+
+      const animateDot = (callback) => {
+        const duration = 1000;
+        const startTime = Date.now();
+        setAnimPhase('dot');
+        const animate = () => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          setAnimProgress(easeInOutCubic(progress));
+          if (progress < 1) {
+            animationRef.current = requestAnimationFrame(animate);
+          } else {
+            setAnimProgress(0);
+            setAnimPhase('idle');
+            if (callback) callback();
+          }
+        };
+        animationRef.current = requestAnimationFrame(animate);
+      };
+
+      const handleNext = () => {
+        // 2D Trade phases
+        if (phase === 'trade1' || phase === 'trade2' || phase === 'trade3') {
+          if (step === 0) {
+            setStep(1);
+            animateLine();
+          } else if (step === 1) {
+            setStep(2);
+            animateDot(() => setStep(3));
+          } else if (step === 3) {
+            if (phase === 'trade1') {
+              setPhase('trade2');
+              setStep(0);
+              setLineProgress(0);
+            } else if (phase === 'trade2') {
+              setPhase('trade3');
+              setStep(0);
+              setLineProgress(0);
+            } else {
+              setPhase('original3d');
+              setStep(0);
+              setLineProgress(0);
+            }
+          }
+        }
+        // Original 3D
+        else if (phase === 'original3d') {
+          if (step === 0) { setStep(1); animateDot(() => setStep(2)); }
+          else if (step === 2) { setStep(3); animateDot(() => setStep(4)); }
+          else if (step === 4) { setStep(5); animateDot(() => setStep(6)); }
+          else if (step === 6) { setPhase('whyAdjust'); setStep(0); }
+        }
+        // Why Adjust screen
+        else if (phase === 'whyAdjust') {
+          setPhase('reduced3d');
+          setStep(0);
+          setRotation({ x: -25, y: -45 });
+        }
+        // Reduced 3D
+        else if (phase === 'reduced3d') {
+          if (step === 0) { setStep(1); animateDot(() => setStep(2)); }
+          else if (step === 2) { setStep(3); animateDot(() => setStep(4)); }
+          else if (step === 4) { setStep(5); animateDot(() => setStep(6)); }
+          else if (step === 6) { setPhase('continues'); setStep(0); }
+        }
+        // Continues screen
+        else if (phase === 'continues') {
+          setPhase('zero3d');
+          setStep(0);
+          setRotation({ x: -25, y: -45 });
+        }
+        // Zero 3D
+        else if (phase === 'zero3d') {
+          if (step === 0) { setStep(1); animateDot(() => setStep(2)); }
+          else if (step === 2) { setStep(3); animateDot(() => setStep(4)); }
+          else if (step === 4) { setStep(5); animateDot(() => setStep(6)); }
+          else if (step === 6) {
+            // Restart everything
+            setPhase('trade1');
+            setStep(0);
+            setAnimProgress(0);
+            setLineProgress(0);
+          }
+        }
+      };
+
+      const handleBack = () => {
+        if (phase === 'trade2') { setPhase('trade1'); setStep(3); setLineProgress(1); }
+        else if (phase === 'trade3') { setPhase('trade2'); setStep(3); setLineProgress(1); }
+        else if (phase === 'original3d') { setPhase('trade3'); setStep(3); setLineProgress(1); }
+        else if (phase === 'whyAdjust') { setPhase('original3d'); setStep(6); }
+        else if (phase === 'reduced3d') { setPhase('whyAdjust'); setStep(0); }
+        else if (phase === 'continues') { setPhase('reduced3d'); setStep(6); }
+        else if (phase === 'zero3d') { setPhase('continues'); setStep(0); }
+        setAnimProgress(0);
+        setAnimPhase('idle');
+      };
+
+      useEffect(() => {
+        return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
+      }, []);
+
+      // 2D Graph Component
+      const LargeGraph = ({ xLabel, yLabel, xColor, yColor, startPoint, endPoint, tradeLabel, slopeLabel, showLine, lineProg, isTrading, tradeProg, isComplete, xMax, yMax }) => {
+        const width = 500, height = 400, padding = 70;
+        const graphWidth = width - padding * 2, graphHeight = height - padding * 2;
+        const scaleX = (val) => padding + (val / xMax) * graphWidth;
+        const scaleY = (val) => height - padding - (val / yMax) * graphHeight;
+        
+        const currentX = isTrading ? startPoint.x + (endPoint.x - startPoint.x) * tradeProg : (isComplete ? endPoint.x : startPoint.x);
+        const currentY = isTrading ? startPoint.y + (endPoint.y - startPoint.y) * tradeProg : (isComplete ? endPoint.y : startPoint.y);
+        const currentColor = isTrading ? (tradeProg >= 0.5 ? endPoint.color : startPoint.color) : (isComplete ? endPoint.color : startPoint.color);
+        const currentLabel = isTrading ? (tradeProg >= 0.5 ? endPoint.label : startPoint.label) : (isComplete ? endPoint.label : startPoint.label);
+        const lineEndX = showLine ? startPoint.x + (endPoint.x - startPoint.x) * lineProg : startPoint.x;
+        const lineEndY = showLine ? startPoint.y + (endPoint.y - startPoint.y) * lineProg : startPoint.y;
+
+        const xTicks = [], yTicks = [];
+        for (let i = 0; i <= 4; i++) { xTicks.push(Math.round(xMax * i / 4)); yTicks.push(Math.round(yMax * i / 4)); }
+        const midX = (scaleX(startPoint.x) + scaleX(endPoint.x)) / 2;
+        const midY = (scaleY(startPoint.y) + scaleY(endPoint.y)) / 2;
+        const lineFullyDrawn = showLine && lineProg >= 1;
+
+        return (
+          <svg width={width} height={height} style={{ background: 'rgba(15, 23, 42, 0.8)', borderRadius: '12px', border: '1px solid #334155' }}>
+            {xTicks.map((v, i) => (<g key={`vx${i}`}><line x1={scaleX(v)} y1={padding} x2={scaleX(v)} y2={height - padding} stroke="#334155" strokeWidth="1" strokeOpacity="0.5" /><text x={scaleX(v)} y={height - padding + 20} fill="#9CA3AF" fontSize="14" textAnchor="middle">{v}</text></g>))}
+            {yTicks.map((v, i) => (<g key={`vy${i}`}><line x1={padding} y1={scaleY(v)} x2={width - padding} y2={scaleY(v)} stroke="#334155" strokeWidth="1" strokeOpacity="0.5" /><text x={padding - 15} y={scaleY(v) + 5} fill="#9CA3AF" fontSize="14" textAnchor="end">{v}</text></g>))}
+            <line x1={padding} y1={height - padding} x2={width - padding + 15} y2={height - padding} stroke={xColor} strokeWidth="3" />
+            <polygon points={`${width - padding + 22},${height - padding} ${width - padding + 8},${height - padding - 7} ${width - padding + 8},${height - padding + 7}`} fill={xColor} />
+            <text x={width - padding} y={height - padding + 45} fill={xColor} fontSize="18" fontWeight="600" textAnchor="middle" fontFamily="'Georgia', serif">{xLabel}</text>
+            <line x1={padding} y1={height - padding} x2={padding} y2={padding - 15} stroke={yColor} strokeWidth="3" />
+            <polygon points={`${padding},${padding - 22} ${padding - 7},${padding - 8} ${padding + 7},${padding - 8}`} fill={yColor} />
+            <text x={padding} y={padding - 35} fill={yColor} fontSize="18" fontWeight="600" textAnchor="middle" fontFamily="'Georgia', serif">{yLabel}</text>
+            {(showLine || isComplete) && <line x1={scaleX(startPoint.x)} y1={scaleY(startPoint.y)} x2={isComplete ? scaleX(endPoint.x) : scaleX(lineEndX)} y2={isComplete ? scaleY(endPoint.y) : scaleY(lineEndY)} stroke="#64748B" strokeWidth="3" strokeDasharray="8,5" />}
+            {(lineFullyDrawn || isComplete) && (<g><rect x={midX + 15} y={midY - 12} width="90" height="24" rx="4" fill="rgba(15, 23, 42, 0.9)" stroke="#4B5563" strokeWidth="1" /><text x={midX + 60} y={midY + 4} fill="#9CA3AF" fontSize="12" textAnchor="middle" fontFamily="'Source Sans Pro', sans-serif">slope = {slopeLabel}</text></g>)}
+            {(lineFullyDrawn || isComplete) && !isComplete && !isTrading && (<g><circle cx={scaleX(endPoint.x)} cy={scaleY(endPoint.y)} r="10" fill="none" stroke={endPoint.color} strokeWidth="2" strokeDasharray="4,3" opacity="0.7" /><text x={scaleX(endPoint.x)} y={scaleY(endPoint.y) - 18} fill={endPoint.color} fontSize="12" textAnchor="middle" opacity="0.8" fontFamily="'Georgia', serif">{endPoint.label}</text></g>)}
+            {isComplete && <circle cx={scaleX(startPoint.x)} cy={scaleY(startPoint.y)} r="8" fill={startPoint.color} opacity={0.3} stroke="white" strokeWidth="2" strokeOpacity="0.3" />}
+            <circle cx={scaleX(currentX)} cy={scaleY(currentY)} r="14" fill={currentColor} stroke="white" strokeWidth="3" />
+            <rect x={scaleX(currentX) - 60} y={scaleY(currentY) - 45} width="120" height="28" rx="4" fill="rgba(15, 23, 42, 0.95)" stroke={currentColor} strokeWidth="2" />
+            <text x={scaleX(currentX)} y={scaleY(currentY) - 26} fill={currentColor} fontSize="14" fontWeight="600" textAnchor="middle" fontFamily="'Georgia', serif">{currentLabel}</text>
+            <rect x={width / 2 - 90} y={height - 30} width="180" height="26" rx="4" fill={isTrading ? "rgba(34, 197, 94, 0.2)" : "rgba(30, 41, 59, 0.8)"} stroke={isTrading ? "#22C55E" : "#334155"} strokeWidth={isTrading ? "2" : "1"} />
+            <text x={width / 2} y={height - 12} fill={isTrading ? "#22C55E" : "#9CA3AF"} fontSize="14" fontWeight={isTrading ? "600" : "400"} textAnchor="middle" fontFamily="'Source Sans Pro', sans-serif">{tradeLabel}</text>
+          </svg>
+        );
+      };
+
+      // 3D Graph Component
+      const Graph3D = ({ scenario }) => {
+        const endBarleyPos = scenario.endBarley / 20; // Scale to 0-1 range
+        const points = {
+          startBarley: { x: 0.6, y: 0, z: 0, color: '#F59E0B', label: '12 Barley' },
+          wool: { x: 0, y: 0, z: 0.5, color: '#06B6D4', label: '6 Wool' },
+          pots: { x: 0, y: 0.7, z: 0, color: '#DC2626', label: '4 Pots' },
+          endBarley: { x: endBarleyPos, y: 0, z: 0, color: scenario.profit > 0 ? '#22C55E' : '#F59E0B', label: `${scenario.endBarley} Barley` },
+        };
+
+        const getMovingPoint = () => {
+          if (step === 0) return points.startBarley;
+          if (step === 1) {
+            const from = points.startBarley, to = points.wool;
+            return { x: from.x + (to.x - from.x) * animProgress, y: from.y + (to.y - from.y) * animProgress, z: from.z + (to.z - from.z) * animProgress, color: animProgress < 0.5 ? '#F59E0B' : '#06B6D4', label: animProgress < 0.5 ? '12 Barley' : '6 Wool' };
+          }
+          if (step === 2) return { ...points.wool, color: '#06B6D4', label: '6 Wool' };
+          if (step === 3) {
+            const from = points.wool, to = points.pots;
+            return { x: from.x + (to.x - from.x) * animProgress, y: from.y + (to.y - from.y) * animProgress, z: from.z + (to.z - from.z) * animProgress, color: animProgress < 0.5 ? '#06B6D4' : '#DC2626', label: animProgress < 0.5 ? '6 Wool' : '4 Pots' };
+          }
+          if (step === 4) return { ...points.pots, color: '#DC2626', label: '4 Pots' };
+          if (step === 5) {
+            const from = points.pots, to = points.endBarley;
+            return { x: from.x + (to.x - from.x) * animProgress, y: from.y + (to.y - from.y) * animProgress, z: from.z + (to.z - from.z) * animProgress, color: animProgress < 0.5 ? '#DC2626' : points.endBarley.color, label: animProgress < 0.5 ? '4 Pots' : `${scenario.endBarley} Barley` };
+          }
+          return points.endBarley;
+        };
+
+        const project3D = (x, y, z) => {
+          const scale = 200, centerX = 325, centerY = 220;
+          const radX = (rotation.x * Math.PI) / 180, radY = (rotation.y * Math.PI) / 180;
+          let x1 = x * Math.cos(radY) - z * Math.sin(radY);
+          let z1 = x * Math.sin(radY) + z * Math.cos(radY);
+          let y1 = y * Math.cos(radX) - z1 * Math.sin(radX);
+          let z2 = y * Math.sin(radX) + z1 * Math.cos(radX);
+          const perspective = 1 + z2 * 0.15;
+          return { x: centerX + x1 * scale / perspective, y: centerY - y1 * scale / perspective };
+        };
+
+        const drawAxis = (endX, endY, endZ, color, label) => {
+          const origin = project3D(0, 0, 0), end = project3D(endX, endY, endZ), labelPos = project3D(endX * 1.15, endY * 1.15, endZ * 1.15);
+          const dx = end.x - origin.x, dy = end.y - origin.y, len = Math.sqrt(dx * dx + dy * dy);
+          if (len < 15) return null;
+          const nx = dx / len, ny = dy / len;
+          return (<g key={label}><line x1={origin.x} y1={origin.y} x2={end.x} y2={end.y} stroke={color} strokeWidth="3" strokeOpacity="0.8" /><polygon points={`${end.x},${end.y} ${end.x - nx * 10 - ny * 6},${end.y - ny * 10 + nx * 6} ${end.x - nx * 10 + ny * 6},${end.y - ny * 10 - nx * 6}`} fill={color} opacity="0.8" /><text x={labelPos.x} y={labelPos.y} fill={color} fontSize="14" fontWeight="700" textAnchor="middle" dominantBaseline="middle" fontFamily="'Georgia', serif">{label}</text></g>);
+        };
+
+        const drawCompletedArrow = (from, to, color, show) => {
+          if (!show) return null;
+          const p1 = project3D(from.x, from.y, from.z), p2 = project3D(to.x, to.y, to.z);
+          const dx = p2.x - p1.x, dy = p2.y - p1.y, len = Math.sqrt(dx * dx + dy * dy), nx = dx / len, ny = dy / len;
+          return (<g opacity="0.5"><line x1={p1.x + nx * 12} y1={p1.y + ny * 12} x2={p2.x - nx * 12} y2={p2.y - ny * 12} stroke={color} strokeWidth="2.5" strokeDasharray="8,5" /><polygon points={`${p2.x - nx * 12},${p2.y - ny * 12} ${p2.x - nx * 22 - ny * 6},${p2.y - ny * 22 + nx * 6} ${p2.x - nx * 22 + ny * 6},${p2.y - ny * 22 - nx * 6}`} fill={color} /></g>);
+        };
+
+        const drawAnimatingTrail = (from, to, progress, color, show) => {
+          if (!show) return null;
+          const p1 = project3D(from.x, from.y, from.z);
+          const current = { x: from.x + (to.x - from.x) * progress, y: from.y + (to.y - from.y) * progress, z: from.z + (to.z - from.z) * progress };
+          const p2 = project3D(current.x, current.y, current.z);
+          return <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={color} strokeWidth="3" strokeOpacity="0.7" strokeLinecap="round" />;
+        };
+
+        const drawStaticMarker = (pt, show) => {
+          if (!show) return null;
+          const p = project3D(pt.x, pt.y, pt.z);
+          return <circle cx={p.x} cy={p.y} r="6" fill={pt.color} opacity="0.3" stroke="white" strokeWidth="1" strokeOpacity="0.3" />;
+        };
+
+        const drawGrid = () => {
+          const lines = [];
+          for (let i = 0; i <= 4; i++) {
+            const t = i / 4;
+            const p1 = project3D(t, 0, 0), p2 = project3D(t, 0, 1), p3 = project3D(0, 0, t), p4 = project3D(1, 0, t);
+            lines.push(<line key={`gx${i}`} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="#4B5563" strokeWidth="1" strokeOpacity="0.2" />);
+            lines.push(<line key={`gz${i}`} x1={p3.x} y1={p3.y} x2={p4.x} y2={p4.y} stroke="#4B5563" strokeWidth="1" strokeOpacity="0.2" />);
+          }
+          return lines;
+        };
+
+        const movingPt = getMovingPoint();
+        const projMoving = project3D(movingPt.x, movingPt.y, movingPt.z);
+        const isComplete = step === 6;
+        const profitColor = scenario.profit > 0 ? '#22C55E' : '#6B7280';
+
+        return (
+          <svg width={650} height={400} style={{ background: 'linear-gradient(180deg, #0F172A 0%, #1E293B 100%)', borderRadius: '12px', border: `2px solid ${isComplete ? profitColor : '#334155'}` }}
+            onMouseDown={(e) => { e.stopPropagation(); setIsDragging(true); setDragStart({ x: e.clientX, y: e.clientY }); }}
+            onMouseMove={(e) => { if (!isDragging) return; setRotation({ x: Math.max(-60, Math.min(10, rotation.x + (e.clientY - dragStart.y) * 0.4)), y: rotation.y + (e.clientX - dragStart.x) * 0.4 }); setDragStart({ x: e.clientX, y: e.clientY }); }}
+            onMouseUp={() => setIsDragging(false)} onMouseLeave={() => setIsDragging(false)}>
+            {drawGrid()}
+            {(() => { const o = project3D(0,0,0); return <circle cx={o.x} cy={o.y} r="3" fill="#6B7280" />; })()}
+            {drawAxis(1, 0, 0, '#F59E0B', 'Barley')}
+            {drawAxis(0, 1, 0, '#DC2626', 'Pots')}
+            {drawAxis(0, 0, 1, '#06B6D4', 'Wool')}
+            {drawStaticMarker(points.startBarley, step >= 0)}
+            {drawStaticMarker(points.wool, step >= 2)}
+            {drawStaticMarker(points.pots, step >= 4)}
+            {drawCompletedArrow(points.startBarley, points.wool, '#F59E0B', step >= 2)}
+            {drawCompletedArrow(points.wool, points.pots, '#06B6D4', step >= 4)}
+            {drawCompletedArrow(points.pots, points.endBarley, '#DC2626', step >= 6)}
+            {drawAnimatingTrail(points.startBarley, points.wool, animProgress, '#F59E0B', step === 1)}
+            {drawAnimatingTrail(points.wool, points.pots, animProgress, '#06B6D4', step === 3)}
+            {drawAnimatingTrail(points.pots, points.endBarley, animProgress, '#DC2626', step === 5)}
+            <g>
+              {isComplete && <circle cx={projMoving.x} cy={projMoving.y} r="18" fill="none" stroke={profitColor} strokeWidth="2" opacity="0.5"><animate attributeName="r" values="14;22;14" dur="2s" repeatCount="indefinite" /><animate attributeName="opacity" values="0.5;0.2;0.5" dur="2s" repeatCount="indefinite" /></circle>}
+              <circle cx={projMoving.x} cy={projMoving.y} r={isComplete ? 12 : 10} fill={movingPt.color} stroke="white" strokeWidth="2" />
+              <rect x={projMoving.x - 45} y={projMoving.y - 35} width="90" height="22" rx="4" fill="rgba(15, 23, 42, 0.95)" stroke={movingPt.color} strokeWidth="1.5" />
+              <text x={projMoving.x} y={projMoving.y - 20} fill={movingPt.color} fontSize="12" fontWeight="600" textAnchor="middle" fontFamily="'Georgia', serif">{movingPt.label}</text>
+            </g>
+            {/* Exchange rates box */}
+            <g transform="translate(20, 20)">
+              <rect x="0" y="0" width="170" height="115" rx="6" fill="rgba(15, 23, 42, 0.95)" stroke="#334155" />
+              <text x="85" y="20" fill="#F3F4F6" fontSize="12" fontWeight="600" textAnchor="middle" fontFamily="'Playfair Display', serif">Exchange Rates</text>
+              <line x1="10" y1="28" x2="160" y2="28" stroke="#334155" />
+              <g>{step <= 1 && <rect x="8" y="34" width="154" height="22" rx="3" fill="rgba(245, 158, 11, 0.25)" stroke="#F59E0B" strokeWidth="1.5" />}<circle cx="20" cy="46" r="5" fill="#F59E0B" /><text x="32" y="50" fill={step <= 1 ? "#F3F4F6" : "#6B7280"} fontSize="12" fontWeight={step <= 1 ? "600" : "400"}>2 Barley = 1 Wool</text></g>
+              <g>{step >= 2 && step <= 3 && <rect x="8" y="56" width="154" height="22" rx="3" fill="rgba(6, 182, 212, 0.25)" stroke="#06B6D4" strokeWidth="1.5" />}<circle cx="20" cy="68" r="5" fill="#06B6D4" /><text x="32" y="72" fill={step >= 2 && step <= 3 ? "#F3F4F6" : "#6B7280"} fontSize="12" fontWeight={step >= 2 && step <= 3 ? "600" : "400"}>3 Wool = 2 Pots</text></g>
+              <g>{step >= 4 && step <= 5 && <rect x="8" y="78" width="154" height="22" rx="3" fill="rgba(220, 38, 38, 0.25)" stroke="#DC2626" strokeWidth="1.5" />}<circle cx="20" cy="90" r="5" fill="#DC2626" /><text x="32" y="94" fill={step >= 4 ? "#F3F4F6" : "#6B7280"} fontSize="12" fontWeight={step >= 4 && step <= 5 ? "600" : "400"}>{scenario.potsToBarley}</text></g>
+            </g>
+            {/* Profit box */}
+            {isComplete && (
+              <g transform="translate(20, 310)">
+                <rect x="0" y="0" width="175" height="65" rx="6" fill={scenario.profit > 0 ? "rgba(34, 197, 94, 0.15)" : "rgba(107, 114, 128, 0.15)"} stroke={profitColor} strokeWidth="2">{scenario.profit > 0 && <animate attributeName="stroke-opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite" />}</rect>
+                <text x="87" y="24" fill={profitColor} fontSize="13" fontWeight="600" textAnchor="middle" fontFamily="'Playfair Display', serif">{scenario.profit > 0 ? (scenario.profit === 4 ? 'FREE PROFIT!' : 'REDUCED PROFIT') : 'NO PROFIT'}</text>
+                <text x="87" y="48" fill={scenario.profit > 0 ? "#86EFAC" : "#6B7280"} fontSize="17" fontWeight="bold" textAnchor="middle">+{scenario.profit} Barley ({scenario.percent}%)</text>
+              </g>
+            )}
+            <text x="325" y="385" fill="#9CA3AF" fontSize="11" textAnchor="middle" fontFamily="'Source Sans Pro', sans-serif">{isComplete ? 'Click to continue • Drag to rotate' : 'Click to continue • Drag to rotate'}</text>
+          </svg>
+        );
+      };
+
+      // Explanation Screen Component
+      const ExplanationScreen = ({ title, subtitle, paragraphs, highlightBox }) => (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '650px', textAlign: 'center' }}>
+          <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.75rem', color: '#F3F4F6', marginBottom: '0.5rem' }}>{title}</h1>
+          {subtitle && <p style={{ fontFamily: "'Source Sans Pro', sans-serif", fontSize: '1rem', color: '#9CA3AF', marginBottom: '1.5rem' }}>{subtitle}</p>}
+          <div style={{ background: 'rgba(30, 41, 59, 0.8)', border: '1px solid #334155', borderRadius: '12px', padding: '2rem', marginBottom: '1.5rem', textAlign: 'left' }}>
+            {paragraphs.map((p, i) => (
+              <p key={i} style={{ fontFamily: "'Source Sans Pro', sans-serif", fontSize: '1.1rem', color: '#E2E8F0', marginBottom: i < paragraphs.length - 1 ? '1rem' : 0, lineHeight: 1.6 }}>{p}</p>
+            ))}
+          </div>
+          {highlightBox && (
+            <div style={{ background: highlightBox.bgColor, border: `2px solid ${highlightBox.borderColor}`, borderRadius: '8px', padding: '1rem 1.5rem', marginBottom: '1rem' }}>
+              <p style={{ fontFamily: "'Source Sans Pro', sans-serif", fontSize: '1.1rem', color: highlightBox.textColor, margin: 0, fontWeight: '600' }}>{highlightBox.text}</p>
+            </div>
+          )}
+        </div>
+      );
+
+      const getMessage = () => {
+        if (phase === 'trade1') {
+          if (step === 0) return "Trade 1: You have 12 barley. Click to see what you could trade for.";
+          if (step === 1) return "At a rate of 2 Barley = 1 Wool, your 12 barley could get you up to 6 wool. Click to make the trade.";
+          if (step === 2) return "Trading 12 barley for 6 wool...";
+          return "You now have 6 wool. Click to continue to Trade 2.";
+        }
+        if (phase === 'trade2') {
+          if (step === 0) return "Trade 2: You have 6 wool. Click to see what you could trade for.";
+          if (step === 1) return "At a rate of 3 Wool = 2 Pots, your 6 wool could get you up to 4 pots. Click to make the trade.";
+          if (step === 2) return "Trading 6 wool for 4 pots...";
+          return "You now have 4 pots. Click to continue to Trade 3.";
+        }
+        if (phase === 'trade3') {
+          if (step === 0) return "Trade 3: You have 4 pots. Click to see what you could trade for.";
+          if (step === 1) return "At a rate of 1 Pot = 4 Barley, your 4 pots could get you up to 16 barley. Click to make the trade.";
+          if (step === 2) return "Trading 4 pots for 16 barley...";
+          return "You have 16 barley — but you started with only 12! Click to see all three trades together.";
+        }
+        if (phase === 'original3d') {
+          if (step === 0) return "Now in 3D: Starting with 12 barley. Click to replay the trades.";
+          if (step === 1) return "Trading barley for wool...";
+          if (step === 2) return "At 6 wool. Click to continue.";
+          if (step === 3) return "Trading wool for pots...";
+          if (step === 4) return "At 4 pots. Click to continue.";
+          if (step === 5) return "Trading pots for barley...";
+          return "🎉 Each trade looked fair — but together they form a cycle that creates free profit!";
+        }
+        if (phase === 'reduced3d') {
+          if (step === 0) return "Same cycle, but with the new rate: 2 Pots = 7 Barley. Click to see what happens.";
+          if (step === 1) return "Trading barley for wool...";
+          if (step === 2) return "At 6 wool. Click to continue.";
+          if (step === 3) return "Trading wool for pots...";
+          if (step === 4) return "At 4 pots. Click to continue.";
+          if (step === 5) return "Trading pots for barley at the new rate...";
+          return "Profit reduced to just 2 barley. The pot seller's adjustment cut the arbitrage in half!";
+        }
+        if (phase === 'zero3d') {
+          if (step === 0) return "Final equilibrium: 1 Pot = 3 Barley. Click to see the result.";
+          if (step === 1) return "Trading barley for wool...";
+          if (step === 2) return "At 6 wool. Click to continue.";
+          if (step === 3) return "Trading wool for pots...";
+          if (step === 4) return "At 4 pots. Click to continue.";
+          if (step === 5) return "Trading pots for barley at equilibrium rate...";
+          return "You end with exactly 12 barley — right where you started. No arbitrage remains!";
+        }
+        return "";
+      };
+
+      const getTitle = () => {
+        if (phase === 'trade1') return "Trade 1: Barley → Wool";
+        if (phase === 'trade2') return "Trade 2: Wool → Pots";
+        if (phase === 'trade3') return "Trade 3: Pots → Barley";
+        if (phase === 'original3d') return step === 6 ? "The Arbitrage Revealed" : "The Complete Picture";
+        if (phase === 'reduced3d') return step === 6 ? "Reduced Arbitrage" : "Adjusted Rates";
+        if (phase === 'zero3d') return step === 6 ? "No Arbitrage" : "Equilibrium Rates";
+        return "";
+      };
+
+      const getPhaseNumber = () => {
+        if (phase === 'trade1') return 1;
+        if (phase === 'trade2') return 2;
+        if (phase === 'trade3') return 3;
+        if (phase === 'original3d') return 4;
+        if (phase === 'whyAdjust') return 5;
+        if (phase === 'reduced3d') return 6;
+        if (phase === 'continues') return 7;
+        if (phase === 'zero3d') return 8;
+        return 1;
+      };
+
+      const getButtonText = () => {
+        if (phase === 'whyAdjust' || phase === 'continues') return "Continue →";
+        if (phase === 'zero3d' && step === 6) return "Start Over";
+        if (phase.includes('3d') && step === 6) return "Continue →";
+        if (phase.startsWith('trade')) {
+          if (step === 0) return "Show Opportunity";
+          if (step === 1) return "Make Trade";
+          return "Continue →";
+        }
+        return "Continue →";
+      };
+
+      const isAnimating = animPhase !== 'idle';
+      const canGoBack = getPhaseNumber() > 1 && !isAnimating;
+      const showExplanation = phase === 'whyAdjust' || phase === 'continues';
+
+      return (
+        <div style={{ minHeight: '100vh', background: '#111827', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          {/* Progress indicator */}
+          <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem', alignItems: 'center' }}>
+            {[1,2,3,4,5,6,7,8].map((n) => (
+              <div key={n} style={{ width: n <= 4 ? '28px' : '20px', height: '8px', borderRadius: '4px', background: getPhaseNumber() >= n ? (n <= 4 ? '#3B82F6' : n <= 6 ? '#F59E0B' : '#22C55E') : '#334155', transition: 'all 0.3s' }} />
+            ))}
+          </div>
+
+          {!showExplanation && (
+            <>
+              <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '1.75rem', color: '#F3F4F6', marginBottom: '1rem' }}>{getTitle()}</h1>
+              
+              {/* Graph area */}
+              <div style={{ marginBottom: '1rem', height: '420px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {phase === 'trade1' && (
+                  <LargeGraph xLabel="Barley" yLabel="Wool" xColor="#F59E0B" yColor="#06B6D4" xMax={14} yMax={8}
+                    startPoint={{ x: 12, y: 0, color: '#F59E0B', label: '12 Barley' }}
+                    endPoint={{ x: 0, y: 6, color: '#06B6D4', label: '6 Wool' }}
+                    tradeLabel="2 Barley = 1 Wool" slopeLabel="1:2"
+                    showLine={step >= 1} lineProg={step === 1 ? lineProgress : 1}
+                    isTrading={step === 2} tradeProg={animProgress} isComplete={step === 3} />
+                )}
+                {phase === 'trade2' && (
+                  <LargeGraph xLabel="Wool" yLabel="Pots" xColor="#06B6D4" yColor="#DC2626" xMax={8} yMax={5}
+                    startPoint={{ x: 6, y: 0, color: '#06B6D4', label: '6 Wool' }}
+                    endPoint={{ x: 0, y: 4, color: '#DC2626', label: '4 Pots' }}
+                    tradeLabel="3 Wool = 2 Pots" slopeLabel="2:3"
+                    showLine={step >= 1} lineProg={step === 1 ? lineProgress : 1}
+                    isTrading={step === 2} tradeProg={animProgress} isComplete={step === 3} />
+                )}
+                {phase === 'trade3' && (
+                  <LargeGraph xLabel="Pots" yLabel="Barley" xColor="#DC2626" yColor="#F59E0B" xMax={5} yMax={20}
+                    startPoint={{ x: 4, y: 0, color: '#DC2626', label: '4 Pots' }}
+                    endPoint={{ x: 0, y: 16, color: '#22C55E', label: '16 Barley' }}
+                    tradeLabel="1 Pot = 4 Barley" slopeLabel="4:1"
+                    showLine={step >= 1} lineProg={step === 1 ? lineProgress : 1}
+                    isTrading={step === 2} tradeProg={animProgress} isComplete={step === 3} />
+                )}
+                {(phase === 'original3d' || phase === 'reduced3d' || phase === 'zero3d') && <Graph3D scenario={getScenario()} />}
+              </div>
+
+              {/* Message */}
+              <div style={{ padding: '1rem 1.5rem', background: (phase === 'original3d' && step === 6) ? 'rgba(34, 197, 94, 0.15)' : (phase === 'trade3' && step === 3) ? 'rgba(34, 197, 94, 0.1)' : 'rgba(30, 41, 59, 0.8)', border: `1px solid ${(phase === 'original3d' && step === 6) ? '#22C55E' : (phase === 'trade3' && step === 3) ? 'rgba(34, 197, 94, 0.5)' : '#334155'}`, borderRadius: '8px', maxWidth: '600px', textAlign: 'center', marginBottom: '1rem' }}>
+                <p style={{ fontFamily: "'Source Sans Pro', sans-serif", fontSize: '1.05rem', color: (phase === 'trade3' && step === 3) || (phase.includes('3d') && step === 6) ? '#86EFAC' : '#E2E8F0', margin: 0, lineHeight: 1.5 }}>{getMessage()}</p>
+              </div>
+            </>
+          )}
+
+          {phase === 'whyAdjust' && (
+            <ExplanationScreen
+              title="Why Prices Adjust"
+              subtitle="The pot seller realizes something is wrong..."
+              paragraphs={[
+                "The trader who exchanges pots for barley is giving away 4 barley for each pot. But look what's happening: someone keeps coming back, trading through the cycle, and walking away with free barley!",
+                "The pot seller is effectively subsidizing the arbitrageur's profit. Every time the cycle completes, the pot seller loses out.",
+                "Naturally, the pot seller decides to offer less barley per pot. Instead of 1 Pot = 4 Barley, they now offer:"
+              ]}
+              highlightBox={{ text: "New Rate: 2 Pots = 7 Barley", bgColor: 'rgba(245, 158, 11, 0.15)', borderColor: '#F59E0B', textColor: '#FCD34D' }}
+            />
+          )}
+
+          {phase === 'continues' && (
+            <ExplanationScreen
+              title="The Process Continues"
+              subtitle="As long as profit exists, pressure remains..."
+              paragraphs={[
+                "With the adjusted rate, the arbitrage profit dropped from 4 barley to 2 barley. But there's still free profit to be had!",
+                "The pot seller continues to lose value on every cycle. They have an incentive to keep adjusting their rate until no arbitrage profit remains.",
+                "This competitive pressure pushes prices toward equilibrium — the point where no trader can profit from cycling through the market."
+              ]}
+              highlightBox={{ text: "Equilibrium Rate: 1 Pot = 3 Barley", bgColor: 'rgba(107, 114, 128, 0.15)', borderColor: '#6B7280', textColor: '#9CA3AF' }}
+            />
+          )}
+
+          {/* Navigation buttons */}
+          <div style={{ display: 'flex', gap: '1rem', marginTop: showExplanation ? '1rem' : 0 }}>
+            {canGoBack && (
+              <button onClick={handleBack} style={{ padding: '0.75rem 1.5rem', background: 'transparent', border: '2px solid #4B5563', borderRadius: '8px', color: '#9CA3AF', fontSize: '1rem', fontFamily: "'Source Sans Pro', sans-serif", cursor: 'pointer', transition: 'all 0.2s' }}
+                onMouseEnter={(e) => { e.target.style.borderColor = '#6B7280'; e.target.style.color = '#E2E8F0'; }}
+                onMouseLeave={(e) => { e.target.style.borderColor = '#4B5563'; e.target.style.color = '#9CA3AF'; }}>
+                ← Back
+              </button>
+            )}
+            {!isAnimating && (
+              <button onClick={handleNext} style={{ padding: '0.75rem 1.5rem', background: (phase === 'zero3d' && step === 6) ? '#22C55E' : '#3B82F6', border: 'none', borderRadius: '8px', color: 'white', fontSize: '1rem', fontFamily: "'Source Sans Pro', sans-serif", fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s' }}
+                onMouseEnter={(e) => { e.target.style.background = (phase === 'zero3d' && step === 6) ? '#16A34A' : '#2563EB'; }}
+                onMouseLeave={(e) => { e.target.style.background = (phase === 'zero3d' && step === 6) ? '#22C55E' : '#3B82F6'; }}>
+                {getButtonText()}
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    ReactDOM.render(<ArbitrageFullExperience />, document.getElementById('root'));
+  </script>
+</body>
+</html>
